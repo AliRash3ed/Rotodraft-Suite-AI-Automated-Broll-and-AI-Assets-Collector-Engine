@@ -1,4 +1,5 @@
 import re
+import random
 import urllib.parse
 import httpx
 from typing import Dict, Any, Optional, List
@@ -27,11 +28,12 @@ class StockSearcher:
         page: int = 1
     ) -> Dict[str, Any]:
         """
-        Unified enterprise multi-tier stock searcher:
+        Unified enterprise multi-tier media sourcing engine:
         1. Pexels Video API (1080p/4K filtered by aspect ratio)
         2. Pixabay Video API
-        3. Production Playwright Pinterest Video Scraper
-        4. 4K High-Res Ken Burns Pan & Zoom Fallback
+        3. Playwright Pinterest Video Scraper
+        4. High-Res Stock Photography
+        5. 100% Free AI Image Generation (Pollinations / Flux Engine) with 60fps Ken Burns Motion
         """
         orientation = Config.RESOLUTIONS.get(aspect_ratio, {}).get("orientation", "landscape")
         
@@ -58,20 +60,13 @@ class StockSearcher:
         if res:
             return res
 
-        # 4. Fallback to 4K Stock Image (for Ken Burns 3.0s Cinematic Motion Generator)
+        # 4. Try Stock Image
         img_res = await self._search_stock_image(keyword, fallback_keyword, orientation)
         if img_res:
             return img_res
 
-        # 5. Fallback video
-        return {
-            "provider": "sample_fallback",
-            "url": "https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-34388-large.mp4",
-            "is_image": False,
-            "width": 1920,
-            "height": 1080,
-            "keyword": keyword
-        }
+        # 5. Free AI Image Generator (Pollinations Flux AI Engine)
+        return self._generate_ai_image_fallback(keyword, aspect_ratio)
 
     async def _search_pexels_video(self, query: str, orientation: str, quality: str, page: int = 1) -> Optional[Dict[str, Any]]:
         url = f"https://api.pexels.com/videos/search?query={urllib.parse.quote(query)}&orientation={orientation}&per_page=5&page={page}"
@@ -164,13 +159,24 @@ class StockSearcher:
                             }
             except Exception:
                 pass
+        return None
 
-        unsplash_url = f"https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80"
+    def _generate_ai_image_fallback(self, query: str, aspect_ratio: str) -> Dict[str, Any]:
+        """Free AI Image Generator (Pollinations Flux Engine) with Ken Burns motion."""
+        clean_kw = re.sub(r'[^a-zA-Z0-9\s]', '', query).strip() or "cinematic futuristic visual"
+        prompt = f"8k cinematic photorealistic master shot of {clean_kw}, octane render, dramatic volumetric lighting, highly detailed"
+        
+        w, h = (1920, 1080) if aspect_ratio == "16:9" else ((1080, 1920) if aspect_ratio == "9:16" else (1080, 1080))
+        seed = random.randint(1000, 999999)
+        encoded_prompt = urllib.parse.quote(prompt)
+        ai_url = f"https://image.pollinations.ai/prompt/{encoded_prompt}?width={w}&height={h}&nologo=true&seed={seed}"
+
         return {
-            "provider": "unsplash_image_kenburns",
-            "url": unsplash_url,
+            "provider": "pollinations_ai_flux_kenburns",
+            "url": ai_url,
             "is_image": True,
-            "width": 1920,
-            "height": 1080,
-            "keyword": query
+            "width": w,
+            "height": h,
+            "keyword": query,
+            "author": "Pollinations Flux AI"
         }
