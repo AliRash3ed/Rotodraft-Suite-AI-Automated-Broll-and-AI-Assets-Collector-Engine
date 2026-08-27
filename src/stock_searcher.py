@@ -3,6 +3,7 @@ import urllib.parse
 import httpx
 from typing import Dict, Any, Optional, List
 from src.config import Config
+from src.pinterest_scraper import PinterestScraper
 
 class StockSearcher:
     def __init__(
@@ -12,8 +13,9 @@ class StockSearcher:
     ):
         self.pexels_key = pexels_key or Config.PEXELS_API_KEY
         self.pixabay_key = pixabay_key or Config.PIXABAY_API_KEY
+        self.pinterest = PinterestScraper()
         self.headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36"
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
         }
 
     async def find_stock(
@@ -25,11 +27,11 @@ class StockSearcher:
         page: int = 1
     ) -> Dict[str, Any]:
         """
-        Unified multi-tier stock searcher with pagination / offset support:
-        1. Pexels Video API (filtered by aspect ratio)
+        Unified enterprise multi-tier stock searcher:
+        1. Pexels Video API (1080p/4K filtered by aspect ratio)
         2. Pixabay Video API
-        3. Pinterest Scraper
-        4. High-Res Image (for 3.0s Ken Burns Pan & Zoom fallback)
+        3. Production Playwright Pinterest Video Scraper
+        4. 4K High-Res Ken Burns Pan & Zoom Fallback
         """
         orientation = Config.RESOLUTIONS.get(aspect_ratio, {}).get("orientation", "landscape")
         
@@ -49,19 +51,19 @@ class StockSearcher:
             if res:
                 return res
 
-        # 3. Try Pinterest Video Scraper
-        res = await self._scrape_pinterest_video(keyword)
+        # 3. Try Production Playwright Pinterest Scraper
+        res = await self.pinterest.scrape_video(keyword)
         if not res and fallback_keyword:
-            res = await self._scrape_pinterest_video(fallback_keyword)
+            res = await self.pinterest.scrape_video(fallback_keyword)
         if res:
             return res
 
-        # 4. Fallback to 4K Stock Image (for Ken Burns 3s Video Generator)
+        # 4. Fallback to 4K Stock Image (for Ken Burns 3.0s Cinematic Motion Generator)
         img_res = await self._search_stock_image(keyword, fallback_keyword, orientation)
         if img_res:
             return img_res
 
-        # 5. Public Fallback Video
+        # 5. Fallback video
         return {
             "provider": "sample_fallback",
             "url": "https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-34388-large.mp4",
@@ -85,7 +87,6 @@ class StockSearcher:
                 if not videos:
                     return None
                 
-                # Pick the matching video file
                 video = videos[0] if len(videos) > 0 else None
                 if not video:
                     return None
@@ -139,29 +140,6 @@ class StockSearcher:
         except Exception as e:
             print(f"[WARN] Pixabay search error: {e}")
             return None
-
-    async def _scrape_pinterest_video(self, query: str) -> Optional[Dict[str, Any]]:
-        url = f"https://www.pinterest.com/search/pins/?q={urllib.parse.quote(query + ' video 4k aesthetic')}&rs=typed"
-        try:
-            async with httpx.AsyncClient(timeout=8.0, follow_redirects=True) as client:
-                resp = await client.get(url, headers=self.headers)
-                if resp.status_code != 200:
-                    return None
-                
-                mp4_matches = re.findall(r'https://v1\.pinimg\.com/videos/mc/[^\"]+\.mp4', resp.text)
-                if mp4_matches:
-                    return {
-                        "provider": "pinterest",
-                        "url": mp4_matches[0],
-                        "is_image": False,
-                        "width": 1080,
-                        "height": 1920,
-                        "keyword": query,
-                        "author": "Pinterest Creator"
-                    }
-        except Exception as e:
-            print(f"[WARN] Pinterest scraper error: {e}")
-        return None
 
     async def _search_stock_image(self, query: str, fallback_query: str, orientation: str) -> Optional[Dict[str, Any]]:
         if self.pexels_key:
