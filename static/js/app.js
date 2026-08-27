@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & STREAMING ENGINE
+   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,6 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const wordCountBadge = document.getElementById("wordCountBadge");
   const modeSelect = document.getElementById("modeSelect");
   const voiceGroup = document.getElementById("voiceGroup");
+  const qualitySelect = document.getElementById("qualitySelect");
+  const moodSelect = document.getElementById("moodSelect");
+  const projectNameInput = document.getElementById("projectNameInput");
   const submitBtn = document.getElementById("submitBtn");
   
   // Progress & Terminal
@@ -26,11 +29,32 @@ document.addEventListener("DOMContentLoaded", () => {
   const openFolderBtn = document.getElementById("openFolderBtn");
   const downloadXmlBtn = document.getElementById("downloadXmlBtn");
 
+  // Audio Upload
+  const audioDropzone = document.getElementById("audioDropzone");
+  const audioFileInput = document.getElementById("audioFileInput");
+  const audioUploadStatus = document.getElementById("audioUploadStatus");
+  let customAudioPath = null;
+
+  // Tabs & Views
+  const studioView = document.getElementById("studioView");
+  const vaultView = document.getElementById("vaultView");
+  const tabStudioBtn = document.getElementById("tabStudioBtn");
+  const tabVaultBtn = document.getElementById("tabVaultBtn");
+  const vaultTableBody = document.getElementById("vaultTableBody");
+
   // Modals & Settings
   const settingsModal = document.getElementById("settingsModal");
   const openSettingsBtn = document.getElementById("openSettingsBtn");
   const closeSettingsBtn = document.getElementById("closeSettingsBtn");
   const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+  // Swap Clip Modal
+  const swapModal = document.getElementById("swapModal");
+  const closeSwapBtn = document.getElementById("closeSwapBtn");
+  const swapForm = document.getElementById("swapForm");
+  const swapClipIndexInput = document.getElementById("swapClipIndexInput");
+  const swapKeywordInput = document.getElementById("swapKeywordInput");
+  const swapPageInput = document.getElementById("swapPageInput");
 
   let currentProjectId = null;
   let currentProjectDir = null;
@@ -53,6 +77,72 @@ document.addEventListener("DOMContentLoaded", () => {
     themeToggleBtn.textContent = theme === "dark" ? "☀️ LIGHT" : "🌙 DARK";
   }
 
+  // Tab Switcher
+  tabStudioBtn.addEventListener("click", () => {
+    tabStudioBtn.classList.add("active");
+    tabVaultBtn.classList.remove("active");
+    studioView.style.display = "flex";
+    vaultView.style.display = "none";
+  });
+
+  tabVaultBtn.addEventListener("click", () => {
+    tabVaultBtn.classList.add("active");
+    tabStudioBtn.classList.remove("active");
+    studioView.style.display = "none";
+    vaultView.style.display = "flex";
+    loadProjectVault();
+  });
+
+  // Template Quick-Select Chips
+  document.querySelectorAll(".chip-btn").forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const tId = chip.getAttribute("data-template-id");
+      fetch("/api/templates")
+        .then((r) => r.json())
+        .then((data) => {
+          const t = data.templates.find((x) => x.id === tId);
+          if (t) {
+            scriptInput.value = t.script;
+            durationInput.value = t.duration;
+            clipDurationInput.value = t.clip_len.toFixed(1);
+            moodSelect.value = t.mood;
+            const ratioRadio = document.querySelector(`input[name="aspect_ratio"][value="${t.ratio}"]`);
+            if (ratioRadio) ratioRadio.checked = true;
+            projectNameInput.value = `Demo_${t.id}`;
+            updateCalculation();
+            logTerminal(`✨ Loaded preset template: '${t.title}'`);
+          }
+        });
+    });
+  });
+
+  // Custom Audio File Upload
+  audioDropzone.addEventListener("click", () => audioFileInput.click());
+  audioFileInput.addEventListener("change", async () => {
+    const file = audioFileInput.files[0];
+    if (!file) return;
+
+    audioUploadStatus.textContent = `⏳ Uploading & measuring ${file.name}...`;
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      const resp = await fetch("/api/upload-audio", { method: "POST", body: formData });
+      const data = await resp.json();
+      if (data.success) {
+        customAudioPath = data.file_path;
+        durationInput.value = data.duration;
+        audioUploadStatus.textContent = `✅ Attached: ${data.filename} (${data.duration}s)`;
+        updateCalculation();
+        logTerminal(`🎙️ Custom Audio Attached: ${data.filename} -> ${data.duration}s duration detected`);
+      } else {
+        audioUploadStatus.textContent = "❌ Failed to read audio duration";
+      }
+    } catch (e) {
+      audioUploadStatus.textContent = `❌ Upload error: ${e.message}`;
+    }
+  });
+
   // Live Time Parsing & Calculation Helper
   function parseDurationInput(val) {
     val = (val || "").trim();
@@ -73,7 +163,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let dur = parseDurationInput(durationInput.value);
     const clipDur = parseFloat(clipDurationInput.value) || 3.0;
 
-    // Estimate duration from word count if empty (avg ~140 wpm = ~2.3 words/sec)
     if (dur <= 0 && words > 0) {
       dur = Math.round(words / 2.3);
     }
@@ -86,7 +175,6 @@ document.addEventListener("DOMContentLoaded", () => {
   durationInput.addEventListener("input", updateCalculation);
   clipDurationInput.addEventListener("change", updateCalculation);
 
-  // Mode Selection Toggle
   modeSelect.addEventListener("change", () => {
     const mode = modeSelect.value;
     if (mode === "stock_only") {
@@ -101,7 +189,10 @@ document.addEventListener("DOMContentLoaded", () => {
   closeSettingsBtn.addEventListener("click", () => settingsModal.classList.remove("active"));
   window.addEventListener("click", (e) => {
     if (e.target === settingsModal) settingsModal.classList.remove("active");
+    if (e.target === swapModal) swapModal.classList.remove("active");
   });
+
+  closeSwapBtn.addEventListener("click", () => swapModal.classList.remove("active"));
 
   // API Key Tester
   document.querySelectorAll(".test-key-btn").forEach((btn) => {
@@ -170,10 +261,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const clipDuration = parseFloat(clipDurationInput.value) || 3.0;
     const mode = modeSelect.value;
     const aspect_ratio = document.querySelector('input[name="aspect_ratio"]:checked')?.value || "16:9";
-    const quality = document.getElementById("qualitySelect").value;
+    const quality = qualitySelect.value;
     const voice = document.getElementById("voiceSelect").value;
-    const mood = document.getElementById("moodSelect").value;
-    const projectName = (document.getElementById("projectNameInput").value || "RotoDraft_Project").trim();
+    const mood = moodSelect.value;
+    const projectName = (projectNameInput.value || "RotoDraft_Project").trim();
 
     // BYOK Keys
     const openrouter_key = document.getElementById("openrouterKeyInput")?.value || "";
@@ -202,6 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
       voice,
       mood,
       project_name: projectName,
+      custom_audio_path: customAudioPath,
       openrouter_key,
       openrouter_model,
       pexels_key,
@@ -225,7 +317,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         buffer += decoder.decode(value, { stream: true });
         const events = buffer.split("\n\n");
-        buffer = events.pop(); // Keep incomplete chunk
+        buffer = events.pop();
 
         for (const eventBlock of events) {
           const trimmed = eventBlock.trim();
@@ -233,7 +325,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
           try {
             const data = JSON.parse(trimmed.replace(/^data:\s*/, ""));
-            handleStreamEvent(data, aspect_ratio);
+            handleStreamEvent(data, aspect_ratio, clipDuration, quality);
           } catch (jsonErr) {
             console.error("JSON parse error on SSE:", jsonErr);
           }
@@ -248,7 +340,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  function handleStreamEvent(data, aspect_ratio) {
+  function handleStreamEvent(data, aspect_ratio, clipDuration, quality) {
     if (data.type === "log") {
       logTerminal(data.message);
       if (data.progress !== undefined) {
@@ -256,20 +348,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     } else if (data.type === "clip_ready") {
       const clip = data.clip;
-      const card = document.createElement("div");
-      card.className = "clip-card";
-      const isVertical = aspect_ratio === "9:16";
-
-      card.innerHTML = `
-        <div class="clip-preview ${isVertical ? 'vertical' : ''}">
-          <video src="${clip.url}" controls preload="metadata" loop></video>
-        </div>
-        <div class="clip-info">
-          <div class="clip-tag">#${clip.index} • [${clip.time_start}s - ${clip.time_end}s] • ${clip.provider}</div>
-          <div class="clip-kw" title="${clip.keyword}">${clip.keyword}</div>
-        </div>
-      `;
-      clipsGrid.appendChild(card);
+      renderClipCard(clip, aspect_ratio, clipDuration, quality);
       logTerminal(`✨ Clip #${clip.index} ready: ${clip.filename}`);
     } else if (data.type === "done") {
       setProgress(100, "COMPLETED");
@@ -279,17 +358,167 @@ document.addEventListener("DOMContentLoaded", () => {
       currentProjectDir = data.project_dir;
       currentXmlUrl = data.xml_url;
 
-      // Master Video Player
       if (data.master_url) {
         masterVideo.src = data.master_url;
         masterContainer.style.display = "flex";
       }
 
-      // Show Export Actions
       exportActions.style.display = "flex";
     } else if (data.type === "error") {
       logTerminal(`ERROR: ${data.message}`, "error");
       setProgress(0, "ERROR OCCURRED");
+    }
+  }
+
+  function renderClipCard(clip, aspect_ratio, clipDuration, quality) {
+    const card = document.createElement("div");
+    card.className = "clip-card";
+    card.id = `clip-card-${clip.index}`;
+    const isVertical = aspect_ratio === "9:16";
+
+    card.innerHTML = `
+      <div class="clip-preview ${isVertical ? 'vertical' : ''}">
+        <video src="${clip.url}" controls preload="metadata" loop onmouseenter="this.play()" onmouseleave="this.pause()"></video>
+      </div>
+      <div class="clip-info">
+        <div class="clip-tag">#${clip.index} • [${clip.time_start}s - ${clip.time_end}s] • ${clip.provider}</div>
+        <div class="clip-kw" title="${clip.keyword}">${clip.keyword}</div>
+        <div class="clip-actions">
+          <button type="button" class="btn btn-dark btn-sm swap-clip-btn" data-index="${clip.index}" data-kw="${clip.keyword}" title="Swap with next stock result or custom query">
+            🔄 SWAP
+          </button>
+          <a href="${clip.url}" download="${clip.filename}" class="btn btn-yellow btn-sm" title="Download Clip MP4">
+            ⬇️ MP4
+          </a>
+          <button type="button" class="btn btn-cyan btn-sm copy-path-btn" data-path="${clip.path}" title="Copy Path">
+            📋 PATH
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Swap button event
+    card.querySelector(".swap-clip-btn").addEventListener("click", () => {
+      swapClipIndexInput.value = clip.index;
+      swapKeywordInput.value = clip.keyword;
+      swapPageInput.value = "2";
+      swapModal.classList.add("active");
+    });
+
+    // Copy path button event
+    card.querySelector(".copy-path-btn").addEventListener("click", (e) => {
+      navigator.clipboard.writeText(clip.path);
+      e.target.textContent = "COPIED!";
+      setTimeout(() => (e.target.textContent = "📋 PATH"), 1500);
+    });
+
+    clipsGrid.appendChild(card);
+  }
+
+  // Swap Clip Form Handler
+  swapForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const clipIndex = parseInt(swapClipIndexInput.value, 10);
+    const newKw = swapKeywordInput.value.trim();
+    const page = parseInt(swapPageInput.value, 10) || 2;
+    const aspect_ratio = document.querySelector('input[name="aspect_ratio"]:checked')?.value || "16:9";
+    const quality = qualitySelect.value;
+    const clipDuration = parseFloat(clipDurationInput.value) || 3.0;
+
+    if (!currentProjectId) {
+      alert("No active project ID found.");
+      return;
+    }
+
+    swapModal.classList.remove("active");
+    logTerminal(`🔄 Swapping Clip #${clipIndex} with query: '${newKw}' (Page ${page})...`);
+
+    try {
+      const resp = await fetch("/api/regenerate-clip", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: currentProjectId,
+          clip_index: clipIndex,
+          keyword: newKw,
+          aspect_ratio,
+          quality,
+          duration: clipDuration,
+          page
+        })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        logTerminal(`✅ Clip #${clipIndex} replaced successfully with: ${data.filename}`);
+        const card = document.getElementById(`clip-card-${clipIndex}`);
+        if (card) {
+          const video = card.querySelector("video");
+          video.src = `${data.url}?t=${Date.now()}`;
+          card.querySelector(".clip-kw").textContent = data.keyword;
+        }
+      } else {
+        logTerminal(`❌ Failed to swap clip: ${data.message}`, "error");
+      }
+    } catch (err) {
+      logTerminal(`❌ Swap error: ${err.message}`, "error");
+    }
+  });
+
+  // Project Vault Loader
+  async function loadProjectVault() {
+    vaultTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; font-family:var(--font-mono);">Loading past projects...</td></tr>`;
+    try {
+      const resp = await fetch("/api/projects");
+      const data = await resp.json();
+      const projects = data.projects || [];
+      if (projects.length === 0) {
+        vaultTableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; font-family:var(--font-mono); color:var(--text-muted);">No past projects found in downloads directory.</td></tr>`;
+        return;
+      }
+
+      vaultTableBody.innerHTML = "";
+      projects.forEach((p) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight:800;">${p.name}</td>
+          <td class="mono">${p.created}</td>
+          <td class="mono">${p.clip_count} clips (${p.duration}s)</td>
+          <td class="mono">${p.aspect_ratio}</td>
+          <td>
+            ${p.has_master ? `<a href="${p.master_url}" target="_blank" class="btn btn-yellow btn-sm">▶️ PLAY MASTER</a>` : `<span style="color:var(--text-muted); font-size:11px;">Clips only</span>`}
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn btn-lime btn-sm vault-open-btn" data-path="${p.path}">📁 EXPLORER</button>
+              <a href="/api/download-zip/${p.id}" class="btn btn-cyan btn-sm">📦 ZIP</a>
+              <button type="button" class="btn btn-pink btn-sm vault-del-btn" data-id="${p.id}">🗑️</button>
+            </div>
+          </td>
+        `;
+
+        tr.querySelector(".vault-open-btn").addEventListener("click", () => {
+          fetch("/api/open-folder", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ path: p.path })
+          });
+        });
+
+        tr.querySelector(".vault-del-btn").addEventListener("click", async () => {
+          if (confirm(`Delete project '${p.name}'?`)) {
+            await fetch("/api/delete-project", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ project_id: p.id })
+            });
+            loadProjectVault();
+          }
+        });
+
+        vaultTableBody.appendChild(tr);
+      });
+    } catch (e) {
+      vaultTableBody.innerHTML = `<tr><td colspan="6" style="color:#FF3366;">Error loading vault: ${e.message}</td></tr>`;
     }
   }
 
