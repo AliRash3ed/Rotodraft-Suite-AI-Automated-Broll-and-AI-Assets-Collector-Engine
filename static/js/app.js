@@ -813,6 +813,8 @@ document.addEventListener("DOMContentLoaded", () => {
       voice_rate,
       voice_pitch,
       bgm_track: document.getElementById("bgmSelect")?.value || "none",
+      color_filter: document.getElementById("colorFilterSelect")?.value || "natural",
+      subtitle_style: document.getElementById("subtitleStyleSelect")?.value || "hormozi",
       mood,
       project_name: projectName,
       custom_audio_path: customAudioPath,
@@ -1234,6 +1236,145 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentXmlUrl) return;
     window.location.href = currentXmlUrl;
   });
+
+  // Batch Factory Modal Handlers
+  const openBatchModalBtn = document.getElementById("openBatchModalBtn");
+  const closeBatchBtn = document.getElementById("closeBatchBtn");
+  const batchModal = document.getElementById("batchModal");
+  const startBatchBtn = document.getElementById("startBatchBtn");
+  const batchTopicsInput = document.getElementById("batchTopicsInput");
+  const batchRatioSelect = document.getElementById("batchRatioSelect");
+  const batchStyleSelect = document.getElementById("batchStyleSelect");
+  const batchStatusBox = document.getElementById("batchStatusBox");
+  const batchProgressLabel = document.getElementById("batchProgressLabel");
+  const batchItemsList = document.getElementById("batchItemsList");
+
+  if (openBatchModalBtn && batchModal) {
+    openBatchModalBtn.addEventListener("click", () => batchModal.classList.add("active"));
+    closeBatchBtn.addEventListener("click", () => batchModal.classList.remove("active"));
+    window.addEventListener("click", (e) => {
+      if (e.target === batchModal) batchModal.classList.remove("active");
+    });
+
+    startBatchBtn.addEventListener("click", async () => {
+      const rawTopics = (batchTopicsInput.value || "").trim();
+      const topics = rawTopics.split("\n").map(t => t.trim()).filter(t => t.length > 0);
+      if (topics.length === 0) {
+        alert("Please enter at least 1 video topic or title.");
+        return;
+      }
+
+      startBatchBtn.disabled = true;
+      startBatchBtn.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> QUEUEING BATCH RUN...`;
+      batchStatusBox.style.display = "block";
+      batchItemsList.innerHTML = topics.map((t, idx) => `
+        <div id="batchItem_${idx}" style="padding:6px 8px; background:var(--bg-secondary); border:1px solid var(--border); border-radius:3px;">
+          <strong>#${idx + 1}</strong>: ${t} <span style="color:var(--accent-yellow); float:right;">Queued</span>
+        </div>
+      `).join("");
+
+      try {
+        const resp = await fetch("/api/batch/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            topics,
+            aspect_ratio: batchRatioSelect.value,
+            voice: voiceSelect.value,
+            mood: moodSelect.value,
+            style: batchStyleSelect.value
+          })
+        });
+        const res = await resp.json();
+        if (res.success) {
+          const batchId = res.batch_id;
+          pollBatchProgress(batchId);
+        } else {
+          alert(`Batch submission error: ${res.detail || "Failed"}`);
+          startBatchBtn.disabled = false;
+        }
+      } catch (e) {
+        alert(`Error starting batch: ${e.message}`);
+        startBatchBtn.disabled = false;
+      }
+    });
+
+    async function pollBatchProgress(batchId) {
+      const interval = setInterval(async () => {
+        try {
+          const resp = await fetch(`/api/batch/status/${batchId}`);
+          if (!resp.ok) return;
+          const data = await resp.json();
+          batchProgressLabel.textContent = `${data.completed_items} / ${data.total_items} Completed`;
+
+          (data.items || []).forEach((item, idx) => {
+            const el = document.getElementById(`batchItem_${idx}`);
+            if (el) {
+              let badgeColor = "var(--accent-yellow)";
+              let statusText = item.status;
+              if (item.status === "completed") {
+                badgeColor = "var(--accent-lime)";
+                statusText = `✅ Done (${item.project_id})`;
+              } else if (item.status.startsWith("failed")) {
+                badgeColor = "var(--accent-magenta)";
+              }
+              el.innerHTML = `<strong>#${idx + 1}</strong>: ${item.topic} <span style="color:${badgeColor}; float:right;">${statusText}</span>`;
+            }
+          });
+
+          if (data.status === "completed") {
+            clearInterval(interval);
+            startBatchBtn.disabled = false;
+            startBatchBtn.innerHTML = `<svg class="icon"><use href="#icon-sparkles"/></svg> 🚀 START AUTONOMOUS BATCH GENERATION`;
+            logTerminal("🎉 Autonomous batch factory finished all queued video projects!");
+          }
+        } catch (err) {
+          console.error("Batch polling error:", err);
+        }
+      }, 2500);
+    }
+  }
+
+  // LocalStorage Auto-Save & Restore
+  const STORAGE_KEY = "rotodraft_suite_draft";
+  function saveDraft() {
+    const draft = {
+      script: scriptInput.value || "",
+      mode: modeSelect.value,
+      duration: durationInput.value,
+      clipDuration: clipDurationInput.value,
+      voice: voiceSelect.value,
+      voiceRate: voiceRateSelect.value,
+      bgm: document.getElementById("bgmSelect")?.value,
+      colorFilter: document.getElementById("colorFilterSelect")?.value,
+      subtitleStyle: document.getElementById("subtitleStyleSelect")?.value,
+      projectName: projectNameInput.value
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(draft));
+  }
+
+  function restoreDraft() {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
+      const d = JSON.parse(saved);
+      if (d.script && !scriptInput.value) scriptInput.value = d.script;
+      if (d.mode) modeSelect.value = d.mode;
+      if (d.duration) durationInput.value = d.duration;
+      if (d.clipDuration) clipDurationInput.value = d.clipDuration;
+      if (d.voice) voiceSelect.value = d.voice;
+      if (d.voiceRate) voiceRateSelect.value = d.voiceRate;
+      if (d.bgm && document.getElementById("bgmSelect")) document.getElementById("bgmSelect").value = d.bgm;
+      if (d.colorFilter && document.getElementById("colorFilterSelect")) document.getElementById("colorFilterSelect").value = d.colorFilter;
+      if (d.subtitleStyle && document.getElementById("subtitleStyleSelect")) document.getElementById("subtitleStyleSelect").value = d.subtitleStyle;
+      if (d.projectName) projectNameInput.value = d.projectName;
+      updateCalculation();
+    } catch (e) {}
+  }
+
+  scriptInput.addEventListener("input", saveDraft);
+  projectNameInput.addEventListener("input", saveDraft);
+  restoreDraft();
 
   // Initial Visibility Setup
   updateModeVisibility();
