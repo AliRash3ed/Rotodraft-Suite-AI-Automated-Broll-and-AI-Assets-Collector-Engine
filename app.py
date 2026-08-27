@@ -26,8 +26,10 @@ from src.ai_engine import AIEngine
 from src.voices_catalog import VoiceCatalog
 from src.lead_manager import LeadManager
 from src.bgm_engine import BGMEngine
+from src.batch_engine import BatchEngine
+from src.subtitle_engine import SubtitleEngine
 
-app = FastAPI(title="RotoDraft Suite", version="2.3.0")
+app = FastAPI(title="RotoDraft Suite", version="2.4.0")
 
 # Mount static and templates
 app.mount("/static", StaticFiles(directory=str(Config.ROOT_DIR / "static")), name="static")
@@ -48,12 +50,21 @@ class GenerateRequest(BaseModel):
     mood: str = "Cinematic"
     project_name: Optional[str] = "My_Video_Project"
     custom_audio_path: Optional[str] = None
+    color_filter: Optional[str] = "natural"
+    subtitle_style: Optional[str] = "hormozi"
     # Optional Custom BYOK Keys
     openrouter_key: Optional[str] = None
     openrouter_model: Optional[str] = None
     cohere_key: Optional[str] = None
     pexels_key: Optional[str] = None
     pixabay_key: Optional[str] = None
+
+class BatchSubmitRequest(BaseModel):
+    topics: List[str]
+    aspect_ratio: str = "9:16"
+    voice: str = "en-US-ChristopherNeural"
+    mood: str = "Cinematic"
+    style: str = "viral_hook"
 
 class RegenerateClipRequest(BaseModel):
     project_id: str
@@ -172,7 +183,7 @@ async def serve_dashboard(request: Request):
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.3.0"}
+    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.4.0"}
 
 @app.get("/api/templates")
 async def get_templates():
@@ -213,6 +224,29 @@ async def voice_preview(req: VoicePreviewRequest):
         "audio_url": f"/api/media/_voice_previews/{out_path.name}?t={int(datetime.now().timestamp())}",
         "duration": res.get("duration", 2.0)
     }
+
+@app.post("/api/batch/submit")
+async def submit_batch(req: BatchSubmitRequest):
+    """Starts a multi-video factory run for a batch of topics."""
+    cleaned_topics = [t.strip() for t in req.topics if t.strip()]
+    if not cleaned_topics:
+        raise HTTPException(status_code=400, detail="No valid topics provided")
+
+    batch_id = await BatchEngine.start_batch(
+        topics=cleaned_topics,
+        aspect_ratio=req.aspect_ratio,
+        voice=req.voice,
+        mood=req.mood,
+        style=req.style
+    )
+    return {"success": True, "batch_id": batch_id, "total_topics": len(cleaned_topics)}
+
+@app.get("/api/batch/status/{batch_id}")
+async def get_batch_status(batch_id: str):
+    data = BatchEngine.get_batch_status(batch_id)
+    if not data:
+        raise HTTPException(status_code=404, detail="Batch not found")
+    return data
 
 @app.post("/api/rewrite-script")
 async def rewrite_script(req: RewriteScriptRequest):
@@ -497,7 +531,6 @@ async def stream_generation(req: GenerateRequest):
         pixabay_key=req.pixabay_key
     )
 
-    # Record analytics event
     lead_mgr.record_video_generation(
         project_name=req.project_name or "Project",
         mode=req.mode,
