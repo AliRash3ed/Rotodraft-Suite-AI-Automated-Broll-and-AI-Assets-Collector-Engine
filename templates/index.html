@@ -24,221 +24,284 @@
       </div>
     </div>
 
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+      <button type="button" class="tab-btn active" id="tabStudioBtn">🎬 STUDIO GENERATOR</button>
+      <button type="button" class="tab-btn" id="tabVaultBtn">📁 PROJECT HISTORY VAULT</button>
+    </div>
+
     <div class="header-actions">
       <button type="button" class="btn btn-dark btn-sm" id="themeToggleBtn">☀️ LIGHT</button>
       <button type="button" class="btn btn-cyan btn-sm" id="openSettingsBtn">⚙️ API KEYS & MODELS</button>
     </div>
   </header>
 
-  <!-- Main Bento Grid Form -->
-  <form id="generateForm" class="bento-grid">
+  <!-- STUDIO VIEW -->
+  <div id="studioView" style="display: flex; flex-direction: column; gap: 24px;">
     
-    <!-- Script & Narrative Input (Col-8) -->
-    <div class="card col-8">
-      <div class="card-header">
-        <h2 class="card-title">📝 1. SCRIPT & NARRATIVE TIMING</h2>
-        <span class="card-badge" id="wordCountBadge">0 WORDS</span>
-      </div>
+    <!-- Template Chips Bar -->
+    <div class="template-bar">
+      <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 900; color: var(--accent-yellow);">⚡ QUICK PRESETS:</span>
+      {% for t in templates %}
+        <button type="button" class="chip-btn" data-template-id="{{ t.id }}">{{ t.title }}</button>
+      {% endfor %}
+    </div>
 
-      <div class="form-group">
-        <label class="label" for="scriptInput">
-          <span>Voiceover Script Content</span>
-          <span style="color: var(--text-muted); font-size: 11px;">Paste YouTube / Shorts Script</span>
-        </label>
-        <textarea 
-          id="scriptInput" 
-          class="textarea" 
-          placeholder="Paste your voiceover script here... (e.g., In the heart of Wall Street, automated algorithms trade billions in milliseconds. As artificial intelligence advances, the financial markets are evolving faster than human traders can react...)"
-          required
-        ></textarea>
-      </div>
+    <!-- Main Bento Grid Form -->
+    <form id="generateForm" class="bento-grid">
+      
+      <!-- Script & Narrative Input (Col-8) -->
+      <div class="card col-8">
+        <div class="card-header">
+          <h2 class="card-title">📝 1. SCRIPT & NARRATIVE TIMING</h2>
+          <span class="card-badge" id="wordCountBadge">0 WORDS</span>
+        </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
         <div class="form-group">
-          <label class="label" for="durationInput">
-            <span>Voiceover Duration</span>
-            <span style="color: var(--text-muted); font-size: 11px;">Seconds or MM:SS (e.g. 1:30)</span>
+          <label class="label" for="scriptInput">
+            <span>Voiceover Script Content</span>
+            <span style="color: var(--text-muted); font-size: 11px;">Paste YouTube / Shorts / TikTok Script</span>
           </label>
-          <input 
-            type="text" 
-            id="durationInput" 
-            class="input mono" 
-            placeholder="e.g. 90 or 1:30" 
-            value="30"
-          >
+          <textarea 
+            id="scriptInput" 
+            class="textarea" 
+            placeholder="Paste your voiceover script here... (e.g. In the heart of Wall Street, automated algorithms trade billions in milliseconds...)"
+            required
+          ></textarea>
         </div>
 
+        <!-- Custom Audio Upload Dropzone -->
         <div class="form-group">
-          <label class="label" for="clipDurationInput">
-            <span>Retention Clip Cut Length</span>
-            <span style="color: var(--text-muted); font-size: 11px;">Standard: 3.0s</span>
+          <label class="label">
+            <span>Or Attach Recorded Voiceover (.MP3 / .WAV)</span>
+            <span id="audioUploadStatus" style="font-size: 11px; color: var(--accent-cyan);">Optional</span>
           </label>
-          <select id="clipDurationInput" class="select mono">
-            <option value="2.0">2.0 Seconds (Fast Paced / TikTok)</option>
-            <option value="3.0" selected>3.0 Seconds (Recommended Optimal)</option>
-            <option value="4.0">4.0 Seconds (Documentary)</option>
-            <option value="5.0">5.0 Seconds (Cinematic Slow)</option>
-          </select>
+          <input type="file" id="audioFileInput" accept=".mp3,.wav,.m4a,.aac" style="display: none;">
+          <div class="audio-dropzone" id="audioDropzone">
+            <span style="font-size: 20px;">🎙️</span>
+            <span style="font-weight: 800; font-size: 13px;">Click to drop or upload audio file</span>
+            <span style="font-size: 11px; color: var(--text-muted); font-family: var(--font-mono);">Auto-detects duration and syncs b-roll timeline</span>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="label" for="durationInput">
+              <span>Voiceover Duration</span>
+              <span style="color: var(--text-muted); font-size: 11px;">Seconds or MM:SS (e.g. 1:30)</span>
+            </label>
+            <input 
+              type="text" 
+              id="durationInput" 
+              class="input mono" 
+              placeholder="e.g. 90 or 1:30" 
+              value="30"
+            >
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="clipDurationInput">
+              <span>Retention Cut Interval</span>
+              <span style="color: var(--text-muted); font-size: 11px;">Standard: 3.0s</span>
+            </label>
+            <select id="clipDurationInput" class="select mono">
+              <option value="2.0">2.0 Seconds (Fast Paced / TikTok)</option>
+              <option value="3.0" selected>3.0 Seconds (Recommended Standard)</option>
+              <option value="4.0">4.0 Seconds (Documentary)</option>
+              <option value="5.0">5.0 Seconds (Cinematic Slow)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Dynamic Calculation Bar -->
+        <div style="background: var(--bg-secondary); border: 2px dashed var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 800;">⚡ PRODUCTION TIMELINE:</span>
+          <span class="mono" id="clipCalcBadge" style="color: var(--accent-pink); font-weight: 900; font-size: 13px;">30s TOTAL -> ~10 CLIPS (3.0s EACH)</span>
         </div>
       </div>
 
-      <!-- Real-Time Calculation Output -->
-      <div style="background: var(--bg-secondary); border: 2px dashed var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
-        <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 800;">⚡ PRODUCTION TIMELINE:</span>
-        <span class="mono" id="clipCalcBadge" style="color: var(--accent-pink); font-weight: 900; font-size: 13px;">30s TOTAL -> ~10 CLIPS (3.0s EACH)</span>
-      </div>
-    </div>
-
-    <!-- Production Settings (Col-4) -->
-    <div class="card col-4">
-      <div class="card-header">
-        <h2 class="card-title">🎛️ 2. FORMAT & SPECS</h2>
-        <span class="card-badge">SPECS</span>
-      </div>
-
-      <!-- Aspect Ratio Pills -->
-      <div class="form-group">
-        <label class="label">Aspect Ratio</label>
-        <div class="pill-grid">
-          <div class="pill-option">
-            <input type="radio" id="ratio169" name="aspect_ratio" value="16:9" checked>
-            <label for="ratio169" class="pill-label">
-              <span>🖥️ 16:9</span>
-              <span style="font-size: 10px; color: var(--text-muted);">YouTube</span>
-            </label>
-          </div>
-          <div class="pill-option">
-            <input type="radio" id="ratio916" name="aspect_ratio" value="9:16">
-            <label for="ratio916" class="pill-label">
-              <span>📱 9:16</span>
-              <span style="font-size: 10px; color: var(--text-muted);">Shorts/Reels</span>
-            </label>
-          </div>
-          <div class="pill-option">
-            <input type="radio" id="ratio11" name="aspect_ratio" value="1:1">
-            <label for="ratio11" class="pill-label">
-              <span>⏹️ 1:1</span>
-              <span style="font-size: 10px; color: var(--text-muted);">Square</span>
-            </label>
-          </div>
+      <!-- Production Settings (Col-4) -->
+      <div class="card col-4">
+        <div class="card-header">
+          <h2 class="card-title">🎛️ 2. FORMAT & SPECS</h2>
+          <span class="card-badge">SPECS</span>
         </div>
-      </div>
 
-      <!-- Operating Mode -->
-      <div class="form-group">
-        <label class="label" for="modeSelect">Workflow Mode</label>
-        <select id="modeSelect" class="select">
-          <option value="full" selected>🎬 Full Automation (Voiceover + B-Roll + Master Video)</option>
-          <option value="stock_only">🎞️ Stock B-Roll Clips Only (No Voiceover)</option>
-          <option value="voice_only">🎙️ AI Voiceover Only (Edge-TTS + Subtitles)</option>
-        </select>
-      </div>
-
-      <!-- Voiceover Voice Select -->
-      <div class="form-group" id="voiceGroup">
-        <label class="label" for="voiceSelect">
-          <span>Free AI Neural Voice</span>
-          <span style="color: var(--accent-lime); font-size: 11px;">100% FREE</span>
-        </label>
-        <select id="voiceSelect" class="select mono">
-          {% for v in voices %}
-            <option value="{{ v.id }}" {% if loop.first %}selected{% endif %}>{{ v.name }}</option>
-          {% endfor %}
-        </select>
-      </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <!-- Aspect Ratio Pills -->
         <div class="form-group">
-          <label class="label" for="qualitySelect">Resolution</label>
-          <select id="qualitySelect" class="select mono">
-            <option value="720p">720p HD</option>
-            <option value="1080p" selected>1080p FHD</option>
-            <option value="4K">4K UHD</option>
+          <label class="label">Aspect Ratio</label>
+          <div class="pill-grid">
+            <div class="pill-option">
+              <input type="radio" id="ratio169" name="aspect_ratio" value="16:9" checked>
+              <label for="ratio169" class="pill-label">
+                <span>🖥️ 16:9</span>
+                <span style="font-size: 10px; color: var(--text-muted);">YouTube</span>
+              </label>
+            </div>
+            <div class="pill-option">
+              <input type="radio" id="ratio916" name="aspect_ratio" value="9:16">
+              <label for="ratio916" class="pill-label">
+                <span>📱 9:16</span>
+                <span style="font-size: 10px; color: var(--text-muted);">Shorts/Reels</span>
+              </label>
+            </div>
+            <div class="pill-option">
+              <input type="radio" id="ratio11" name="aspect_ratio" value="1:1">
+              <label for="ratio11" class="pill-label">
+                <span>⏹️ 1:1</span>
+                <span style="font-size: 10px; color: var(--text-muted);">Square</span>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Operating Mode -->
+        <div class="form-group">
+          <label class="label" for="modeSelect">Workflow Mode</label>
+          <select id="modeSelect" class="select">
+            <option value="full" selected>🎬 Full Automation (Voiceover + B-Roll + Master Video)</option>
+            <option value="stock_only">🎞️ Stock B-Roll Clips Only (No Voiceover)</option>
+            <option value="voice_only">🎙️ AI Voiceover Only (Edge-TTS + Subtitles)</option>
           </select>
+        </div>
+
+        <!-- Voiceover Voice Select -->
+        <div class="form-group" id="voiceGroup">
+          <label class="label" for="voiceSelect">
+            <span>Free AI Neural Voice</span>
+            <span style="color: var(--accent-lime); font-size: 11px;">100% FREE</span>
+          </label>
+          <select id="voiceSelect" class="select mono">
+            {% for v in voices %}
+              <option value="{{ v.id }}" {% if loop.first %}selected{% endif %}>{{ v.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="label" for="qualitySelect">Resolution</label>
+            <select id="qualitySelect" class="select mono">
+              <option value="720p">720p HD</option>
+              <option value="1080p" selected>1080p FHD</option>
+              <option value="4K">4K UHD</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label class="label" for="moodSelect">Visual Mood</label>
+            <select id="moodSelect" class="select">
+              <option value="Cinematic" selected>Cinematic</option>
+              <option value="Cyberpunk / Tech">Cyberpunk / Tech</option>
+              <option value="Corporate / Clean">Corporate / Clean</option>
+              <option value="Documentary / Moody">Documentary</option>
+              <option value="Vibrant / Nature">Vibrant Nature</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group">
-          <label class="label" for="moodSelect">Visual Mood</label>
-          <select id="moodSelect" class="select">
-            <option value="Cinematic" selected>Cinematic</option>
-            <option value="Cyberpunk / Tech">Cyberpunk / Tech</option>
-            <option value="Corporate / Clean">Corporate / Clean</option>
-            <option value="Documentary / Moody">Documentary</option>
-            <option value="Vibrant / Nature">Vibrant Nature</option>
-          </select>
+          <label class="label" for="projectNameInput">Project Folder Name</label>
+          <input type="text" id="projectNameInput" class="input mono" placeholder="e.g. AI_Trading_Short" value="RotoDraft_Test">
         </div>
       </div>
 
-      <div class="form-group">
-        <label class="label" for="projectNameInput">Project Folder Name</label>
-        <input type="text" id="projectNameInput" class="input mono" placeholder="e.g. AI_Trading_Short" value="RotoDraft_Test">
+      <!-- Action Bar (Col-12) -->
+      <div class="col-12">
+        <button type="submit" id="submitBtn" class="btn btn-lg btn-yellow" style="width: 100%;">
+          🚀 GENERATE & COLLECT ASSETS
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Live Telemetry Section (Col-12) -->
+    <div class="bento-grid">
+      <div class="card col-12">
+        <div class="card-header">
+          <h2 class="card-title">📡 3. REALTIME PIPELINE TELEMETRY</h2>
+          <span class="card-badge">LIVE SSE STREAM</span>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar" id="progressBar"></div>
+          <div class="progress-text" id="progressText">0% READY</div>
+        </div>
+
+        <div class="terminal" id="terminal">
+          <div class="terminal-line info">[SYSTEM] RotoDraft Suite 2.0 initialized. Ready to process video narrative.</div>
+          <div class="terminal-line">[INFO] Supported Stock Engines: Pexels API, Pixabay API, Pinterest Scraper, Ken Burns Fallback.</div>
+          <div class="terminal-line">[INFO] Pro NLE Exporters: CapCut Desktop (draft_info.json) + Premiere Pro XML.</div>
+        </div>
       </div>
     </div>
 
-    <!-- Action Bar (Col-12) -->
-    <div class="col-12">
-      <button type="submit" id="submitBtn" class="btn btn-lg btn-yellow" style="width: 100%;">
-        🚀 GENERATE & COLLECT ASSETS
-      </button>
+    <!-- Output Showcase (Col-12) -->
+    <div class="bento-grid">
+      <div class="card col-12">
+        <div class="card-header">
+          <h2 class="card-title">🎞️ 4. COLLECTED ASSETS & TIMELINE</h2>
+          <span class="card-badge">OUTPUT REPO</span>
+        </div>
+
+        <!-- Master Video Player -->
+        <div id="masterContainer" style="display: none; flex-direction: column; gap: 12px; background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="font-size: 16px;">🎬 MASTER CONCATENATED VIDEO (FULL_VIDEO_MASTER.MP4)</h3>
+            <span class="card-badge" style="background: var(--accent-cyan);">SYNCED WITH VOICEOVER</span>
+          </div>
+          <div style="width: 100%; max-width: 720px; margin: 0 auto; background: #000; border: var(--border-width) solid var(--border);">
+            <video id="masterVideo" controls style="width: 100%; display: block;"></video>
+          </div>
+        </div>
+
+        <!-- Action Toolbar for NLE Exports -->
+        <div id="exportActions" style="display: none; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px 0;">
+          <button type="button" class="btn btn-lime btn-sm" id="openFolderBtn">📁 OPEN IN WINDOWS EXPLORER</button>
+          <button type="button" class="btn btn-yellow btn-sm" id="downloadZipBtn">📦 DOWNLOAD ALL IN ZIP</button>
+          <button type="button" class="btn btn-cyan btn-sm" id="downloadXmlBtn">🎬 EXPORT PREMIERE / DAVINCI XML</button>
+          <span style="font-family: var(--font-mono); font-size: 12px; display: flex; align-items: center; font-weight: 800;">
+            ✂️ CapCut Desktop Draft Files Generated!
+          </span>
+        </div>
+
+        <!-- Sequential Clips Grid -->
+        <div class="clips-grid" id="clipsGrid">
+          <div style="grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--text-muted); font-family: var(--font-mono); border: 2px dashed var(--border);">
+            No clips generated yet. Paste your script above or click a Quick Preset to get started!
+          </div>
+        </div>
+      </div>
     </div>
 
-  </form>
-
-  <!-- Live Progress & Terminal Section (Col-12) -->
-  <div class="bento-grid">
-    <div class="card col-12">
-      <div class="card-header">
-        <h2 class="card-title">📡 3. REALTIME PIPELINE TELEMETRY</h2>
-        <span class="card-badge">LIVE SSE STREAM</span>
-      </div>
-
-      <div class="progress-container">
-        <div class="progress-bar" id="progressBar"></div>
-        <div class="progress-text" id="progressText">0% READY</div>
-      </div>
-
-      <div class="terminal" id="terminal">
-        <div class="terminal-line info">[SYSTEM] RotoDraft Suite 2.0 initialized. Ready to process video narrative.</div>
-        <div class="terminal-line">[INFO] Supported Stock Engines: Pexels API, Pixabay API, Pinterest Scraper, Ken Burns Fallback.</div>
-        <div class="terminal-line">[INFO] Pro NLE Exporters: CapCut Desktop (draft_info.json) + Premiere Pro XML.</div>
-      </div>
-    </div>
   </div>
 
-  <!-- Generated Assets Showcase & Master Video -->
-  <div class="bento-grid">
+  <!-- PROJECT VAULT VIEW -->
+  <div id="vaultView" style="display: none; flex-direction: column; gap: 24px;">
     <div class="card col-12">
       <div class="card-header">
-        <h2 class="card-title">🎞️ 4. COLLECTED ASSETS & MASTER TIMELINE</h2>
-        <span class="card-badge">OUTPUT REPO</span>
+        <h2 class="card-title">📁 SAVED PROJECTS & MEDIA VAULT</h2>
+        <span class="card-badge">LOCAL STORAGE</span>
       </div>
 
-      <!-- Master Merged Video Player -->
-      <div id="masterContainer" style="display: none; flex-direction: column; gap: 12px; background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px;">
-        <div style="display: flex; justify-content: space-between; align-items: center;">
-          <h3 style="font-size: 16px;">🎬 MASTER CONCATENATED VIDEO (FULL_VIDEO_MASTER.MP4)</h3>
-          <span class="card-badge" style="background: var(--accent-cyan);">SYNCED WITH VOICEOVER</span>
-        </div>
-        <div style="width: 100%; max-width: 720px; margin: 0 auto; background: #000; border: var(--border-width) solid var(--border);">
-          <video id="masterVideo" controls style="width: 100%; display: block;"></video>
-        </div>
-      </div>
-
-      <!-- Action Toolbar for NLE Exports -->
-      <div id="exportActions" style="display: none; flex-wrap: wrap; gap: 12px; justify-content: center; padding: 10px 0;">
-        <button type="button" class="btn btn-lime btn-sm" id="openFolderBtn">📁 OPEN IN WINDOWS EXPLORER</button>
-        <button type="button" class="btn btn-yellow btn-sm" id="downloadZipBtn">📦 DOWNLOAD ALL IN ZIP</button>
-        <button type="button" class="btn btn-cyan btn-sm" id="downloadXmlBtn">🎬 EXPORT PREMIERE / DAVINCI XML</button>
-        <span style="font-family: var(--font-mono); font-size: 12px; display: flex; align-items: center; font-weight: 800;">
-          ✂️ CapCut Desktop Draft Files Generated!
-        </span>
-      </div>
-
-      <!-- Sequential Clips Grid -->
-      <div class="clips-grid" id="clipsGrid">
-        <div style="grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--text-muted); font-family: var(--font-mono); border: 2px dashed var(--border);">
-          No clips generated yet. Paste your script above and click "Generate & Collect Assets".
-        </div>
+      <div style="overflow-x: auto;">
+        <table class="vault-table">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>Created Date</th>
+              <th>Clips & Duration</th>
+              <th>Aspect Ratio</th>
+              <th>Master Video</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="vaultTableBody">
+            <tr>
+              <td colspan="6" style="text-align: center; font-family: var(--font-mono);">Loading past projects...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -330,6 +393,39 @@
     <button type="button" class="btn btn-yellow" onclick="document.getElementById('settingsModal').classList.remove('active')">
       💾 SAVE & APPLY SETTINGS
     </button>
+  </div>
+</div>
+
+<!-- Swap Clip Modal -->
+<div class="modal-overlay" id="swapModal">
+  <div class="modal-box">
+    <div class="card-header">
+      <h2 class="card-title">🔄 SWAP / REPLACE CLIP</h2>
+      <button type="button" class="btn btn-dark btn-sm" id="closeSwapBtn">✕ CLOSE</button>
+    </div>
+
+    <form id="swapForm" style="display: flex; flex-direction: column; gap: 14px;">
+      <input type="hidden" id="swapClipIndexInput" value="1">
+      
+      <div class="form-group">
+        <label class="label">Search Query For This Clip</label>
+        <input type="text" id="swapKeywordInput" class="input mono" placeholder="e.g. modern server room" required>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Result Variation / Page Offset</label>
+        <select id="swapPageInput" class="select mono">
+          <option value="1">Page 1 (Primary Result)</option>
+          <option value="2" selected>Page 2 (Alternative Variation)</option>
+          <option value="3">Page 3 (Deep Search)</option>
+          <option value="4">Page 4 (Rare Angle)</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-yellow">
+        ✨ FETCH & REPLACE CLIP
+      </button>
+    </form>
   </div>
 </div>
 
