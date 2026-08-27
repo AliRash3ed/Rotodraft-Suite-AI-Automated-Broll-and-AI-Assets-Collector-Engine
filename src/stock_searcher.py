@@ -21,10 +21,11 @@ class StockSearcher:
         keyword: str,
         fallback_keyword: str = "",
         aspect_ratio: str = "16:9",
-        quality: str = "1080p"
+        quality: str = "1080p",
+        page: int = 1
     ) -> Dict[str, Any]:
         """
-        Unified multi-tier stock searcher:
+        Unified multi-tier stock searcher with pagination / offset support:
         1. Pexels Video API (filtered by aspect ratio)
         2. Pixabay Video API
         3. Pinterest Scraper
@@ -34,17 +35,17 @@ class StockSearcher:
         
         # 1. Try Pexels Video
         if self.pexels_key:
-            res = await self._search_pexels_video(keyword, orientation, quality)
+            res = await self._search_pexels_video(keyword, orientation, quality, page=page)
             if not res and fallback_keyword:
-                res = await self._search_pexels_video(fallback_keyword, orientation, quality)
+                res = await self._search_pexels_video(fallback_keyword, orientation, quality, page=page)
             if res:
                 return res
 
         # 2. Try Pixabay Video
         if self.pixabay_key:
-            res = await self._search_pixabay_video(keyword, orientation)
+            res = await self._search_pixabay_video(keyword, orientation, page=page)
             if not res and fallback_keyword:
-                res = await self._search_pixabay_video(fallback_keyword, orientation)
+                res = await self._search_pixabay_video(fallback_keyword, orientation, page=page)
             if res:
                 return res
 
@@ -60,7 +61,7 @@ class StockSearcher:
         if img_res:
             return img_res
 
-        # 5. Last-resort fallback to public sample
+        # 5. Public Fallback Video
         return {
             "provider": "sample_fallback",
             "url": "https://assets.mixkit.co/videos/preview/mixkit-software-developer-working-on-code-screen-close-up-34388-large.mp4",
@@ -70,8 +71,8 @@ class StockSearcher:
             "keyword": keyword
         }
 
-    async def _search_pexels_video(self, query: str, orientation: str, quality: str) -> Optional[Dict[str, Any]]:
-        url = f"https://api.pexels.com/videos/search?query={urllib.parse.quote(query)}&orientation={orientation}&per_page=5"
+    async def _search_pexels_video(self, query: str, orientation: str, quality: str, page: int = 1) -> Optional[Dict[str, Any]]:
+        url = f"https://api.pexels.com/videos/search?query={urllib.parse.quote(query)}&orientation={orientation}&per_page=5&page={page}"
         headers = {**self.headers, "Authorization": self.pexels_key}
         
         try:
@@ -84,13 +85,14 @@ class StockSearcher:
                 if not videos:
                     return None
                 
-                # Pick the best matching video file
-                video = videos[0]
+                # Pick the matching video file
+                video = videos[0] if len(videos) > 0 else None
+                if not video:
+                    return None
                 video_files = video.get("video_files", [])
                 if not video_files:
                     return None
 
-                # Find file matching requested quality
                 target_h = 1080 if quality == "1080p" else (2160 if quality == "4K" else 720)
                 best_file = min(video_files, key=lambda f: abs(f.get("height", 720) - target_h))
                 
@@ -107,8 +109,8 @@ class StockSearcher:
             print(f"[WARN] Pexels video search error: {e}")
             return None
 
-    async def _search_pixabay_video(self, query: str, orientation: str) -> Optional[Dict[str, Any]]:
-        url = f"https://pixabay.com/api/videos/?key={self.pixabay_key}&q={urllib.parse.quote(query)}&per_page=5"
+    async def _search_pixabay_video(self, query: str, orientation: str, page: int = 1) -> Optional[Dict[str, Any]]:
+        url = f"https://pixabay.com/api/videos/?key={self.pixabay_key}&q={urllib.parse.quote(query)}&per_page=5&page={page}"
         try:
             async with httpx.AsyncClient(timeout=10.0) as client:
                 resp = await client.get(url, headers=self.headers)
@@ -139,14 +141,13 @@ class StockSearcher:
             return None
 
     async def _scrape_pinterest_video(self, query: str) -> Optional[Dict[str, Any]]:
-        url = f"https://www.pinterest.com/search/pins/?q={urllib.parse.quote(query + ' video aesthetic')}&rs=typed"
+        url = f"https://www.pinterest.com/search/pins/?q={urllib.parse.quote(query + ' video 4k aesthetic')}&rs=typed"
         try:
             async with httpx.AsyncClient(timeout=8.0, follow_redirects=True) as client:
                 resp = await client.get(url, headers=self.headers)
                 if resp.status_code != 200:
                     return None
                 
-                # Search for direct mp4 links in HTML
                 mp4_matches = re.findall(r'https://v1\.pinimg\.com/videos/mc/[^\"]+\.mp4', resp.text)
                 if mp4_matches:
                     return {
@@ -163,8 +164,6 @@ class StockSearcher:
         return None
 
     async def _search_stock_image(self, query: str, fallback_query: str, orientation: str) -> Optional[Dict[str, Any]]:
-        """Searches high-res stock photo for Ken Burns 3s video conversion."""
-        # Try Pexels Photo API
         if self.pexels_key:
             url = f"https://api.pexels.com/v1/search?query={urllib.parse.quote(query or fallback_query)}&orientation={orientation}&per_page=3"
             headers = {**self.headers, "Authorization": self.pexels_key}
@@ -188,8 +187,6 @@ class StockSearcher:
             except Exception:
                 pass
 
-        # Unsplash Public Source fallback
-        clean_q = urllib.parse.quote(query.replace(" ", "-"))
         unsplash_url = f"https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80"
         return {
             "provider": "unsplash_image_kenburns",
