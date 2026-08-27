@@ -1,6 +1,7 @@
 import os
 import json
 import time
+import re
 import asyncio
 from datetime import datetime
 from pathlib import Path
@@ -41,15 +42,18 @@ class RotoDraftPipeline:
 
     async def execute(
         self,
-        mode: str,  # "full", "stock_only", "voice_only"
+        mode: str,  # "full", "stock_only", "voice_only", "keywords_only"
         script: str,
         duration_seconds: float = 30.0,
         clip_duration: float = 3.0,
         aspect_ratio: str = "16:9",
         quality: str = "1080p",
         voice: str = "en-US-ChristopherNeural",
+        voice_rate: str = "+0%",
+        voice_pitch: str = "+0Hz",
         mood: str = "Cinematic",
-        project_name: Optional[str] = None
+        project_name: Optional[str] = None,
+        custom_audio_path: Optional[str] = None
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
         Executes pipeline and streams progress events in real-time.
@@ -77,60 +81,103 @@ class RotoDraftPipeline:
 
         # Step 1: Voiceover Synthesis if full or voice_only
         if mode in ["full", "voice_only"]:
-            yield {
-                "type": "log",
-                "message": f"🎙️ Generating Edge-TTS Neural Voiceover ({voice})...",
-                "progress": 10
-            }
-            voice_out = project_dir / "voiceover.mp3"
-            tts_res = await self.tts.generate_speech(
-                text=script,
-                output_path=voice_out,
-                voice=voice
-            )
-            audio_path = Path(tts_res["audio_path"])
-            srt_path = Path(tts_res["srt_path"])
-            actual_duration = tts_res["duration"]
+            if custom_audio_path and Path(custom_audio_path).exists():
+                audio_path = Path(custom_audio_path)
+                actual_duration = self.tts.get_audio_duration(audio_path)
+                yield {
+                    "type": "log",
+                    "message": f"🎙️ Using attached audio: {audio_path.name} ({actual_duration:.1f}s)",
+                    "progress": 20
+                }
+            else:
+                yield {
+                    "type": "log",
+                    "message": f"🎙️ Generating Edge-TTS Neural Voiceover ({voice} | Speed: {voice_rate})...",
+                    "progress": 10
+                }
+                voice_out = project_dir / "voiceover.mp3"
+                tts_res = await self.tts.generate_speech(
+                    text=script,
+                    output_path=voice_out,
+                    voice=voice,
+                    rate=voice_rate,
+                    pitch=voice_pitch
+                )
+                audio_path = Path(tts_res["audio_path"])
+                srt_path = Path(tts_res["srt_path"])
+                actual_duration = tts_res["duration"]
 
-            yield {
-                "type": "log",
-                "message": f"✅ Voiceover generated: {actual_duration:.1f}s | Subtitles saved to {srt_path.name}",
-                "progress": 25
-            }
+                yield {
+                    "type": "log",
+                    "message": f"✅ Voiceover generated: {actual_duration:.1f}s | Subtitles saved to {srt_path.name}",
+                    "progress": 25
+                }
 
             if mode == "voice_only":
+                srt_content = ""
+                if srt_path and srt_path.exists():
+                    with open(srt_path, "r", encoding="utf-8", errors="ignore") as f:
+                        srt_content = f.read()
+
                 yield {
                     "type": "done",
                     "project_id": project_id,
                     "project_dir": str(project_dir),
-                    "audio_path": str(audio_path),
-                    "srt_path": str(srt_path),
+                    "audio_url": f"/api/media/{project_id}/voiceover.mp3",
+                    "srt_url": f"/api/media/{project_id}/voiceover.srt",
+                    "srt_content": srt_content,
                     "duration": actual_duration,
                     "clips": [],
-                    "message": "Voiceover synthesis completed successfully!"
+                    "progress": 100,
+                    "message": "🎉 Neural Voiceover synthesis and SRT subtitles generated successfully!"
                 }
                 return
 
-        # Step 2: AI Script Decomposition & Timeline Planning
-        yield {
-            "type": "log",
-            "message": f"🧠 AI Visual Decomposition: Calculating b-rolls for {actual_duration:.1f}s (Clip Length: {clip_duration:.1f}s)...",
-            "progress": 30
-        }
+        # Step 2: Scene Decomposition (AI Script or Direct Keywords List)
+        clips_plan = []
+        if mode == "keywords_only":
+            # Parse raw user keywords line by line or numbered
+            lines = [l.strip() for l in script.splitlines() if l.strip()]
+            for i, line in enumerate(lines):
+                clean_kw = re.sub(r'^\d+[\.\-\)]\s*', '', line).strip()
+                if clean_kw:
+                    clips_plan.append({
+                        "index": len(clips_plan) + 1,
+                        "time_start": round(len(clips_plan) * clip_duration, 2),
+                        "time_end": round((len(clips_plan) + 1) * clip_duration, 2),
+                        "duration": clip_duration,
+                        "script_segment": clean_kw,
+                        "keyword": clean_kw,
+                        "fallback_keyword": "cinematic broll"
+                    })
+            actual_duration = len(clips_plan) * clip_duration
+            yield {
+                "type": "log",
+                "message": f"📋 Loaded {len(clips_plan)} custom keywords directly from list.",
+                "progress": 35
+            }
+        else:
+            yield {
+                "type": "log",
+                "message": f"🧠 AI Visual Decomposition: Calculating b-rolls for {actual_duration:.1f}s (Clip Length: {clip_duration:.1f}s)...",
+                "progress": 30
+            }
 
-        clips_plan = await self.ai.analyze_script(
-            script=script,
-            duration_seconds=actual_duration,
-            clip_duration=clip_duration,
-            mood=mood
-        )
+            clips_plan = await self.ai.analyze_script(
+                script=script,
+                duration_seconds=actual_duration,
+                clip_duration=clip_duration,
+                mood=mood
+            )
+
+            total_clips = len(clips_plan)
+            yield {
+                "type": "log",
+                "message": f"📋 AI generated {total_clips} sequential visual scenes for narrative.",
+                "progress": 40
+            }
 
         total_clips = len(clips_plan)
-        yield {
-            "type": "log",
-            "message": f"📋 AI generated {total_clips} sequential visual scenes for narrative.",
-            "progress": 40
-        }
 
         # Step 3: Concurrent Search, Download & FFmpeg Processing
         processed_clips: List[Dict[str, Any]] = []
@@ -170,7 +217,7 @@ class RotoDraftPipeline:
 
             yield {
                 "type": "log",
-                "message": f"⚙️ [{idx}/{total_clips}] Rendering clip {out_filename} (3.0s | {aspect_ratio})...",
+                "message": f"⚙️ [{idx}/{total_clips}] Rendering clip {out_filename} ({clip_duration:.1f}s | {aspect_ratio})...",
                 "progress": round(40 + ((i + 0.8) / total_clips) * 35, 1)
             }
 
@@ -229,10 +276,10 @@ class RotoDraftPipeline:
 
         # Step 5: Merge Master Video
         master_video_path = None
-        if clip_files:
+        if clip_files and mode in ["full", "stock_only", "keywords_only"]:
             yield {
                 "type": "log",
-                "message": "🎬 Rendering Master Concatenated Video (Full_Video_Master.mp4)...",
+                "message": "🎬 Rendering Master Video (Full_Video_Master.mp4)...",
                 "progress": 90
             }
             master_video_path = project_dir / "Full_Video_Master.mp4"
