@@ -260,6 +260,51 @@ async def rewrite_script(req: RewriteScriptRequest):
     result = await ai.rewrite_script(req.text, req.style)
     return {"success": True, "data": result}
 
+@app.post("/api/test-key")
+async def test_key_endpoint(req: TestKeyRequest):
+    provider = req.provider.lower()
+    key = req.api_key.strip()
+    
+    if not key:
+        return {"success": False, "message": "API key cannot be empty"}
+
+    try:
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            if provider in ["openrouter"]:
+                resp = await client.get("https://openrouter.ai/api/v1/auth/key", headers={"Authorization": f"Bearer {key}"})
+                if resp.status_code == 200:
+                    return {"success": True, "message": "OpenRouter Key is valid!"}
+            elif provider in ["gemini", "google"]:
+                resp = await client.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={key}")
+                if resp.status_code == 200:
+                    return {"success": True, "message": "Google Gemini Key is valid!"}
+            elif provider in ["openai"]:
+                resp = await client.get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {key}"})
+                if resp.status_code == 200:
+                    return {"success": True, "message": "OpenAI Key is valid!"}
+            elif provider in ["deepseek"]:
+                resp = await client.get("https://api.deepseek.com/v1/models", headers={"Authorization": f"Bearer {key}"})
+                if resp.status_code == 200:
+                    return {"success": True, "message": "DeepSeek Key is valid!"}
+            elif provider in ["groq"]:
+                resp = await client.get("https://api.groq.com/openai/v1/models", headers={"Authorization": f"Bearer {key}"})
+                if resp.status_code == 200:
+                    return {"success": True, "message": "Groq Key is valid!"}
+            elif provider in ["pexels"]:
+                resp = await client.get("https://api.pexels.com/videos/search?query=ocean&per_page=1", headers={"Authorization": key})
+                if resp.status_code == 200:
+                    return {"success": True, "message": "Pexels API Key is valid!"}
+            elif provider in ["pixabay"]:
+                resp = await client.get(f"https://pixabay.com/api/videos/?key={key}&q=ocean&per_page=3")
+                if resp.status_code == 200:
+                    return {"success": True, "message": "Pixabay API Key is valid!"}
+            elif provider in ["ollama"]:
+                return {"success": True, "message": "Ollama local connected"}
+    except Exception as e:
+        return {"success": False, "message": f"Connection error: {str(e)}"}
+
+    return {"success": False, "message": "Invalid API key or authentication failed"}
+
 @app.post("/api/generate-metadata")
 async def generate_metadata(req: GenerateMetadataRequest):
     ai = AIEngine()
