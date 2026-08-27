@@ -31,6 +31,8 @@
     <g id="icon-sliders"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/><line x1="1" y1="14" x2="7" y2="14" stroke="currentColor" stroke-width="2"/><line x1="9" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="2"/><line x1="17" y1="16" x2="23" y2="16" stroke="currentColor" stroke-width="2"/></g>
     <g id="icon-monitor"><rect width="20" height="14" x="2" y="3" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/></g>
     <g id="icon-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 18h.01" stroke="currentColor" stroke-width="2.5"/></g>
+    <g id="icon-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" stroke="currentColor" stroke-width="2" fill="none"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" stroke="currentColor" stroke-width="2"/></g>
+    <g id="icon-move"><polyline points="5 9 2 12 5 15" stroke="currentColor" stroke-width="2"/><polyline points="9 5 12 2 15 5" stroke="currentColor" stroke-width="2"/><polyline points="15 19 12 22 9 19" stroke="currentColor" stroke-width="2"/><polyline points="19 9 22 12 19 15" stroke="currentColor" stroke-width="2"/><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="2" x2="12" y2="22" stroke="currentColor" stroke-width="2"/></g>
   </defs>
 </svg>
 
@@ -95,7 +97,12 @@
           <h2 class="card-title" id="scriptCardTitle">
             <svg class="icon"><use href="#icon-film"/></svg> 1. SCRIPT &amp; TIMING
           </h2>
-          <span class="card-badge" id="wordCountBadge">0 WORDS</span>
+          <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" id="openRewriteModalBtn" class="chip-btn" style="background: var(--accent-blue); color: #fff; border-color: var(--border); box-shadow: 2px 2px 0px #000;">
+              <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> ⚡ AI ENHANCE SCRIPT
+            </button>
+            <span class="card-badge" id="wordCountBadge">0 WORDS</span>
+          </div>
         </div>
 
         <!-- Workflow Mode Switcher -->
@@ -356,7 +363,15 @@
           <h2 class="card-title">
             <svg class="icon"><use href="#icon-film"/></svg> 4. COLLECTED ASSETS &amp; TIMELINE
           </h2>
-          <span class="card-badge">OUTPUT REPO</span>
+          <div style="display: flex; gap: 8px;">
+            <button type="button" id="remergeMasterBtn" class="btn btn-yellow btn-sm" style="display: none;">
+              <svg class="icon icon-sm"><use href="#icon-refresh"/></svg> ⚡ RE-MERGE CUSTOM CLIP ORDER
+            </button>
+            <button type="button" id="openMetadataModalBtn" class="btn btn-cyan btn-sm" style="display: none;">
+              <svg class="icon icon-sm"><use href="#icon-rocket"/></svg> 🚀 VIRAL SEO &amp; THUMBNAIL
+            </button>
+            <span class="card-badge">OUTPUT REPO</span>
+          </div>
         </div>
 
         <!-- Master Video Player -->
@@ -374,9 +389,11 @@
 
         <!-- Interactive NLE Multi-Track Timeline -->
         <div id="timelineBoardContainer" style="display: none; flex-direction: column; gap: 6px;">
-          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
-            <svg class="icon icon-sm"><use href="#icon-layers"/></svg> INTERACTIVE NLE TIMELINE TRACKS:
-          </span>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
+              <svg class="icon icon-sm"><use href="#icon-layers"/></svg> INTERACTIVE NLE TIMELINE TRACKS (DRAG CLIPS BELOW TO REORDER):
+            </span>
+          </div>
           <div class="timeline-board">
             <div class="timeline-ruler" id="timelineRuler">
               <span>00:00s</span>
@@ -420,7 +437,7 @@
           </span>
         </div>
 
-        <!-- Sequential Clips Grid -->
+        <!-- Sequential Clips Grid (Supports Drag & Drop) -->
         <div class="clips-grid" id="clipsGrid">
           <div style="grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--text-muted); font-family: var(--font-mono); border: 2px dashed var(--border);">
             No clips generated yet. Select a mode above and click "Generate &amp; Collect Assets".
@@ -485,6 +502,91 @@
     </div>
   </footer>
 
+</div>
+
+<!-- AI Script Rewriter & Hook Enhancer Modal -->
+<div class="modal-overlay" id="rewriteModal">
+  <div class="modal-box" style="max-width: 620px;">
+    <div class="card-header">
+      <h2 class="card-title">
+        <svg class="icon"><use href="#icon-sparkles"/></svg> ⚡ AI VIRAL HOOK &amp; SCRIPT REWRITER
+      </h2>
+      <button type="button" class="btn btn-dark btn-sm" id="closeRewriteBtn">✕ CLOSE</button>
+    </div>
+
+    <div style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">
+      Select a viral pacing framework to transform raw ideas into high-retention video scripts.
+    </div>
+
+    <div class="form-group">
+      <label class="label">Viral Copywriting Framework</label>
+      <select id="rewriteStyleSelect" class="select mono">
+        <option value="viral_hook" selected>⚡ High-Retention Viral Hook (MrBeast / Hormozi Style)</option>
+        <option value="shorts">📱 Fast-Paced 30s TikTok/Shorts (Zero Fluff)</option>
+        <option value="storytelling">🎬 Cinematic Documentary (Vox / Storytelling Style)</option>
+        <option value="educational">💼 Authoritative Explainer (Clean &amp; Concise)</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label class="label">Draft Notes or Bullet Points</label>
+      <textarea id="rewriteSourceInput" class="textarea" style="min-height: 100px;" placeholder="Type rough ideas or bullet points..."></textarea>
+    </div>
+
+    <button type="button" id="executeRewriteBtn" class="btn btn-blue">
+      <svg class="icon"><use href="#icon-sparkles"/></svg> GENERATE VIRAL SCRIPT
+    </button>
+
+    <div id="rewriteResultBox" style="display: none; flex-direction: column; gap: 8px; background: var(--bg-secondary); border: 2px solid var(--border); padding: 12px; border-radius: 4px;">
+      <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent-cyan);">⚡ GENERATED SCRIPT PREVIEW:</span>
+      <textarea id="rewriteOutputPreview" class="textarea mono" style="min-height: 110px;"></textarea>
+      <button type="button" id="applyRewrittenScriptBtn" class="btn btn-yellow btn-sm">
+        <svg class="icon icon-sm"><use href="#icon-check"/></svg> APPLY TO STUDIO GENERATOR
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Viral Distribution & SEO Metadata Modal -->
+<div class="modal-overlay" id="metadataModal">
+  <div class="modal-box" style="max-width: 650px;">
+    <div class="card-header">
+      <h2 class="card-title">
+        <svg class="icon"><use href="#icon-rocket"/></svg> 🚀 VIRAL SEO &amp; THUMBNAIL PACK
+      </h2>
+      <button type="button" class="btn btn-dark btn-sm" id="closeMetadataBtn">✕ CLOSE</button>
+    </div>
+
+    <div style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">
+      1-Click AI-generated distribution assets for YouTube, TikTok, and Instagram Reels.
+    </div>
+
+    <div class="form-group">
+      <label class="label" style="color: var(--accent-yellow);">🔥 5 Click-Worthy Titles (High CTR)</label>
+      <div id="metaTitlesList" style="display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 12px;"></div>
+    </div>
+
+    <div class="form-group">
+      <label class="label" style="color: var(--accent-cyan);">📝 SEO Description &amp; Timestamps</label>
+      <textarea id="metaDescriptionInput" class="textarea mono" style="min-height: 100px; font-size: 12px;" readonly></textarea>
+    </div>
+
+    <div class="form-group">
+      <label class="label" style="color: var(--accent-lime);">🏷️ Hashtags</label>
+      <input type="text" id="metaHashtagsInput" class="input mono" style="font-size: 12px;" readonly>
+    </div>
+
+    <div class="form-group">
+      <label class="label" style="color: var(--accent-pink);">🎨 Midjourney / Flux Thumbnail Prompt</label>
+      <textarea id="metaThumbnailPromptInput" class="textarea mono" style="min-height: 70px; font-size: 12px;" readonly></textarea>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button type="button" id="copyAllMetadataBtn" class="btn btn-yellow btn-sm">
+        <svg class="icon icon-sm"><use href="#icon-copy"/></svg> COPY ALL TO CLIPBOARD
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- Interactive Time Calculator Modal -->
