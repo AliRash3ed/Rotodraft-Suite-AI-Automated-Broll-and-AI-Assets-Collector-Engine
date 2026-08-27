@@ -31,15 +31,17 @@ Creating high-retention video content requires finding and timing dozens of B-Ro
 
 **RotoDraft Suite solves this in 1 click.**
 
-Simply paste your script, click **Generate**, and watch the engine:
+Simply paste your script or batch topics, click **Generate**, and watch the engine:
 1. 🎙️ **320+ Neural Voices & Subtitles** across 50+ languages using Microsoft Edge-TTS with language auto-detection and voice preview.
 2. ⚡ **1-Click Creator Workflow**: Transform rough bullet points into viral scripts (MrBeast / Hormozi / Vox style).
 3. 🧠 **Decompose your script** into sequential 3.0s visual scenes using 100% Free AI models (`llama-3.3-70b`, `openrouter/free`).
-4. 🔍 **Multi-Tier Media Sourcing**: Playwright Stealth Pinterest Scraper, Pexels 4K, Pixabay HD, and 4K Ken-Burns cinematic fallbacks.
-5. ⚙️ **GPU-Accelerated FFmpeg Trimming** to precise retention intervals (3.0s) and aspect ratios (`16:9` YouTube widescreen, `9:16` TikTok/Shorts vertical, `1:1` Square).
-6. 🎬 **Master Video Concatenation** (`Full_Video_Master.mp4`) with synchronized subtitles and drag-and-drop timeline reordering.
-7. ✂️ **Export Pro NLE Timelines** directly to **CapCut Desktop (`draft_info.json`)** and **Premiere Pro / DaVinci Resolve (`timeline.xml`)**.
-8. 🚀 **Viral Distribution Engine**: 5 High-CTR Click-worthy titles, SEO descriptions with timestamps, hashtags, and Midjourney/Flux thumbnail prompts.
+4. 🔍 **Multi-Tier Media Sourcing**: Playwright Stealth Pinterest Scraper, Pexels 4K, Pixabay HD, and Pollinations Flux AI 4K image fallback with 60fps Ken Burns pan & zoom.
+5. 🎵 **Royalty-Free BGM Library + FFmpeg Auto-Ducking**: Balances mood-matched music at `-16dB` beneath the speech track.
+6. 🎨 **Cinematic Color Grading Filters**: Hollywood *Teal & Orange*, *Cyberpunk Neon*, *Moody Noir*, and *Vintage Film*.
+7. 🔥 **High-Retention Captions (.ASS)**: Hormozi-style bold yellow active highlight subtitles.
+8. ⚡ **Autonomous Batch Channel Factory**: Queue 3 to 10 video topics to generate an entire YouTube Shorts or TikTok library automatically in the background!
+9. ✂️ **Export Pro NLE Timelines** directly to **CapCut Desktop (`draft_info.json`)** and **Premiere Pro / DaVinci Resolve (`timeline.xml`)**.
+10. 🚀 **Viral Distribution Engine**: 5 High-CTR Click-worthy titles, SEO descriptions with timestamps, hashtags, and Midjourney/Flux thumbnail prompts.
 
 ---
 
@@ -47,39 +49,41 @@ Simply paste your script, click **Generate**, and watch the engine:
 
 ```mermaid
 flowchart LR
-    A["📝 Voiceover Script"] --> B["🧠 1-Shot AI Scene Decomposition\n(Duration / 3.0s = N Scenes)"]
-    A --> C["🎙️ Microsoft Edge-TTS\n(320+ Voices + .SRT Subtitles)"]
+    A["📝 Script / Batch Topics"] --> B["🧠 1-Shot AI Scene Decomposition\n(Duration / 3.0s = N Scenes)"]
+    A --> C["🎙️ Microsoft Edge-TTS\n(320+ Voices + Hormozi .ASS)"]
     
-    B --> D["🔍 Media Sourcing Engine\n(Playwright Pinterest + Pexels + Pixabay + Ken Burns)"]
+    B --> D["🔍 Multi-Source Media Engine\n(Playwright Pinterest + Pexels + Pixabay + Pollinations Flux AI)"]
     
-    D --> E["⚙️ GPU FFmpeg Processing\n(3.0s Trimmer, 16:9 / 9:16 Scale, NVENC)"]
+    D --> E["⚙️ GPU FFmpeg Processing\n(3.0s Trimmer, 16:9 / 9:16, Color Grading, NVENC)"]
     
     E --> F["🎞️ Numbered B-Roll Asset Folder\n(01_clip.mp4, 02_clip.mp4 ...)"]
-    E --> G["🎬 Concat Demuxer\n(Full_Video_Master.mp4 + Synced Audio)"]
+    E --> G["🎬 Concat & Mix Demuxer\n(Full_Video_Master.mp4 + BGM Auto-Ducking + Subtitles)"]
     E --> H["✂️ NLE Exporters\n(CapCut Desktop Draft + Premiere XML)"]
 ```
 
 ---
 
-## ✨ Core Features & Capabilities
+## ✨ Core Enterprise Features
 
 ### 🎙️ Complete Voiceover Engine (320+ Voices)
 * **All Microsoft Neural Voices**: Full catalog across 50+ languages (English, Urdu, Hindi, Spanish, Arabic, French, German, Japanese, etc.).
-* **⭐ Recommended Badges**: Top high-retention voices highlighted for viral YouTube and TikTok content.
-* **🌐 Language Auto-Detect**: 1-click analyzes your script and selects the optimal neural voice.
+* **⭐ Recommended Badges**: Highlights top high-retention voices.
+* **🌐 Language Auto-Detect**: 1-click scans your script text and selects the optimal neural voice.
 * **🔊 Audio Preview**: Listen to any voice before rendering.
 
-### ⚡ 1-Click Creator Workflow (AI Viral Hook Rewriter)
-* Located directly below Voiceover for instant access.
-* 4 Copywriting Frameworks: *⚡ High-Retention Viral Hook*, *📱 30s TikTok/Shorts*, *🎬 Cinematic Documentary*, *💼 Authoritative Explainer*.
+### 🔥 Hormozi-Style High-Retention Subtitles (.ASS)
+* Converts timing into **Advanced SubStation Alpha (`.ass`)** subtitles.
+* Styles include: *🔥 Hormozi Viral Yellow (Bold Black Outline)*, *💎 Cyber Neon Cyan*, *⚪ Clean Minimal White*.
 
-### 🔀 Drag-and-Drop NLE Timeline & 1-Click Re-Merge
-* Native HTML5 drag-and-drop on clip cards.
-* **`⚡ RE-MERGE CUSTOM CLIP ORDER`**: Instantly stitches the master video in your new sequence without re-encoding in under 2 seconds.
+### 🎨 Cinematic Color Grading
+* 1-Click visual film styles: *🎬 Hollywood Teal & Orange*, *⚡ Cyberpunk Neon*, *🖤 Moody Noir*, *🌿 Vintage Film Grain*.
+
+### ⚡ Batch Channel Video Factory
+* Enter 3 to 10 video ideas in the **BATCH FACTORY** modal.
+* Autonomously writes scripts, downloads footage, mixes audio, and exports master videos in the background queue.
 
 ### 🔒 Privacy-First Lead Capture & Owner Analytics
 * End-user emails are stored in a **local encrypted SQLite vault (`data/leads.db`)** that is strictly `.gitignore`'d and never committed to GitHub.
-* Optional private cloud webhook sync (`OWNER_WEBHOOK_URL`).
 * Protected **Owner Analytics Dashboard** with total generation counts, conversion metrics, and CSV lead export.
 
 ---
@@ -105,11 +109,7 @@ cd rotodraft-suite
 pip install -r requirements.txt
 playwright install chromium
 
-# 3. Ensure FFmpeg is installed
-# macOS: brew install ffmpeg
-# Ubuntu: sudo apt install ffmpeg
-
-# 4. Launch Studio
+# 3. Launch Studio
 python app.py
 ```
 
@@ -117,7 +117,7 @@ python app.py
 
 ## 🧪 Testing & Verification
 
-Run the comprehensive unit & integration test suite:
+Run the full automated test suite:
 ```bash
 python -m unittest tests/test_full_suite.py
 ```
@@ -126,12 +126,12 @@ Output:
 ```text
 [PASS] Voice Catalog: Loaded 322 voices (23 recommended) + Auto-detect verified
 [PASS] Lead Manager: SQLite DB operational, Stats calculated, CSV exported
-[PASS] TTS Engine: Generated test_voice.mp3 (4.78s)
+[PASS] TTS Engine & ASS Subtitles: Generated audio + Hormozi ASS subtitle
 [PASS] AI Engine: Decomposed 2 scenes, Rewrote script, Generated 5 Viral Titles & SEO Metadata
-[PASS] Stock Searcher: Found provider 'unsplash_image_kenburns' -> URL resolved
-[PASS] Video Processor & Merger: Rendered clip + Master Video (68.8 KB)
+[PASS] Stock Searcher: Sourced via provider 'pollinations_ai_flux_kenburns' -> URL resolved
+[PASS] Video Processor & Merger: Rendered Master Video with Teal & Orange color grade (82.9 KB)
 ----------------------------------------------------------------------
-Ran 6 tests in 23.9s - OK (100% SUCCESS)
+Ran 6 tests in 13.8s - OK (100% SUCCESS)
 ```
 
 ---
@@ -160,4 +160,4 @@ Ran 6 tests in 23.9s - OK (100% SUCCESS)
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — feel free to use, modify, and distribute for personal and commercial content production.
+This project is licensed under the **MIT License** — free for personal and commercial video production.
