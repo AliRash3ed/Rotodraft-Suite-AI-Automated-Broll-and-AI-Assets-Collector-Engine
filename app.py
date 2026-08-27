@@ -25,8 +25,9 @@ from src.timeline_exporter import TimelineExporter
 from src.ai_engine import AIEngine
 from src.voices_catalog import VoiceCatalog
 from src.lead_manager import LeadManager
+from src.bgm_engine import BGMEngine
 
-app = FastAPI(title="RotoDraft Suite", version="2.2.0")
+app = FastAPI(title="RotoDraft Suite", version="2.3.0")
 
 # Mount static and templates
 app.mount("/static", StaticFiles(directory=str(Config.ROOT_DIR / "static")), name="static")
@@ -43,6 +44,7 @@ class GenerateRequest(BaseModel):
     voice: str = "en-US-ChristopherNeural"
     voice_rate: str = "+0%"
     voice_pitch: str = "+0Hz"
+    bgm_track: Optional[str] = "none"
     mood: str = "Cinematic"
     project_name: Optional[str] = "My_Video_Project"
     custom_audio_path: Optional[str] = None
@@ -155,9 +157,11 @@ SCRIPT_TEMPLATES = [
 @app.get("/", response_class=HTMLResponse)
 async def serve_dashboard(request: Request):
     voices = await VoiceCatalog.get_all_voices()
+    bgm_tracks = BGMEngine.get_available_tracks()
     return templates.TemplateResponse("index.html", {
         "request": request,
         "voices": voices,
+        "bgm_tracks": bgm_tracks,
         "models": Config.FREE_AI_MODELS,
         "default_model": Config.OPENROUTER_MODEL,
         "templates": SCRIPT_TEMPLATES,
@@ -168,11 +172,15 @@ async def serve_dashboard(request: Request):
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.2.0"}
+    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.3.0"}
 
 @app.get("/api/templates")
 async def get_templates():
     return {"templates": SCRIPT_TEMPLATES}
+
+@app.get("/api/bgm-tracks")
+async def get_bgm_tracks():
+    return {"tracks": BGMEngine.get_available_tracks()}
 
 @app.get("/api/voices")
 async def get_voices():
@@ -186,7 +194,6 @@ async def auto_detect_voice(req: AutoDetectVoiceRequest):
 
 @app.post("/api/voice-preview")
 async def voice_preview(req: VoicePreviewRequest):
-    """Generates an instant 2-second audio preview of any selected voice."""
     tts = TTSEngine()
     preview_dir = Config.DOWNLOADS_DIR / "_voice_previews"
     preview_dir.mkdir(parents=True, exist_ok=True)
@@ -209,18 +216,15 @@ async def voice_preview(req: VoicePreviewRequest):
 
 @app.post("/api/rewrite-script")
 async def rewrite_script(req: RewriteScriptRequest):
-    """Rewrites draft text into viral high-retention script formats."""
     ai = AIEngine()
     result = await ai.rewrite_script(req.text, req.style)
     return {"success": True, "data": result}
 
 @app.post("/api/generate-metadata")
 async def generate_metadata(req: GenerateMetadataRequest):
-    """Generates 5 viral titles, SEO description with timestamps, and thumbnail prompt."""
     ai = AIEngine()
     result = await ai.generate_viral_metadata(req.script)
     
-    # If project_id provided, save metadata.txt to folder
     if req.project_id:
         p_dir = Config.DOWNLOADS_DIR / req.project_id
         if p_dir.exists():
@@ -248,7 +252,6 @@ ROTODRAFT SUITE - VIRAL DISTRIBUTION & SEO PACK
 
 @app.post("/api/reorder-clips")
 async def reorder_clips(req: ReorderClipsRequest):
-    """Re-merges master video in a custom drag-and-dropped clip order."""
     proj_dir = Config.DOWNLOADS_DIR / req.project_id
     if not proj_dir.exists():
         raise HTTPException(status_code=404, detail="Project not found")
@@ -290,7 +293,6 @@ async def record_whatsapp_click(req: WhatsAppClickRequest):
 
 @app.get("/api/admin/stats")
 async def get_admin_stats(key: Optional[str] = None):
-    # Optional password protection check if OWNER_SECRET is configured
     owner_secret = os.getenv("OWNER_SECRET", "")
     if owner_secret and key != owner_secret:
         raise HTTPException(status_code=401, detail="Unauthorized")
@@ -310,7 +312,6 @@ async def export_leads(key: Optional[str] = None):
 
 @app.get("/api/projects")
 async def list_projects():
-    """Lists past projects in downloads/ directory."""
     projects = []
     if Config.DOWNLOADS_DIR.exists():
         for p in Config.DOWNLOADS_DIR.iterdir():
@@ -348,7 +349,6 @@ async def list_projects():
 
 @app.post("/api/upload-audio")
 async def upload_audio(file: UploadFile = File(...)):
-    """Uploads custom voiceover audio and detects duration."""
     temp_dir = Config.DOWNLOADS_DIR / "_temp_uploads"
     temp_dir.mkdir(parents=True, exist_ok=True)
     
@@ -372,7 +372,6 @@ async def upload_audio(file: UploadFile = File(...)):
 
 @app.post("/api/regenerate-clip")
 async def regenerate_clip(req: RegenerateClipRequest):
-    """Re-searches and swaps an individual clip in a project."""
     proj_dir = Config.DOWNLOADS_DIR / req.project_id
     if not proj_dir.exists():
         raise HTTPException(status_code=404, detail="Project not found")
@@ -386,7 +385,6 @@ async def regenerate_clip(req: RegenerateClipRequest):
     downloader = Downloader()
     processor = VideoProcessor()
 
-    # Search media with page offset
     stock_data = await stock.find_stock(
         keyword=req.keyword,
         fallback_keyword=req.fallback_keyword or "",
@@ -401,10 +399,8 @@ async def regenerate_clip(req: RegenerateClipRequest):
     raw_filename = f"raw_swap_{req.clip_index:02d}_{clean_kw}{ext}"
     raw_path = raw_dir / raw_filename
 
-    # Download
     await downloader.download_file(stock_data["url"], raw_path)
 
-    # Re-render clip
     out_filename = f"{req.clip_index:02d}_{clean_kw}.mp4"
     out_clip_path = clips_dir / out_filename
 
@@ -417,7 +413,6 @@ async def regenerate_clip(req: RegenerateClipRequest):
         is_image=is_img
     )
 
-    # Update metadata.json
     meta_file = proj_dir / "metadata.json"
     if meta_file.exists():
         try:
@@ -525,6 +520,7 @@ async def stream_generation(req: GenerateRequest):
                 voice=req.voice,
                 voice_rate=req.voice_rate,
                 voice_pitch=req.voice_pitch,
+                bgm_track=req.bgm_track or "none",
                 mood=req.mood,
                 project_name=req.project_name,
                 custom_audio_path=req.custom_audio_path
