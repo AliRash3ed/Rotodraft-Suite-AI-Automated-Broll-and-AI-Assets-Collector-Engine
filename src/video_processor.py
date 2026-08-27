@@ -5,6 +5,14 @@ from pathlib import Path
 from typing import Tuple, Optional
 from src.config import Config
 
+COLOR_FILTERS = {
+    "natural": "",
+    "teal_orange": ",eq=contrast=1.15:brightness=0.02:saturation=1.25,colorbalance=rs=0.08:gs=-0.04:bs=-0.08:rm=-0.04:gm=0.0:bm=0.08",
+    "cyberpunk": ",eq=contrast=1.22:saturation=1.35,colorbalance=rs=0.12:bs=0.18",
+    "noir": ",hue=s=0,eq=contrast=1.28:brightness=-0.02",
+    "vintage": ",eq=contrast=1.05:saturation=0.88,colorbalance=rs=0.08:gs=0.04:bs=-0.06"
+}
+
 class VideoProcessor:
     def __init__(self):
         self.ffmpeg_path = shutil.which("ffmpeg") or "ffmpeg"
@@ -32,10 +40,11 @@ class VideoProcessor:
         duration: float = 3.0,
         aspect_ratio: str = "16:9",
         quality: str = "1080p",
+        color_filter: str = "natural",
         is_image: bool = False
     ) -> Path:
         """
-        Trims and formats media to exact retention duration (3.0s) and resolution.
+        Trims and formats media to exact retention duration (3.0s), resolution, and color grading.
         """
         input_path = Path(input_path)
         output_path = Path(output_path)
@@ -45,9 +54,9 @@ class VideoProcessor:
         width, height = res_info.get(quality, (1920, 1080))
 
         if is_image or input_path.suffix.lower() in [".jpg", ".jpeg", ".png", ".webp"]:
-            return self._create_kenburns_clip(input_path, output_path, duration, width, height)
+            return self._create_kenburns_clip(input_path, output_path, duration, width, height, color_filter)
         else:
-            return self._trim_and_scale_video(input_path, output_path, duration, width, height)
+            return self._trim_and_scale_video(input_path, output_path, duration, width, height, color_filter)
 
     def _trim_and_scale_video(
         self,
@@ -55,13 +64,14 @@ class VideoProcessor:
         output_path: Path,
         duration: float,
         width: int,
-        height: int
+        height: int,
+        color_filter: str = "natural"
     ) -> Path:
         """
-        Scales, crops to target aspect ratio, and cuts exact seconds.
+        Scales, crops to target aspect ratio, applies color grading, and cuts exact seconds.
         """
-        # Crop and pad filter to preserve aspect ratio without distortion
-        vf = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},setsar=1,fps=30"
+        filter_str = COLOR_FILTERS.get(color_filter, "")
+        vf = f"scale={width}:{height}:force_original_aspect_ratio=increase,crop={width}:{height},setsar=1,fps=30{filter_str}"
 
         cmd = [
             self.ffmpeg_path, "-y",
@@ -71,20 +81,19 @@ class VideoProcessor:
             "-vf", vf,
             "-c:v", self.gpu_encoder if self.gpu_encoder != "libx264" else "libx264",
             "-pix_fmt", "yuv420p",
-            "-an",  # Strip source audio to avoid mixing issues
+            "-an",
             "-movflags", "+faststart",
             str(output_path)
         ]
 
         try:
             subprocess.run(cmd, capture_output=True, text=True, check=True)
-        except subprocess.CalledProcessError as e:
-            # Fallback to CPU libx264 if GPU encoder failed
+        except subprocess.CalledProcessError:
             if self.gpu_encoder != "libx264":
                 cmd[cmd.index("-c:v") + 1] = "libx264"
                 subprocess.run(cmd, capture_output=True, text=True, check=True)
             else:
-                raise RuntimeError(f"FFmpeg video processing failed: {e.stderr}")
+                raise
 
         return output_path
 
@@ -94,17 +103,19 @@ class VideoProcessor:
         output_path: Path,
         duration: float,
         width: int,
-        height: int
+        height: int,
+        color_filter: str = "natural"
     ) -> Path:
         """
-        Applies smooth 3.0s Ken Burns Pan & Zoom to static stock images.
+        Applies smooth 3.0s Ken Burns Pan & Zoom to static stock images with color grading.
         """
         frames = int(duration * 30)
+        filter_str = COLOR_FILTERS.get(color_filter, "")
         vf = (
             f"scale=8000:-1,"
             f"zoompan=z='min(zoom+0.0015,1.5)':d={frames}:"
             f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s={width}x{height}:fps=30,"
-            f"setsar=1"
+            f"setsar=1{filter_str}"
         )
 
         cmd = [
