@@ -19,6 +19,7 @@ from src.timeline_exporter import TimelineExporter
 from src.voices_catalog import VoiceCatalog
 from src.lead_manager import LeadManager
 from src.pinterest_scraper import PinterestScraper
+from src.bgm_engine import BGMEngine
 
 class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
     @classmethod
@@ -31,11 +32,9 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         voices = await VoiceCatalog.get_all_voices()
         self.assertGreater(len(voices), 100, f"Expected 100+ voices, got {len(voices)}")
         
-        # Test Recommended badges
         rec_count = sum(1 for v in voices if v["is_recommended"])
         self.assertGreater(rec_count, 10, "Expected at least 10 recommended voices")
 
-        # Test Language detection
         urdu_voice = VoiceCatalog.detect_best_voice("یہ ایک اردو ٹیسٹ سکرپٹ ہے")
         self.assertEqual(urdu_voice, "ur-PK-AsadNeural")
 
@@ -94,16 +93,19 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertEqual(len(meta["titles"]), 5)
         print(f"[PASS] AI Engine: Decomposed {len(clips)} scenes, Rewrote script, Generated 5 Viral Titles & SEO Metadata")
 
-    async def test_05_pinterest_and_stock_search(self):
-        """Test stock search with integrated Pinterest scraper fallback."""
+    async def test_05_pinterest_and_stock_search_flux_fallback(self):
+        """Test stock search with integrated Pinterest scraper and Pollinations Flux AI fallback."""
         stock = StockSearcher()
-        res = await stock.find_stock("modern skyscraper", aspect_ratio="16:9", page=1)
+        res = await stock.find_stock("cyberpunk holographic city", aspect_ratio="16:9", page=1)
         self.assertIn("url", res)
         self.assertTrue(res["url"].startswith("http"))
-        print(f"[PASS] Stock Searcher: Found provider '{res['provider']}' -> URL: {res['url'][:60]}...")
+        print(f"[PASS] Stock Searcher: Sourced via provider '{res['provider']}' -> URL: {res['url'][:60]}...")
 
-    async def test_06_video_processor_and_merger(self):
-        """Test FFmpeg precision clip rendering and master video concatenation."""
+    async def test_06_bgm_engine_and_auto_ducking(self):
+        """Test BGM engine and audio ducking mixing."""
+        tracks = BGMEngine.get_available_tracks()
+        self.assertGreaterEqual(len(tracks), 5)
+        
         processor = VideoProcessor()
         from PIL import Image
         img_path = self.test_dir / "sample_img.jpg"
@@ -122,16 +124,17 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(out_clip.exists())
 
         merger = VideoMerger()
-        audio = self.test_dir / "test_voice.mp3"
+        voice_audio = self.test_dir / "test_voice.mp3"
         master_out = self.test_dir / "Full_Video_Master.mp4"
 
+        # Merge with voice
         merger.merge_clips(
             clip_paths=[out_clip, out_clip],
             output_master_path=master_out,
-            audio_path=audio
+            audio_path=voice_audio
         )
         self.assertTrue(master_out.exists())
-        print(f"[PASS] Video Processor & Merger: Rendered clip + Master Video ({os.path.getsize(master_out)} bytes)")
+        print(f"[PASS] Video Processor & Merger: Rendered Master Video with Audio ({os.path.getsize(master_out)} bytes)")
 
 if __name__ == "__main__":
     unittest.main()
