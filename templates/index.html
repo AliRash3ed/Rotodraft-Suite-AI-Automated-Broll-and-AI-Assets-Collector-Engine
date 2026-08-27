@@ -105,6 +105,9 @@
             <svg class="icon"><use href="#icon-film"/></svg> 1. SCRIPT &amp; TIMING
           </h2>
           <div style="display: flex; gap: 8px; align-items: center;">
+            <button type="button" id="openScriptDoctorBtn" class="chip-btn" style="background: var(--accent-magenta); color: #fff; font-size: 10px;">
+              🩺 SCRIPT DOCTOR
+            </button>
             <button type="button" id="autoDetectVoiceBtn" class="chip-btn" style="background: var(--bg-card); font-size: 10px;">
               🌐 AUTO-DETECT VOICE
             </button>
@@ -976,6 +979,47 @@
         BATCH PROGRESS: <span id="batchProgressLabel">0 / 0 Completed</span>
       </div>
       <div id="batchItemsList" style="display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 11px;"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Script Doctor Modal -->
+<div class="modal-overlay" id="scriptDoctorModal">
+  <div class="modal-box" style="max-width: 680px;">
+    <div class="card-header">
+      <h2 class="card-title" style="color: var(--accent-magenta);">
+        <svg class="icon"><use href="#icon-sparkles"/></svg> 🩺 AI SCRIPT DOCTOR &amp; RETENTION AUDIT
+      </h2>
+      <button type="button" class="btn btn-dark btn-sm" id="closeScriptDoctorBtn">✕ CLOSE</button>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px;">
+      <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 10px; text-align: center;">
+        <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">RETENTION SCORE</span>
+        <div id="doctorScore" style="font-size: 20px; font-weight: 900; color: var(--accent-lime);">88/100</div>
+      </div>
+      <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 10px; text-align: center;">
+        <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">SPEED (WPM)</span>
+        <div id="doctorWpm" style="font-size: 20px; font-weight: 900; color: var(--accent-cyan);">150</div>
+      </div>
+      <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 10px; text-align: center;">
+        <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">EST. DURATION</span>
+        <div id="doctorDuration" style="font-size: 20px; font-weight: 900; color: var(--accent-yellow);">24s</div>
+      </div>
+      <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 10px; text-align: center;">
+        <span style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">WORD COUNT</span>
+        <div id="doctorWords" style="font-size: 20px; font-weight: 900; color: #fff;">60</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="label" style="color: var(--accent-magenta);">🩺 Clinical Diagnostics &amp; Flaws</label>
+      <div id="doctorDiagnosticsList" style="background: var(--bg-secondary); border: 2px dashed var(--border); padding: 10px; font-family: var(--font-mono); font-size: 11px; display: flex; flex-direction: column; gap: 4px;"></div>
+    </div>
+
+    <div class="form-group" style="margin-top: 10px;">
+      <label class="label" style="color: var(--accent-cyan);">⚡ 1-Click High-Retention Rewrite Presets</label>
+      <div id="doctorVariationsList" style="display: flex; flex-direction: column; gap: 8px;"></div>
     </div>
   </div>
 </div>
