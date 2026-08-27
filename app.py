@@ -22,8 +22,9 @@ from src.video_processor import VideoProcessor
 from src.video_merger import VideoMerger
 from src.tts_engine import TTSEngine
 from src.timeline_exporter import TimelineExporter
+from src.ai_engine import AIEngine
 
-app = FastAPI(title="RotoDraft Suite", version="2.0.0")
+app = FastAPI(title="RotoDraft Suite", version="2.1.0")
 
 # Mount static and templates
 app.mount("/static", StaticFiles(directory=str(Config.ROOT_DIR / "static")), name="static")
@@ -58,6 +59,18 @@ class RegenerateClipRequest(BaseModel):
     quality: str = "1080p"
     duration: float = 3.0
     page: int = 2
+
+class ReorderClipsRequest(BaseModel):
+    project_id: str
+    clip_filenames: List[str]
+
+class RewriteScriptRequest(BaseModel):
+    text: str
+    style: str = "viral_hook"  # viral_hook, storytelling, shorts, educational
+
+class GenerateMetadataRequest(BaseModel):
+    script: str
+    project_id: Optional[str] = None
 
 class OpenFolderRequest(BaseModel):
     path: str
@@ -125,7 +138,7 @@ async def serve_dashboard(request: Request):
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.0.0"}
+    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.1.0"}
 
 @app.get("/api/templates")
 async def get_templates():
@@ -138,6 +151,76 @@ async def get_voices():
 @app.get("/api/models")
 async def get_models():
     return {"models": Config.FREE_AI_MODELS}
+
+@app.post("/api/rewrite-script")
+async def rewrite_script(req: RewriteScriptRequest):
+    """Rewrites draft text into viral high-retention script formats."""
+    ai = AIEngine()
+    result = await ai.rewrite_script(req.text, req.style)
+    return {"success": True, "data": result}
+
+@app.post("/api/generate-metadata")
+async def generate_metadata(req: GenerateMetadataRequest):
+    """Generates 5 viral titles, SEO description with timestamps, and thumbnail prompt."""
+    ai = AIEngine()
+    result = await ai.generate_viral_metadata(req.script)
+    
+    # If project_id provided, save metadata.txt to folder
+    if req.project_id:
+        p_dir = Config.DOWNLOADS_DIR / req.project_id
+        if p_dir.exists():
+            meta_text_file = p_dir / "distribution_pack.txt"
+            content = f"""=======================================================
+ROTODRAFT SUITE - VIRAL DISTRIBUTION & SEO PACK
+=======================================================
+
+🔥 CLICK-WORTHY TITLES:
+{chr(10).join(f'{i+1}. {t}' for i, t in enumerate(result.get('titles', [])))}
+
+📝 SEO DESCRIPTION & TIMESTAMPS:
+{result.get('description', '')}
+
+🏷️ HASHTAGS:
+{' '.join(result.get('hashtags', []))}
+
+🎨 MIDJOURNEY / FLUX THUMBNAIL PROMPT:
+{result.get('thumbnail_prompt', '')}
+"""
+            with open(meta_text_file, "w", encoding="utf-8") as f:
+                f.write(content)
+
+    return {"success": True, "data": result}
+
+@app.post("/api/reorder-clips")
+async def reorder_clips(req: ReorderClipsRequest):
+    """Re-merges master video in a custom drag-and-dropped clip order."""
+    proj_dir = Config.DOWNLOADS_DIR / req.project_id
+    if not proj_dir.exists():
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    clips_dir = proj_dir / "clips"
+    ordered_clip_paths = [clips_dir / fn for fn in req.clip_filenames if (clips_dir / fn).exists()]
+
+    if not ordered_clip_paths:
+        raise HTTPException(status_code=400, detail="No valid clips found for re-merging")
+
+    merger = VideoMerger()
+    audio_path = proj_dir / "voiceover.mp3"
+    srt_path = proj_dir / "voiceover.srt"
+    master_path = proj_dir / "Full_Video_Master.mp4"
+
+    merger.merge_clips(
+        clip_paths=ordered_clip_paths,
+        output_master_path=master_path,
+        audio_path=audio_path if audio_path.exists() else None,
+        srt_path=srt_path if srt_path.exists() else None
+    )
+
+    return {
+        "success": True,
+        "master_url": f"/api/media/{req.project_id}/Full_Video_Master.mp4?t={int(datetime.now().timestamp())}",
+        "message": f"Successfully re-rendered master video with {len(ordered_clip_paths)} clips in custom order!"
+    }
 
 @app.get("/api/projects")
 async def list_projects():
