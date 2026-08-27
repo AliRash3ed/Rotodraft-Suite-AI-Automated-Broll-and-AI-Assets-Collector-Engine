@@ -201,17 +201,31 @@
       <div class="card col-4">
         <div class="card-header">
           <h2 class="card-title">
-            <svg class="icon"><use href="#icon-sliders"/></svg> 2. VOICEOVER &amp; AI BRAIN
+            <svg class="icon"><use href="#icon-sliders"/></svg> 2. ENGINE &amp; SOURCING
           </h2>
-          <span class="card-badge">300+ VOICES</span>
+          <span class="card-badge" data-tooltip="Edge-TTS (Free), OpenAI TTS &amp; ElevenLabs supported">MULTI-ENGINE</span>
         </div>
 
-        <!-- Voiceover Settings Group (Full 300+ Voices) -->
-        <div id="voiceoverSettingsGroup" style="display: flex; flex-direction: column; gap: 14px;">
-          <div class="form-group" id="voiceGroup">
+        <!-- Voiceover Settings Group -->
+        <div id="voiceoverSettingsGroup" style="display: flex; flex-direction: column; gap: 12px;">
+          
+          <!-- TTS Engine Selector -->
+          <div class="form-group" data-tooltip="Choose your text-to-speech voice synthesizer. Edge-TTS is 100% free with 300+ neural voices.">
+            <label class="label">
+              <span>Voice Engine (TTS)</span>
+              <span style="color: var(--accent-lime); font-size: 10px;">NEURAL</span>
+            </label>
+            <select id="ttsEngineSelect" class="select mono" style="font-size: 12px;">
+              <option value="edge" selected>⚡ Microsoft Edge-TTS (100% Free / 300+ Voices)</option>
+              <option value="openai">🤖 OpenAI TTS (tts-1 / Alloy, Nova, Onyx)</option>
+              <option value="elevenlabs">💎 ElevenLabs (Ultra-Realistic / Voice Clones)</option>
+            </select>
+          </div>
+
+          <div class="form-group" id="voiceGroup" data-tooltip="Select specific narrator identity and dialect.">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-              <label class="label" for="voiceSelect" style="margin: 0;">Microsoft Neural Voice</label>
-              <button type="button" id="previewVoiceBtn" class="chip-btn" style="padding: 2px 8px; font-size: 10px; background: var(--accent-cyan); color: #000;">
+              <label class="label" for="voiceSelect" style="margin: 0;">Narrator Voice</label>
+              <button type="button" id="previewVoiceBtn" class="chip-btn" style="padding: 2px 8px; font-size: 10px; background: var(--accent-cyan); color: #000;" data-tooltip="Listen to a 2-second audio sample of this voice">
                 <svg class="icon icon-sm"><use href="#icon-volume"/></svg> PREVIEW
               </button>
             </div>
@@ -225,19 +239,19 @@
           </div>
 
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="form-group">
-              <label class="label" for="voiceRateSelect">Speed / Rate</label>
+            <div class="form-group" data-tooltip="Adjust voiceover narration speed">
+              <label class="label" for="voiceRateSelect">Speech Rate</label>
               <select id="voiceRateSelect" class="select mono">
                 <option value="-20%">-20% (Slow)</option>
                 <option value="-10%">-10%</option>
                 <option value="+0%" selected>Normal (1.0x)</option>
-                <option value="+10%">+10%</option>
-                <option value="+20%">+20% (Fast)</option>
+                <option value="+10%">+10% (Fast)</option>
+                <option value="+20%">+20% (TikTok)</option>
                 <option value="+30%">+30% (Speedrun)</option>
               </select>
             </div>
 
-            <div class="form-group">
+            <div class="form-group" data-tooltip="Adjust voice pitch frequency">
               <label class="label" for="voicePitchSelect">Voice Pitch</label>
               <select id="voicePitchSelect" class="select mono">
                 <option value="-5Hz">-5Hz (Deeper)</option>
@@ -246,10 +260,36 @@
               </select>
             </div>
           </div>
+
+          <!-- Sourcing Mode Selector -->
+          <div class="form-group" data-tooltip="Choose whether to search real stock videos, photos, or generate 100% pure AI visuals without stock footage.">
+            <label class="label">
+              <span>Visual Sourcing Mode</span>
+              <span style="color: var(--accent-cyan); font-size: 10px;">PEXELS / AI</span>
+            </label>
+            <select id="mediaFilterSelect" class="select mono" style="font-size: 12px;">
+              <option value="mixed" selected>🔀 Mixed (Stock Videos + Photos + AI Fallback)</option>
+              <option value="videos_only">🎥 Stock Videos Only (Pexels / Pixabay / Pinterest)</option>
+              <option value="photos_only">📸 Stock Photos Only (Ken Burns Motion)</option>
+              <option value="pure_ai">🤖 100% Pure AI Generated (Zero Stock Footage)</option>
+            </select>
+          </div>
+
+          <!-- AI Image Engine Selector -->
+          <div class="form-group" data-tooltip="Engine used when generating AI images (or during pure AI generation mode).">
+            <label class="label">
+              <span>AI Image Engine</span>
+              <span style="color: var(--accent-yellow); font-size: 10px;">4K FLUX</span>
+            </label>
+            <select id="aiImageEngineSelect" class="select mono" style="font-size: 12px;">
+              <option value="pollinations" selected>⚡ Pollinations Flux Pro (Free / 4K / No Key)</option>
+              <option value="dalle3">🎨 OpenAI DALL-E 3 (High-Fidelity BYOK)</option>
+            </select>
+          </div>
         </div>
 
         <!-- ⚡ CREATOR WORKFLOW (Directly Below Voiceover) -->
-        <div style="background: var(--bg-secondary); border: 3px solid var(--accent-blue); padding: 14px; border-radius: 4px; display: flex; flex-direction: column; gap: 8px;">
+        <div style="background: var(--bg-secondary); border: 3px solid var(--accent-blue); padding: 14px; border-radius: 4px; display: flex; flex-direction: column; gap: 8px; margin-top: 10px;" data-tooltip="Click to rewrite rough notes into viral Ali Rasheed, MrBeast, or Vox style scripts">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <span style="font-family: var(--font-heading); font-weight: 900; font-size: 13px; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
               <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> ⚡ CREATOR WORKFLOW
@@ -259,13 +299,13 @@
           <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-family: var(--font-mono);">
             Transform rough ideas into high-retention viral scripts (MrBeast / Hormozi / Vox style).
           </p>
-          <button type="button" id="openRewriteModalBtn" class="btn btn-blue btn-sm" style="width: 100%;">
+          <button type="button" id="openRewriteModalBtn" class="btn btn-blue btn-sm" style="width: 100%;" data-tooltip="Open 1-Click AI Script Rewriter">
             <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> ⚡ AI VIRAL HOOK &amp; SCRIPT REWRITER
           </button>
         </div>
 
         <!-- Aspect Ratio Pills -->
-        <div class="form-group" id="aspectRatioGroup" style="margin-top: 4px;">
+        <div class="form-group" id="aspectRatioGroup" style="margin-top: 10px;" data-tooltip="Set output video dimensions: 16:9 for YouTube desktop, 9:16 for TikTok/Shorts, 1:1 for Instagram.">
           <label class="label">Aspect Ratio</label>
           <div class="pill-grid">
             <div class="pill-option">
@@ -296,7 +336,7 @@
         </div>
 
         <!-- Background Music (BGM) with Auto-Ducking -->
-        <div class="form-group" id="bgmGroup" style="margin-top: 4px;">
+        <div class="form-group" id="bgmGroup" style="margin-top: 4px;" data-tooltip="Curated royalty-free background music track mixed beneath voiceover with automatic speech ducking.">
           <label class="label" for="bgmSelect">
             <span>🎵 Background Music (BGM)</span>
             <span style="color: var(--accent-lime); font-size: 10px;">AUTO-DUCKING</span>
@@ -313,7 +353,7 @@
 
         <!-- Video Specs -->
         <div id="videoSpecsGroup" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
+          <div class="form-group" data-tooltip="Target render resolution for exported video.">
             <label class="label" for="qualitySelect">Resolution</label>
             <select id="qualitySelect" class="select mono">
               <option value="720p">720p HD</option>
@@ -322,7 +362,7 @@
             </select>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" data-tooltip="Cinematic FFmpeg color grading filter applied to all clips.">
             <label class="label" for="colorFilterSelect">Color Grade</label>
             <select id="colorFilterSelect" class="select mono">
               <option value="natural" selected>✨ Natural</option>
@@ -335,7 +375,7 @@
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div class="form-group">
+          <div class="form-group" data-tooltip="Advanced SubStation Alpha (.ass) animated karaoke subtitles with outline and highlights.">
             <label class="label" for="subtitleStyleSelect">
               <span>Subtitles</span>
               <span style="color: var(--accent-yellow); font-size: 10px;">HORMOZI</span>
@@ -348,7 +388,7 @@
             </select>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" data-tooltip="Directs stock search and camera tone toward a specific aesthetic.">
             <label class="label" for="moodSelect">Visual Mood</label>
             <select id="moodSelect" class="select">
               <option value="Cinematic" selected>Cinematic</option>
@@ -360,9 +400,10 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" data-tooltip="Folder name where master video, clips, and timeline exports will be saved.">
           <label class="label" for="projectNameInput">Project Folder Name</label>
           <input type="text" id="projectNameInput" class="input mono" placeholder="e.g. AI_Trading_Short" value="RotoDraft_Test">
+        </div>
         </div>
       </div>
 
@@ -861,13 +902,21 @@
       </div>
 
       <div class="form-group">
-        <label class="label">
-          <span>API Key</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label class="label" style="margin: 0;">API Key</label>
           <span id="activeLlmKeyStatus" style="font-size: 11px;"></span>
-        </label>
+        </div>
         <div style="display: flex; gap: 8px;">
           <input type="password" id="activeLlmKeyInput" class="input mono" placeholder="Enter provider API key...">
           <button type="button" class="btn btn-cyan btn-sm" id="testActiveLlmKeyBtn">TEST</button>
+        </div>
+        <div style="margin-top: 4px; font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); display: flex; gap: 10px; flex-wrap: wrap;">
+          <span>Get Keys:</span>
+          <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--accent-cyan);">🔗 OpenRouter (Free)</a>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-cyan);">🔗 Google Gemini</a>
+          <a href="https://platform.openai.com/api-keys" target="_blank" style="color: var(--accent-cyan);">🔗 OpenAI</a>
+          <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color: var(--accent-cyan);">🔗 DeepSeek</a>
+          <a href="https://console.groq.com/keys" target="_blank" style="color: var(--accent-cyan);">🔗 Groq</a>
         </div>
       </div>
 
@@ -886,25 +935,31 @@
     <!-- Section 2: Footage & Stock -->
     <div id="setSecMedia" style="display: none; flex-direction: column; gap: 12px;">
       <div class="form-group">
-        <label class="label">
-          <span>Pexels Video API Key</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label class="label" style="margin: 0;">Pexels Video API Key</label>
           <span id="pexelsKeyStatus" style="font-size: 11px;"></span>
-        </label>
+        </div>
         <div style="display: flex; gap: 8px;">
           <input type="password" id="pexelsKeyInput" class="input mono" placeholder="Pexels API Key...">
           <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pexels">TEST</button>
         </div>
+        <small style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 2px;">
+          Free 200 req/hr: <a href="https://www.pexels.com/api/" target="_blank" style="color: var(--accent-cyan);">🔗 Get Free Pexels Key</a>
+        </small>
       </div>
 
       <div class="form-group">
-        <label class="label">
-          <span>Pixabay Video API Key</span>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+          <label class="label" style="margin: 0;">Pixabay Video API Key</label>
           <span id="pixabayKeyStatus" style="font-size: 11px;"></span>
-        </label>
+        </div>
         <div style="display: flex; gap: 8px;">
           <input type="password" id="pixabayKeyInput" class="input mono" placeholder="Pixabay API Key...">
           <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pixabay">TEST</button>
         </div>
+        <small style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-top: 2px;">
+          Free unlimited: <a href="https://pixabay.com/api/docs/" target="_blank" style="color: var(--accent-cyan);">🔗 Get Free Pixabay Key</a>
+        </small>
       </div>
 
       <div class="form-group">
