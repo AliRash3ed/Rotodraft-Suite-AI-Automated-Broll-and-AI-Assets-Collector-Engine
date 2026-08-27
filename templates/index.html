@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RotoDraft Suite - AI Stock Media & B-Roll Collector Studio</title>
+  <title>RotoDraft Suite - AI Video Factory &amp; B-Roll Collector Studio</title>
   <link rel="stylesheet" href="/static/css/neobrutalism.css">
   <link rel="icon" type="image/png" href="/static/assets/logo.png">
 </head>
@@ -17,6 +17,7 @@
     <g id="icon-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="currentColor" stroke-width="2"/></g>
     <g id="icon-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke="currentColor" stroke-width="2" fill="none"/></g>
     <g id="icon-play"><polygon points="6 3 20 12 6 21 6 3" fill="currentColor"/></g>
+    <g id="icon-volume"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" stroke="currentColor" stroke-width="2" fill="none"/></g>
     <g id="icon-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" fill="none"/></g>
     <g id="icon-refresh"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" stroke="currentColor" stroke-width="2" fill="none"/></g>
     <g id="icon-clock"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2"/></g>
@@ -32,7 +33,7 @@
     <g id="icon-monitor"><rect width="20" height="14" x="2" y="3" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/></g>
     <g id="icon-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 18h.01" stroke="currentColor" stroke-width="2.5"/></g>
     <g id="icon-rocket"><path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z" stroke="currentColor" stroke-width="2" fill="none"/><path d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-move"><polyline points="5 9 2 12 5 15" stroke="currentColor" stroke-width="2"/><polyline points="9 5 12 2 15 5" stroke="currentColor" stroke-width="2"/><polyline points="15 19 12 22 9 19" stroke="currentColor" stroke-width="2"/><polyline points="19 9 22 12 19 15" stroke="currentColor" stroke-width="2"/><line x1="2" y1="12" x2="22" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="2" x2="12" y2="22" stroke="currentColor" stroke-width="2"/></g>
+    <g id="icon-chart"><line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="2"/><line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="2"/></g>
   </defs>
 </svg>
 
@@ -47,8 +48,8 @@
       <div>
         <h1 class="brand-title">ROTODRAFT SUITE</h1>
         <div style="display: flex; gap: 6px; align-items: center; margin-top: 2px;">
-          <span class="brand-tag">v2.1 PRO</span>
-          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">AI B-Roll Collector &amp; NLE Studio</span>
+          <span class="brand-tag">v2.2 ENTERPRISE</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">AI Video Factory &amp; NLE Studio</span>
         </div>
       </div>
     </div>
@@ -60,6 +61,9 @@
       </button>
       <button type="button" class="tab-btn" id="tabVaultBtn">
         <svg class="icon"><use href="#icon-folder"/></svg> PROJECT VAULT
+      </button>
+      <button type="button" class="tab-btn" id="tabStatsBtn">
+        <svg class="icon"><use href="#icon-chart"/></svg> OWNER ANALYTICS
       </button>
     </div>
 
@@ -79,7 +83,7 @@
     <!-- Template Chips Bar -->
     <div class="template-bar">
       <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 900; color: var(--accent-yellow); display: flex; align-items: center; gap: 4px;">
-        <svg class="icon icon-sm"><use href="#icon-zap"/></svg> PRESETS:
+        <svg class="icon icon-sm"><use href="#icon-zap"/></svg> VIRAL PRESETS:
       </span>
       {% for t in templates %}
         <button type="button" class="chip-btn" data-template-id="{{ t.id }}">
@@ -98,8 +102,8 @@
             <svg class="icon"><use href="#icon-film"/></svg> 1. SCRIPT &amp; TIMING
           </h2>
           <div style="display: flex; gap: 8px; align-items: center;">
-            <button type="button" id="openRewriteModalBtn" class="chip-btn" style="background: var(--accent-blue); color: #fff; border-color: var(--border); box-shadow: 2px 2px 0px #000;">
-              <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> ⚡ AI ENHANCE SCRIPT
+            <button type="button" id="autoDetectVoiceBtn" class="chip-btn" style="background: var(--bg-card); font-size: 10px;">
+              🌐 AUTO-DETECT VOICE
             </button>
             <span class="card-badge" id="wordCountBadge">0 WORDS</span>
           </div>
@@ -187,17 +191,75 @@
         </div>
       </div>
 
-      <!-- Production Settings (Col-4) -->
+      <!-- Production Settings & Sidebar (Col-4) -->
       <div class="card col-4">
         <div class="card-header">
           <h2 class="card-title">
-            <svg class="icon"><use href="#icon-sliders"/></svg> 2. FORMAT &amp; SPECS
+            <svg class="icon"><use href="#icon-sliders"/></svg> 2. VOICEOVER &amp; AI BRAIN
           </h2>
-          <span class="card-badge">SPECS</span>
+          <span class="card-badge">300+ VOICES</span>
+        </div>
+
+        <!-- Voiceover Settings Group (Full 300+ Voices) -->
+        <div id="voiceoverSettingsGroup" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group" id="voiceGroup">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label class="label" for="voiceSelect" style="margin: 0;">Microsoft Neural Voice</label>
+              <button type="button" id="previewVoiceBtn" class="chip-btn" style="padding: 2px 8px; font-size: 10px; background: var(--accent-cyan); color: #000;">
+                <svg class="icon icon-sm"><use href="#icon-volume"/></svg> PREVIEW
+              </button>
+            </div>
+            <select id="voiceSelect" class="select mono" style="font-size: 12px;">
+              {% for v in voices %}
+                <option value="{{ v.id }}" {% if v.id == 'en-US-ChristopherNeural' %}selected{% endif %}>
+                  {{ v.name }} [{{ v.language }}]
+                </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="label" for="voiceRateSelect">Speed / Rate</label>
+              <select id="voiceRateSelect" class="select mono">
+                <option value="-20%">-20% (Slow)</option>
+                <option value="-10%">-10%</option>
+                <option value="+0%" selected>Normal (1.0x)</option>
+                <option value="+10%">+10%</option>
+                <option value="+20%">+20% (Fast)</option>
+                <option value="+30%">+30% (Speedrun)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="voicePitchSelect">Voice Pitch</label>
+              <select id="voicePitchSelect" class="select mono">
+                <option value="-5Hz">-5Hz (Deeper)</option>
+                <option value="+0Hz" selected>Default (0Hz)</option>
+                <option value="+5Hz">+5Hz (Higher)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ⚡ CREATOR WORKFLOW (Directly Below Voiceover) -->
+        <div style="background: var(--bg-secondary); border: 3px solid var(--accent-blue); padding: 14px; border-radius: 4px; display: flex; flex-direction: column; gap: 8px;">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-family: var(--font-heading); font-weight: 900; font-size: 13px; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
+              <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> ⚡ CREATOR WORKFLOW
+            </span>
+            <span class="card-badge" style="background: var(--accent-blue); color: #fff;">ONE-CLICK</span>
+          </div>
+          <p style="font-size: 11px; color: var(--text-muted); margin: 0; font-family: var(--font-mono);">
+            Transform rough ideas into high-retention viral scripts (MrBeast / Hormozi / Vox style).
+          </p>
+          <button type="button" id="openRewriteModalBtn" class="btn btn-blue btn-sm" style="width: 100%;">
+            <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> ⚡ AI VIRAL HOOK &amp; SCRIPT REWRITER
+          </button>
         </div>
 
         <!-- Aspect Ratio Pills -->
-        <div class="form-group" id="aspectRatioGroup">
+        <div class="form-group" id="aspectRatioGroup" style="margin-top: 4px;">
           <label class="label">Aspect Ratio</label>
           <div class="pill-grid">
             <div class="pill-option">
@@ -223,44 +285,6 @@
                 <span>1:1</span>
                 <span style="font-size: 9px; color: var(--text-muted);">Square</span>
               </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Voiceover Settings Group -->
-        <div id="voiceoverSettingsGroup" style="display: flex; flex-direction: column; gap: 14px;">
-          <div class="form-group" id="voiceGroup">
-            <label class="label" for="voiceSelect">
-              <span>Free Neural Voice</span>
-              <span style="color: var(--accent-lime); font-size: 11px;">100% FREE</span>
-            </label>
-            <select id="voiceSelect" class="select mono">
-              {% for v in voices %}
-                <option value="{{ v.id }}" {% if loop.first %}selected{% endif %}>{{ v.name }}</option>
-              {% endfor %}
-            </select>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="form-group">
-              <label class="label" for="voiceRateSelect">Speed / Rate</label>
-              <select id="voiceRateSelect" class="select mono">
-                <option value="-20%">-20% (Slow)</option>
-                <option value="-10%">-10%</option>
-                <option value="+0%" selected>Normal (1.0x)</option>
-                <option value="+10%">+10%</option>
-                <option value="+20%">+20% (Fast)</option>
-                <option value="+30%">+30% (Speedrun)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="label" for="voicePitchSelect">Voice Pitch</label>
-              <select id="voicePitchSelect" class="select mono">
-                <option value="-5Hz">-5Hz (Deeper)</option>
-                <option value="+0Hz" selected>Default (0Hz)</option>
-                <option value="+5Hz">+5Hz (Higher)</option>
-              </select>
             </div>
           </div>
         </div>
@@ -319,8 +343,8 @@
         </div>
 
         <div class="terminal" id="terminal">
-          <div class="terminal-line info">[SYSTEM] RotoDraft Suite 2.1 initialized. Ready to process video narrative.</div>
-          <div class="terminal-line">[INFO] Supported Engines: Pexels API, Pixabay API, Pinterest Scraper, Ken Burns Fallback.</div>
+          <div class="terminal-line info">[SYSTEM] RotoDraft Suite 2.2 Enterprise initialized. Ready to process video narrative.</div>
+          <div class="terminal-line">[INFO] Sourcing Engines: Playwright Pinterest Stealth, Pexels API, Pixabay API, 4K Ken Burns.</div>
           <div class="terminal-line">[INFO] Pro NLE Exporters: CapCut Desktop (draft_info.json) + Premiere Pro XML.</div>
         </div>
       </div>
@@ -480,6 +504,64 @@
     </div>
   </div>
 
+  <!-- OWNER ANALYTICS DASHBOARD VIEW (Password Protected) -->
+  <div id="statsView" style="display: none; flex-direction: column; gap: 24px;">
+    <div class="card col-12">
+      <div class="card-header">
+        <h2 class="card-title">
+          <svg class="icon"><use href="#icon-chart"/></svg> OWNER ANALYTICS &amp; GROWTH DASHBOARD
+        </h2>
+        <div style="display: flex; gap: 8px;">
+          <button type="button" id="exportLeadsCsvBtn" class="btn btn-yellow btn-sm">
+            <svg class="icon icon-sm"><use href="#icon-download"/></svg> 📥 EXPORT LEADS CSV
+          </button>
+          <span class="card-badge" style="background: var(--accent-blue); color: #fff;">PRIVATE VAULT</span>
+        </div>
+      </div>
+
+      <!-- Metric Stats Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-bottom: 20px;">
+        <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px; border-radius: 4px;">
+          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">TOTAL VIDEOS GENERATED</span>
+          <h3 id="statTotalVideos" style="font-size: 28px; margin: 4px 0 0 0; color: var(--accent-cyan);">0</h3>
+        </div>
+        <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px; border-radius: 4px;">
+          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">EMAIL LEADS COLLECTED</span>
+          <h3 id="statTotalLeads" style="font-size: 28px; margin: 4px 0 0 0; color: var(--accent-lime);">0</h3>
+        </div>
+        <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px; border-radius: 4px;">
+          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">WHATSAPP MESSAGES</span>
+          <h3 id="statWhatsappClicks" style="font-size: 28px; margin: 4px 0 0 0; color: var(--accent-yellow);">0</h3>
+        </div>
+        <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px; border-radius: 4px;">
+          <span style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">CONVERSION RATE</span>
+          <h3 id="statConversionRate" style="font-size: 28px; margin: 4px 0 0 0; color: var(--accent-pink);">0%</h3>
+        </div>
+      </div>
+
+      <!-- Recent Leads Table -->
+      <h3 style="font-size: 15px; font-family: var(--font-heading); margin-bottom: 10px;">📋 RECENT CONTACT LEADS</h3>
+      <div style="overflow-x: auto;">
+        <table class="vault-table">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Name</th>
+              <th>WhatsApp Clicked?</th>
+              <th>Videos Made</th>
+              <th>Captured Date</th>
+            </tr>
+          </thead>
+          <tbody id="recentLeadsTableBody">
+            <tr>
+              <td colspan="5" style="text-align: center; font-family: var(--font-mono);">No leads captured yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- Author Signature / Portfolio Card -->
   <footer class="footer">
     <div class="author-info">
@@ -504,6 +586,58 @@
 
 </div>
 
+<!-- ONBOARDING & LEAD CONVERSION MODAL -->
+<div class="modal-overlay" id="onboardingModal">
+  <div class="modal-box" style="max-width: 520px; text-align: center;">
+    
+    <!-- Step 1: Email Capture -->
+    <div id="onboardStep1">
+      <div style="font-size: 40px; margin-bottom: 8px;">🎬✨</div>
+      <h2 style="font-family: var(--font-heading); font-size: 20px; font-weight: 900; margin: 0 0 6px 0; color: var(--accent-cyan);">
+        YOUR VIDEO IS READY!
+      </h2>
+      <p style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); margin: 0 0 16px 0;">
+        Loving RotoDraft Suite? Enter your email to get free viral script templates, new b-roll scrapers &amp; pro updates!
+      </p>
+
+      <form id="onboardEmailForm" style="display: flex; flex-direction: column; gap: 12px;">
+        <input type="text" id="onboardNameInput" class="input" placeholder="Your Name (Optional)">
+        <input type="email" id="onboardEmailInput" class="input mono" placeholder="your.email@gmail.com" required>
+        
+        <button type="submit" class="btn btn-blue btn-lg">
+          <svg class="icon icon-sm"><use href="#icon-sparkles"/></svg> GET FREE TEMPLATES &amp; ACCESS
+        </button>
+
+        <button type="button" id="skipOnboardingBtn" style="background: none; border: none; color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; cursor: pointer; text-decoration: underline;">
+          Skip for now
+        </button>
+      </form>
+    </div>
+
+    <!-- Step 2: Direct WhatsApp Connect -->
+    <div id="onboardStep2" style="display: none;">
+      <div style="font-size: 40px; margin-bottom: 8px;">🚀💬</div>
+      <h2 style="font-family: var(--font-heading); font-size: 20px; font-weight: 900; margin: 0 0 6px 0; color: var(--accent-lime);">
+        YOU'RE IN!
+      </h2>
+      <p style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono); margin: 0 0 16px 0;">
+        Now message me directly on WhatsApp so I can share private high-retention creator prompts with you:
+      </p>
+
+      <a id="whatsappDirectLink" href="https://wa.me/923237580648?text=Hi%20Ali!%20I%20just%20created%20a%20video%20with%20RotoDraft%20Suite." target="_blank" class="btn btn-lime btn-lg" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-bottom: 12px;">
+        💬 MESSAGE ALI ON WHATSAPP &rarr;
+      </a>
+
+      <div style="display: flex; gap: 8px; justify-content: center;">
+        <a href="https://github.com/AliRash3ed/rotodraft-suite" target="_blank" class="btn btn-dark btn-sm">⭐ STAR GITHUB</a>
+        <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="btn btn-cyan btn-sm">LINKEDIN</a>
+        <button type="button" id="finishOnboardBtn" class="btn btn-yellow btn-sm">DONE</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- AI Script Rewriter & Hook Enhancer Modal -->
 <div class="modal-overlay" id="rewriteModal">
   <div class="modal-box" style="max-width: 620px;">
@@ -515,7 +649,7 @@
     </div>
 
     <div style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">
-      Select a viral pacing framework to transform raw ideas into high-retention video scripts.
+      Select a viral copywriting framework to transform raw ideas into high-retention video scripts.
     </div>
 
     <div class="form-group">
@@ -694,7 +828,7 @@
     <!-- Pixabay -->
     <div class="form-group">
       <label class="label">
-        <span>Pixabay API Key</span>
+        <span>Pixabay Video API Key</span>
         <span id="pixabayKeyStatus" style="font-size: 11px;"></span>
       </label>
       <div style="display: flex; gap: 8px;">
