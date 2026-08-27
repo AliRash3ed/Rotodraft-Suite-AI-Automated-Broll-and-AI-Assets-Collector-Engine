@@ -248,6 +248,12 @@ async def get_batch_status(batch_id: str):
         raise HTTPException(status_code=404, detail="Batch not found")
     return data
 
+@app.post("/api/diagnose-script")
+async def diagnose_script_endpoint(req: RewriteScriptRequest):
+    ai = AIEngine()
+    result = await ai.diagnose_script(req.text)
+    return {"success": True, "data": result}
+
 @app.post("/api/rewrite-script")
 async def rewrite_script(req: RewriteScriptRequest):
     ai = AIEngine()
