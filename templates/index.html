@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>RotoDraft Suite - AI Stock Media & B-Roll Collector Studio</title>
   <link rel="stylesheet" href="/static/css/neobrutalism.css">
-  <link rel="icon" type="image/svg+xml" href="/static/assets/logo.svg">
+  <link rel="icon" type="image/png" href="/static/assets/logo.png">
 </head>
 <body>
 
@@ -30,23 +30,23 @@
     <g id="icon-scissors"><circle cx="6" cy="6" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2" fill="none"/><line x1="20" y1="4" x2="8.12" y2="15.88" stroke="currentColor" stroke-width="2"/><line x1="14.47" y1="14.48" x2="20" y2="20" stroke="currentColor" stroke-width="2"/><line x1="8.12" y1="8.12" x2="12" y2="12" stroke="currentColor" stroke-width="2"/></g>
     <g id="icon-sliders"><line x1="4" y1="21" x2="4" y2="14" stroke="currentColor" stroke-width="2"/><line x1="4" y1="10" x2="4" y2="3" stroke="currentColor" stroke-width="2"/><line x1="12" y1="21" x2="12" y2="12" stroke="currentColor" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="3" stroke="currentColor" stroke-width="2"/><line x1="20" y1="21" x2="20" y2="16" stroke="currentColor" stroke-width="2"/><line x1="20" y1="12" x2="20" y2="3" stroke="currentColor" stroke-width="2"/><line x1="1" y1="14" x2="7" y2="14" stroke="currentColor" stroke-width="2"/><line x1="9" y1="8" x2="15" y2="8" stroke="currentColor" stroke-width="2"/><line x1="17" y1="16" x2="23" y2="16" stroke="currentColor" stroke-width="2"/></g>
     <g id="icon-monitor"><rect width="20" height="14" x="2" y="3" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 18h.01" stroke="currentColor" stroke-width="2.5"/></g>
+    <g id="icon-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 18h.01" stroke="currentColor" stroke-width="2.5"/></g>
   </defs>
 </svg>
 
 <div class="container">
   
-  <!-- Header with SVG Logo and Nav -->
+  <!-- Header with Brand Logo and Navigation -->
   <header class="header">
     <div class="brand">
       <div class="brand-icon">
-        <img src="/static/assets/logo.svg" alt="RotoDraft Logo" width="46" height="46">
+        <img src="/static/assets/logo.png" alt="RotoDraft Logo" width="48" height="48">
       </div>
       <div>
         <h1 class="brand-title">ROTODRAFT SUITE</h1>
         <div style="display: flex; gap: 6px; align-items: center; margin-top: 2px;">
           <span class="brand-tag">v2.1 PRO</span>
-          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">AI B-Roll Collector &amp; NLE Video Studio</span>
+          <span style="font-family: var(--font-mono); font-size: 11px; color: var(--text-muted);">AI B-Roll Collector &amp; NLE Studio</span>
         </div>
       </div>
     </div>
@@ -100,7 +100,7 @@
 
         <!-- Workflow Mode Switcher -->
         <div class="form-group" style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 12px;">
-          <label class="label" for="modeSelect" style="color: var(--accent-yellow);">
+          <label class="label" for="modeSelect" style="color: var(--accent-cyan);">
             <span>WORKFLOW MODE</span>
             <span id="modeDescriptionBadge" style="color: var(--text-muted); font-size: 11px;">Full Video Creation</span>
           </label>
@@ -176,7 +176,7 @@
           <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 800; display: flex; align-items: center; gap: 6px;">
             <svg class="icon icon-sm"><use href="#icon-scissors"/></svg> PRODUCTION TIMELINE:
           </span>
-          <span class="mono" id="clipCalcBadge" style="color: var(--accent-pink); font-weight: 900; font-size: 13px;">30s TOTAL -> ~10 CLIPS (3.0s EACH)</span>
+          <span class="mono" id="clipCalcBadge" style="color: var(--accent-cyan); font-weight: 900; font-size: 13px;">30s TOTAL -> ~10 CLIPS (3.0s EACH)</span>
         </div>
       </div>
 
@@ -289,7 +289,7 @@
 
       <!-- Action Bar (Col-12) -->
       <div class="col-12">
-        <button type="submit" id="submitBtn" class="btn btn-lg btn-yellow" style="width: 100%;">
+        <button type="submit" id="submitBtn" class="btn btn-lg btn-blue" style="width: 100%;">
           <svg class="icon icon-lg"><use href="#icon-sparkles"/></svg> GENERATE &amp; COLLECT ASSETS
         </button>
       </div>
@@ -374,7 +374,7 @@
 
         <!-- Interactive NLE Multi-Track Timeline -->
         <div id="timelineBoardContainer" style="display: none; flex-direction: column; gap: 6px;">
-          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent-yellow); display: flex; align-items: center; gap: 6px;">
+          <span style="font-family: var(--font-mono); font-size: 11px; font-weight: 800; color: var(--accent-cyan); display: flex; align-items: center; gap: 6px;">
             <svg class="icon icon-sm"><use href="#icon-layers"/></svg> INTERACTIVE NLE TIMELINE TRACKS:
           </span>
           <div class="timeline-board">
@@ -396,7 +396,7 @@
             <div class="timeline-track" id="timelineAudioTrack">
               <span class="track-label" style="color: var(--accent-cyan);">AUDIO TRACK</span>
               <div class="timeline-blocks" id="timelineAudioBlocks">
-                <div class="timeline-clip-node" style="background: var(--accent-cyan); color: #000; width: 100%;">
+                <div class="timeline-clip-node" style="background: var(--accent-blue); color: #fff; width: 100%;">
                   <span>🎙️ Voiceover Waveform Audio Track</span>
                 </div>
               </div>
@@ -466,10 +466,13 @@
   <!-- Author Signature / Portfolio Card -->
   <footer class="footer">
     <div class="author-info">
-      <div class="author-avatar">🇵🇰</div>
+      <img src="/static/assets/creator_avatar.png" alt="Ali Rasheed Bhatti" class="author-avatar-img">
       <div class="author-details">
-        <h4>BUILT BY ALI RASHEED BHATTI</h4>
-        <p>Full Stack &amp; AI Engineer • Lahore, Pakistan • Open-Source Video Creator Studio</p>
+        <h4>
+          ALI RASHEED BHATTI
+          <span style="font-size: 10px; background: var(--accent-blue); color: #fff; padding: 2px 6px; border-radius: 3px; font-family: var(--font-mono);">AUTHOR</span>
+        </h4>
+        <p>Full Stack &amp; AI Systems Engineer • Lahore, Pakistan • Open-Source Creator</p>
       </div>
     </div>
 
@@ -500,7 +503,7 @@
 
     <!-- Mode A: Minutes & Seconds -->
     <div class="form-group" style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 14px;">
-      <label class="label" style="color: var(--accent-yellow);">1. Enter Minutes &amp; Seconds (MM:SS)</label>
+      <label class="label" style="color: var(--accent-cyan);">1. Enter Minutes &amp; Seconds (MM:SS)</label>
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
         <div>
           <span style="font-size: 11px; font-family: var(--font-mono);">Minutes:</span>
@@ -521,7 +524,7 @@
       <label class="label" style="color: var(--accent-lime);">2. Estimate from Script Words</label>
       <div style="display: flex; gap: 8px; margin-bottom: 6px;">
         <button type="button" class="chip-btn" id="wpmSlowBtn">130 WPM (Slow)</button>
-        <button type="button" class="chip-btn" id="wpmNormBtn" style="background: var(--accent-yellow); color: #000;">150 WPM (Standard)</button>
+        <button type="button" class="chip-btn" id="wpmNormBtn" style="background: var(--accent-blue); color: #fff;">150 WPM (Standard)</button>
         <button type="button" class="chip-btn" id="wpmFastBtn">180 WPM (Viral Shorts)</button>
       </div>
       <div style="font-size: 12px; font-family: var(--font-mono);">
@@ -530,7 +533,7 @@
       </div>
     </div>
 
-    <button type="button" id="applyTimeCalcBtn" class="btn btn-yellow btn-lg">
+    <button type="button" id="applyTimeCalcBtn" class="btn btn-blue btn-lg">
       <svg class="icon"><use href="#icon-zap"/></svg> APPLY DURATION &amp; CLOSE
     </button>
   </div>
@@ -601,7 +604,7 @@
       </small>
     </div>
 
-    <button type="button" class="btn btn-yellow" onclick="document.getElementById('settingsModal').classList.remove('active')">
+    <button type="button" class="btn btn-blue" onclick="document.getElementById('settingsModal').classList.remove('active')">
       SAVE &amp; APPLY SETTINGS
     </button>
   </div>
@@ -635,7 +638,7 @@
         </select>
       </div>
 
-      <button type="submit" class="btn btn-yellow">
+      <button type="submit" class="btn btn-blue">
         <svg class="icon"><use href="#icon-sparkles"/></svg> FETCH &amp; REPLACE CLIP
       </button>
     </form>
