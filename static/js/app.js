@@ -974,6 +974,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     logTerminal(`Starting pipeline in ${mode.toUpperCase()} mode for '${projectName}'...`);
 
+    const byok = JSON.parse(localStorage.getItem("rotodraft_byok_settings") || "{}");
+
     const payload = {
       mode,
       script,
@@ -981,19 +983,31 @@ document.addEventListener("DOMContentLoaded", () => {
       clip_duration: clipDuration,
       aspect_ratio,
       quality,
+      tts_engine: document.getElementById("ttsEngineSelect")?.value || "edge",
       voice,
       voice_rate,
       voice_pitch,
+      tts_key: byok.llmKey || undefined,
+      media_filter: document.getElementById("mediaFilterSelect")?.value || "mixed",
+      ai_image_engine: document.getElementById("aiImageEngineSelect")?.value || "pollinations",
       bgm_track: document.getElementById("bgmSelect")?.value || "none",
+      bgm_volume: (parseFloat(byok.bgmVol) || 18) / 100.0,
       color_filter: document.getElementById("colorFilterSelect")?.value || "natural",
       subtitle_style: document.getElementById("subtitleStyleSelect")?.value || "hormozi",
+      mirror_flip: byok.mirrorFlip === "true",
+      video_speed: parseFloat(byok.videoSpeed) || 1.0,
       mood,
       project_name: projectName,
       custom_audio_path: customAudioPath,
-      openrouter_key,
-      openrouter_model,
-      pexels_key,
-      pixabay_key
+      openrouter_key: byok.llmProvider === "openrouter" ? byok.llmKey : openrouter_key,
+      openrouter_model: byok.llmModel || openrouter_model,
+      gemini_key: byok.llmProvider === "gemini" ? byok.llmKey : undefined,
+      gemini_model: byok.llmModel || undefined,
+      openai_key: byok.llmProvider === "openai" ? byok.llmKey : undefined,
+      openai_base_url: byok.llmBaseUrl || undefined,
+      openai_model: byok.llmModel || undefined,
+      pexels_key: byok.pexelsKey || pexels_key,
+      pixabay_key: byok.pixabayKey || pixabay_key
     };
 
     try {
