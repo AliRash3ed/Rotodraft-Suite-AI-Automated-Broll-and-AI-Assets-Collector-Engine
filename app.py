@@ -8,8 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
 
-from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, Query, UploadFile, File, Form
-from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse, JSONResponse
+from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, Query, UploadFile, File, Form, Depends
+from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
@@ -23,12 +23,15 @@ from src.video_merger import VideoMerger
 from src.tts_engine import TTSEngine
 from src.timeline_exporter import TimelineExporter
 from src.ai_engine import AIEngine
+from src.voices_catalog import VoiceCatalog
+from src.lead_manager import LeadManager
 
-app = FastAPI(title="RotoDraft Suite", version="2.1.0")
+app = FastAPI(title="RotoDraft Suite", version="2.2.0")
 
 # Mount static and templates
 app.mount("/static", StaticFiles(directory=str(Config.ROOT_DIR / "static")), name="static")
 templates = Jinja2Templates(directory=str(Config.ROOT_DIR / "templates"))
+lead_mgr = LeadManager()
 
 class GenerateRequest(BaseModel):
     mode: str = "full"  # "full", "stock_only", "voice_only", "keywords_only"
@@ -72,6 +75,23 @@ class GenerateMetadataRequest(BaseModel):
     script: str
     project_id: Optional[str] = None
 
+class VoicePreviewRequest(BaseModel):
+    voice: str
+    rate: Optional[str] = "+0%"
+    pitch: Optional[str] = "+0Hz"
+    text: Optional[str] = "Hello, this is a sample of this neural voice in RotoDraft Suite."
+
+class AutoDetectVoiceRequest(BaseModel):
+    script: str
+
+class LeadSubmitRequest(BaseModel):
+    email: str
+    name: Optional[str] = ""
+    video_count: Optional[int] = 1
+
+class WhatsAppClickRequest(BaseModel):
+    email: str
+
 class OpenFolderRequest(BaseModel):
     path: str
 
@@ -113,6 +133,15 @@ SCRIPT_TEMPLATES = [
         "script": "Quantum computing is breaking the boundaries of classical physics. Superconducting qubits operating near absolute zero can process complex simulations in seconds that would take supercomputers thousands of years. We are witnessing the dawn of true machine intelligence."
     },
     {
+        "id": "urdu_motivation",
+        "title": "🇵🇰 Urdu Mindset & Success Story (9:16 Shorts)",
+        "mood": "Cinematic",
+        "ratio": "9:16",
+        "duration": 21,
+        "clip_len": 3.0,
+        "script": "کامیابی کا راز مستقل مزاجی اور محنت میں پوشیدہ ہے۔ جب انسان اپنے مقاصد پر فوکس کرتا ہے تو دنیا کی کوئی طاقت اسے آگے بڑھنے سے نہیں روک سکتی۔"
+    },
+    {
         "id": "nature",
         "title": "🌿 Deep Forest & Cosmic Perspective (16:9)",
         "mood": "Vibrant Nature",
@@ -125,9 +154,10 @@ SCRIPT_TEMPLATES = [
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_dashboard(request: Request):
+    voices = await VoiceCatalog.get_all_voices()
     return templates.TemplateResponse("index.html", {
         "request": request,
-        "voices": Config.TTS_VOICES,
+        "voices": voices,
         "models": Config.FREE_AI_MODELS,
         "default_model": Config.OPENROUTER_MODEL,
         "templates": SCRIPT_TEMPLATES,
@@ -138,7 +168,7 @@ async def serve_dashboard(request: Request):
 
 @app.get("/api/health")
 async def health_check():
-    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.1.0"}
+    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.2.0"}
 
 @app.get("/api/templates")
 async def get_templates():
@@ -146,11 +176,36 @@ async def get_templates():
 
 @app.get("/api/voices")
 async def get_voices():
-    return {"voices": Config.TTS_VOICES}
+    voices = await VoiceCatalog.get_all_voices()
+    return {"voices": voices, "total": len(voices)}
 
-@app.get("/api/models")
-async def get_models():
-    return {"models": Config.FREE_AI_MODELS}
+@app.post("/api/auto-detect-voice")
+async def auto_detect_voice(req: AutoDetectVoiceRequest):
+    voice_id = VoiceCatalog.detect_best_voice(req.script)
+    return {"success": True, "voice_id": voice_id}
+
+@app.post("/api/voice-preview")
+async def voice_preview(req: VoicePreviewRequest):
+    """Generates an instant 2-second audio preview of any selected voice."""
+    tts = TTSEngine()
+    preview_dir = Config.DOWNLOADS_DIR / "_voice_previews"
+    preview_dir.mkdir(parents=True, exist_ok=True)
+    
+    clean_id = req.voice.replace("-", "_")
+    out_path = preview_dir / f"preview_{clean_id}.mp3"
+
+    res = await tts.generate_speech(
+        text=req.text or "Hello, welcome to RotoDraft Suite.",
+        output_path=out_path,
+        voice=req.voice,
+        rate=req.rate or "+0%",
+        pitch=req.pitch or "+0Hz"
+    )
+    return {
+        "success": True,
+        "audio_url": f"/api/media/_voice_previews/{out_path.name}?t={int(datetime.now().timestamp())}",
+        "duration": res.get("duration", 2.0)
+    }
 
 @app.post("/api/rewrite-script")
 async def rewrite_script(req: RewriteScriptRequest):
@@ -221,6 +276,37 @@ async def reorder_clips(req: ReorderClipsRequest):
         "master_url": f"/api/media/{req.project_id}/Full_Video_Master.mp4?t={int(datetime.now().timestamp())}",
         "message": f"Successfully re-rendered master video with {len(ordered_clip_paths)} clips in custom order!"
     }
+
+# Leads & Onboarding Endpoints (Private Local Storage)
+@app.post("/api/leads/submit")
+async def submit_lead(req: LeadSubmitRequest):
+    res = await lead_mgr.save_lead(req.email, req.name, req.video_count)
+    return res
+
+@app.post("/api/leads/whatsapp-click")
+async def record_whatsapp_click(req: WhatsAppClickRequest):
+    lead_mgr.record_whatsapp_click(req.email)
+    return {"success": True}
+
+@app.get("/api/admin/stats")
+async def get_admin_stats(key: Optional[str] = None):
+    # Optional password protection check if OWNER_SECRET is configured
+    owner_secret = os.getenv("OWNER_SECRET", "")
+    if owner_secret and key != owner_secret:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return lead_mgr.get_dashboard_stats()
+
+@app.get("/api/admin/export-leads")
+async def export_leads(key: Optional[str] = None):
+    owner_secret = os.getenv("OWNER_SECRET", "")
+    if owner_secret and key != owner_secret:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    csv_data = lead_mgr.export_leads_csv()
+    return Response(
+        content=csv_data,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=rotodraft_leads.csv"}
+    )
 
 @app.get("/api/projects")
 async def list_projects():
@@ -414,6 +500,17 @@ async def stream_generation(req: GenerateRequest):
         cohere_key=req.cohere_key,
         pexels_key=req.pexels_key,
         pixabay_key=req.pixabay_key
+    )
+
+    # Record analytics event
+    lead_mgr.record_video_generation(
+        project_name=req.project_name or "Project",
+        mode=req.mode,
+        aspect_ratio=req.aspect_ratio,
+        mood=req.mood,
+        voice=req.voice,
+        duration=req.duration_seconds,
+        clip_count=max(1, int(req.duration_seconds / req.clip_duration))
     )
 
     async def event_generator():
