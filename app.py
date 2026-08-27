@@ -3,10 +3,12 @@ import json
 import zipfile
 import subprocess
 import shutil
+import asyncio
+from datetime import datetime
 from pathlib import Path
-from typing import Optional
+from typing import Optional, List
 
-from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, Query
+from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, Query, UploadFile, File, Form
 from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -14,6 +16,12 @@ from pydantic import BaseModel
 
 from src.config import Config
 from src.pipeline import RotoDraftPipeline
+from src.stock_searcher import StockSearcher
+from src.downloader import Downloader
+from src.video_processor import VideoProcessor
+from src.video_merger import VideoMerger
+from src.tts_engine import TTSEngine
+from src.timeline_exporter import TimelineExporter
 
 app = FastAPI(title="RotoDraft Suite", version="2.0.0")
 
@@ -31,6 +39,7 @@ class GenerateRequest(BaseModel):
     voice: str = "en-US-ChristopherNeural"
     mood: str = "Cinematic"
     project_name: Optional[str] = "My_Video_Project"
+    custom_audio_path: Optional[str] = None
     # Optional Custom BYOK Keys
     openrouter_key: Optional[str] = None
     openrouter_model: Optional[str] = None
@@ -38,13 +47,66 @@ class GenerateRequest(BaseModel):
     pexels_key: Optional[str] = None
     pixabay_key: Optional[str] = None
 
+class RegenerateClipRequest(BaseModel):
+    project_id: str
+    clip_index: int
+    keyword: str
+    fallback_keyword: Optional[str] = ""
+    aspect_ratio: str = "16:9"
+    quality: str = "1080p"
+    duration: float = 3.0
+    page: int = 2
+
 class OpenFolderRequest(BaseModel):
     path: str
+
+class DeleteProjectRequest(BaseModel):
+    project_id: str
 
 class TestKeyRequest(BaseModel):
     provider: str
     api_key: str
     model: Optional[str] = None
+
+# Quick-Start Templates
+SCRIPT_TEMPLATES = [
+    {
+        "id": "finance",
+        "title": "⚡ Wall Street & Algorithmic Trading (16:9)",
+        "mood": "Cinematic",
+        "ratio": "16:9",
+        "duration": 30,
+        "clip_len": 3.0,
+        "script": "In the heart of Wall Street, automated algorithms trade billions in milliseconds. As artificial intelligence advances, global financial markets are evolving faster than human traders can react. High frequency execution and neural network predictions are reshaping the modern economy."
+    },
+    {
+        "id": "shorts_stoic",
+        "title": "📱 Stoic Discipline & Mindset Hook (9:16 Shorts)",
+        "mood": "Documentary / Moody",
+        "ratio": "9:16",
+        "duration": 18,
+        "clip_len": 2.0,
+        "script": "Marcus Aurelius once wrote: You have power over your mind, not outside events. Realize this, and you will find unstoppable strength. When you stop chasing validation and embrace the daily grind, you conquer the world."
+    },
+    {
+        "id": "ai_tech",
+        "title": "🤖 Quantum Computing & Future AI (16:9)",
+        "mood": "Cyberpunk / Tech",
+        "ratio": "16:9",
+        "duration": 36,
+        "clip_len": 3.0,
+        "script": "Quantum computing is breaking the boundaries of classical physics. Superconducting qubits operating near absolute zero can process complex simulations in seconds that would take supercomputers thousands of years. We are witnessing the dawn of true machine intelligence."
+    },
+    {
+        "id": "nature",
+        "title": "🌿 Deep Forest & Cosmic Perspective (16:9)",
+        "mood": "Vibrant Nature",
+        "ratio": "16:9",
+        "duration": 24,
+        "clip_len": 4.0,
+        "script": "Deep within ancient untouched forests, ecosystems have thrived for millennia. Looking up at the starry night sky reminds us of our quiet place in a vast, interconnected universe."
+    }
+]
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_dashboard(request: Request):
@@ -53,6 +115,7 @@ async def serve_dashboard(request: Request):
         "voices": Config.TTS_VOICES,
         "models": Config.FREE_AI_MODELS,
         "default_model": Config.OPENROUTER_MODEL,
+        "templates": SCRIPT_TEMPLATES,
         "has_pexels": bool(Config.PEXELS_API_KEY),
         "has_pixabay": bool(Config.PIXABAY_API_KEY),
         "has_openrouter": bool(Config.OPENROUTER_API_KEY)
@@ -62,6 +125,10 @@ async def serve_dashboard(request: Request):
 async def health_check():
     return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.0.0"}
 
+@app.get("/api/templates")
+async def get_templates():
+    return {"templates": SCRIPT_TEMPLATES}
+
 @app.get("/api/voices")
 async def get_voices():
     return {"voices": Config.TTS_VOICES}
@@ -69,6 +136,150 @@ async def get_voices():
 @app.get("/api/models")
 async def get_models():
     return {"models": Config.FREE_AI_MODELS}
+
+@app.get("/api/projects")
+async def list_projects():
+    """Lists past projects in downloads/ directory."""
+    projects = []
+    if Config.DOWNLOADS_DIR.exists():
+        for p in Config.DOWNLOADS_DIR.iterdir():
+            if p.is_dir() and not p.name.startswith("_"):
+                meta_file = p / "metadata.json"
+                clips_dir = p / "clips"
+                clip_count = len(list(clips_dir.glob("*.mp4"))) if clips_dir.exists() else 0
+                has_master = (p / "Full_Video_Master.mp4").exists()
+                
+                meta = {}
+                if meta_file.exists():
+                    try:
+                        with open(meta_file, "r", encoding="utf-8") as f:
+                            meta = json.load(f)
+                    except Exception:
+                        pass
+                
+                created_ts = p.stat().st_ctime
+                created_str = datetime.fromtimestamp(created_ts).strftime("%Y-%m-%d %H:%M:%S")
+
+                projects.append({
+                    "id": p.name,
+                    "name": meta.get("project_name", p.name),
+                    "created": created_str,
+                    "clip_count": clip_count,
+                    "duration": meta.get("duration", 0),
+                    "aspect_ratio": meta.get("aspect_ratio", "16:9"),
+                    "has_master": has_master,
+                    "master_url": f"/api/media/{p.name}/Full_Video_Master.mp4" if has_master else None,
+                    "path": str(p.resolve())
+                })
+    
+    # Sort descending by creation
+    projects.sort(key=lambda x: x["created"], reverse=True)
+    return {"projects": projects}
+
+@app.post("/api/upload-audio")
+async def upload_audio(file: UploadFile = File(...)):
+    """Uploads custom voiceover audio and detects duration."""
+    temp_dir = Config.DOWNLOADS_DIR / "_temp_uploads"
+    temp_dir.mkdir(parents=True, exist_ok=True)
+    
+    ext = Path(file.filename).suffix or ".mp3"
+    safe_name = f"upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}{ext}"
+    dest = temp_dir / safe_name
+    
+    with open(dest, "wb") as f:
+        content = await file.read()
+        f.write(content)
+        
+    tts = TTSEngine()
+    duration = tts.get_audio_duration(dest)
+    
+    return {
+        "success": True,
+        "filename": file.filename,
+        "file_path": str(dest.resolve()),
+        "duration": round(duration, 2)
+    }
+
+@app.post("/api/regenerate-clip")
+async def regenerate_clip(req: RegenerateClipRequest):
+    """Re-searches and swaps an individual clip in a project."""
+    proj_dir = Config.DOWNLOADS_DIR / req.project_id
+    if not proj_dir.exists():
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    clips_dir = proj_dir / "clips"
+    raw_dir = proj_dir / "_raw"
+    clips_dir.mkdir(parents=True, exist_ok=True)
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    stock = StockSearcher()
+    downloader = Downloader()
+    processor = VideoProcessor()
+
+    # Search media with page offset
+    stock_data = await stock.find_stock(
+        keyword=req.keyword,
+        fallback_keyword=req.fallback_keyword or "",
+        aspect_ratio=req.aspect_ratio,
+        quality=req.quality,
+        page=req.page
+    )
+
+    is_img = stock_data.get("is_image", False)
+    ext = ".jpg" if is_img else ".mp4"
+    clean_kw = "".join(c for c in req.keyword if c.isalnum() or c == " ").strip().replace(" ", "_")[:30]
+    raw_filename = f"raw_swap_{req.clip_index:02d}_{clean_kw}{ext}"
+    raw_path = raw_dir / raw_filename
+
+    # Download
+    await downloader.download_file(stock_data["url"], raw_path)
+
+    # Re-render clip
+    out_filename = f"{req.clip_index:02d}_{clean_kw}.mp4"
+    out_clip_path = clips_dir / out_filename
+
+    processor.process_clip(
+        input_path=raw_path,
+        output_path=out_clip_path,
+        duration=req.duration,
+        aspect_ratio=req.aspect_ratio,
+        quality=req.quality,
+        is_image=is_img
+    )
+
+    # Update metadata.json
+    meta_file = proj_dir / "metadata.json"
+    if meta_file.exists():
+        try:
+            with open(meta_file, "r", encoding="utf-8") as f:
+                meta = json.load(f)
+            for c in meta.get("clips", []):
+                if c.get("index") == req.clip_index:
+                    c["filename"] = out_filename
+                    c["keyword"] = req.keyword
+                    c["url"] = f"/api/media/{req.project_id}/clips/{out_filename}"
+                    c["path"] = str(out_clip_path)
+            with open(meta_file, "w", encoding="utf-8") as f:
+                json.dump(meta, f, indent=2)
+        except Exception:
+            pass
+
+    return {
+        "success": True,
+        "clip_index": req.clip_index,
+        "filename": out_filename,
+        "url": f"/api/media/{req.project_id}/clips/{out_filename}",
+        "keyword": req.keyword,
+        "provider": stock_data.get("provider", "stock")
+    }
+
+@app.post("/api/delete-project")
+async def delete_project(req: DeleteProjectRequest):
+    proj_dir = Config.DOWNLOADS_DIR / req.project_id
+    if proj_dir.exists():
+        shutil.rmtree(proj_dir, ignore_errors=True)
+        return {"success": True, "message": f"Deleted {req.project_id}"}
+    raise HTTPException(status_code=404, detail="Project not found")
 
 @app.post("/api/test-key")
 async def test_key(req: TestKeyRequest):
@@ -113,9 +324,6 @@ async def test_key(req: TestKeyRequest):
 
 @app.post("/api/stream")
 async def stream_generation(req: GenerateRequest):
-    """
-    SSE Server-Sent Events endpoint streaming pipeline progress and logs.
-    """
     pipeline = RotoDraftPipeline(
         openrouter_key=req.openrouter_key,
         openrouter_model=req.openrouter_model,
