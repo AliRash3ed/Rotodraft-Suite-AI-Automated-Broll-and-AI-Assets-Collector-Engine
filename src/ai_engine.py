@@ -10,11 +10,106 @@ class AIEngine:
         self,
         openrouter_key: Optional[str] = None,
         openrouter_model: Optional[str] = None,
+        gemini_key: Optional[str] = None,
+        gemini_model: Optional[str] = None,
+        openai_key: Optional[str] = None,
+        openai_base_url: Optional[str] = None,
+        openai_model: Optional[str] = None,
         cohere_key: Optional[str] = None
     ):
         self.openrouter_key = openrouter_key or Config.OPENROUTER_API_KEY
         self.openrouter_model = openrouter_model or Config.OPENROUTER_MODEL
+        self.gemini_key = gemini_key or Config.GEMINI_API_KEY
+        self.gemini_model = gemini_model or Config.GEMINI_MODEL_NAME
+        self.openai_key = openai_key or Config.OPENAI_API_KEY
+        self.openai_base_url = openai_base_url or Config.OPENAI_BASE_URL
+        self.openai_model = openai_model or Config.OPENAI_MODEL_NAME
         self.cohere_key = cohere_key or Config.COHERE_API_KEY
+
+    async def _chat_completion(self, prompt: str, system: str = "") -> Optional[str]:
+        """Unified multi-provider LLM executor supporting Gemini, OpenAI, OpenRouter, DeepSeek, Groq, Ollama."""
+        # 1. Try Google Gemini direct API
+        if self.gemini_key:
+            try:
+                url = f"https://generativelanguage.googleapis.com/v1beta/models/{self.gemini_model}:generateContent?key={self.gemini_key}"
+                payload = {
+                    "contents": [{"parts": [{"text": f"{system}\n\n{prompt}" if system else prompt}]}],
+                    "generationConfig": {"temperature": 0.4}
+                }
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    resp = await client.post(url, json=payload)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        return data["candidates"][0]["content"]["parts"][0]["text"]
+            except Exception:
+                pass
+
+        # 2. Try OpenAI / Custom OpenAI-Compatible (DeepSeek, Groq, Ollama)
+        if self.openai_key or "localhost" in self.openai_base_url:
+            try:
+                base_url = self.openai_base_url.rstrip("/")
+                url = f"{base_url}/chat/completions"
+                headers = {"Content-Type": "application/json"}
+                if self.openai_key:
+                    headers["Authorization"] = f"Bearer {self.openai_key}"
+
+                messages = []
+                if system:
+                    messages.append({"role": "system", "content": system})
+                messages.append({"role": "user", "content": prompt})
+
+                payload = {
+                    "model": self.openai_model,
+                    "messages": messages,
+                    "temperature": 0.4
+                }
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    resp = await client.post(url, headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        return resp.json()["choices"][0]["message"]["content"]
+            except Exception:
+                pass
+
+        # 3. Try OpenRouter
+        if self.openrouter_key:
+            try:
+                headers = {
+                    "Authorization": f"Bearer {self.openrouter_key}",
+                    "Content-Type": "application/json"
+                }
+                messages = []
+                if system:
+                    messages.append({"role": "system", "content": system})
+                messages.append({"role": "user", "content": prompt})
+
+                payload = {
+                    "model": self.openrouter_model,
+                    "messages": messages,
+                    "temperature": 0.4
+                }
+                async with httpx.AsyncClient(timeout=20.0) as client:
+                    resp = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        return resp.json()["choices"][0]["message"]["content"]
+            except Exception:
+                pass
+
+        # 4. Try Cohere
+        if self.cohere_key:
+            try:
+                headers = {
+                    "Authorization": f"Bearer {self.cohere_key}",
+                    "Content-Type": "application/json"
+                }
+                payload = {"message": f"{system}\n\n{prompt}" if system else prompt, "temperature": 0.3}
+                async with httpx.AsyncClient(timeout=15.0) as client:
+                    resp = await client.post("https://api.cohere.com/v2/chat", headers=headers, json=payload)
+                    if resp.status_code == 200:
+                        return resp.json()["message"]["content"][0]["text"]
+            except Exception:
+                pass
+
+        return None
 
     async def analyze_script(
         self,
@@ -28,17 +123,34 @@ class AIEngine:
         """
         target_clips = max(1, int(round(duration_seconds / clip_duration)))
         
-        # Try OpenRouter / LLM
-        if self.openrouter_key:
-            clips = await self._call_openrouter_decomposition(script, target_clips, clip_duration, mood)
-            if clips and len(clips) >= max(1, target_clips // 2):
-                return clips
+        prompt = f"""Decompose this video script into exactly {target_clips} sequential visual scenes.
+Total duration: {target_clips * clip_duration}s. Each clip duration: {clip_duration}s.
+Visual Mood: {mood}
+Script: {script}
 
-        # Try Cohere
-        if self.cohere_key:
-            clips = await self._call_cohere_decomposition(script, target_clips, clip_duration, mood)
-            if clips and len(clips) >= max(1, target_clips // 2):
-                return clips
+Return strictly a JSON array:
+[
+  {{
+    "index": 1,
+    "time_start": 0.0,
+    "time_end": {clip_duration},
+    "duration": {clip_duration},
+    "script_segment": "spoken sentence fragment",
+    "keyword": "highly specific visual keyword (e.g. 'stock market trading screens')",
+    "camera_shot": "Drone Aerial Wide / Macro Close-up / Fast Tracking",
+    "fallback_keyword": "cinematic technology"
+  }}
+]"""
+        raw = await self._chat_completion(prompt, system="You are an expert video director. Return ONLY valid JSON array.")
+        if raw:
+            m = re.search(r'\[[\s\S]*\]', raw)
+            if m:
+                try:
+                    clips = json.loads(m.group(0))
+                    if isinstance(clips, list) and len(clips) >= max(1, target_clips // 2):
+                        return clips
+                except Exception:
+                    pass
 
         # Deterministic Senior Heuristic Fallback
         return self._heuristic_decomposition(script, target_clips, clip_duration)
@@ -68,7 +180,6 @@ class AIEngine:
         if not re.search(r'[\?!]', script[:80]):
             diagnostics.append("Opening hook lacks an engaging question or exclamation. Consider a stronger hook.")
 
-        # Suggest 3 optimized variations
         optimized_variations = [
             f"Here is why {words[0] if words else 'this'} changes everything: {script[:120]}...",
             f"Most people don't realize this about {words[min(3, len(words)-1)] if words else 'the world'}: {script}",
@@ -91,8 +202,7 @@ class AIEngine:
         """
         Rewrites rough notes into high-retention scripts (Ali Rasheed / MrBeast / Vox style).
         """
-        prompt = f"""You are an elite viral video producer. Rewrite this draft into a high-retention {style} video script.
-Style: {style} (high retention, punchy sentences, emotional tension, strong call to action).
+        prompt = f"""Rewrite this draft into a high-retention {style} video script.
 Input text: {text}
 
 Respond in clean JSON:
@@ -103,28 +213,16 @@ Respond in clean JSON:
   "style_applied": "{style}"
 }}"""
 
-        if self.openrouter_key:
-            try:
-                headers = {
-                    "Authorization": f"Bearer {self.openrouter_key}",
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "model": self.openrouter_model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7
-                }
-                async with httpx.AsyncClient(timeout=15.0) as client:
-                    resp = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-                    if resp.status_code == 200:
-                        raw = resp.json()["choices"][0]["message"]["content"]
-                        m = re.search(r'\{[\s\S]*\}', raw)
-                        if m:
-                            return json.loads(m.group(0))
-            except Exception:
-                pass
+        raw = await self._chat_completion(prompt, system="You are an elite viral video producer. Output ONLY JSON.")
+        if raw:
+            m = re.search(r'\{[\s\S]*\}', raw)
+            if m:
+                try:
+                    return json.loads(m.group(0))
+                except Exception:
+                    pass
 
-        # Robust Offline Template Transformation
+        # Offline Template Fallback
         clean_in = text.strip()
         if style == "viral_hook":
             enhanced = f"Stop scrolling. If you don't know this, you're falling behind. {clean_in}. Let that sink in."
@@ -155,8 +253,8 @@ Respond in clean JSON:
         Generates 5 CTR Titles, Timestamps, Pinned Comment, Hashtags, and Flux Thumbnail Prompt.
         """
         words = script.split()
-        kw = words[min(4, len(words)-1)] if len(words) > 4 else "Viral Topic"
-        
+        topic_summary = " ".join(words[:6]) if len(words) >= 6 else "This Secret"
+
         prompt = f"""Generate YouTube & TikTok SEO package for this script:
 Script: {script}
 
@@ -169,29 +267,16 @@ Respond strictly in valid JSON:
   "thumbnail_prompt": "Midjourney/Flux prompt describing visual foreground, dramatic lighting, and text headline"
 }}"""
 
-        if self.openrouter_key:
-            try:
-                headers = {
-                    "Authorization": f"Bearer {self.openrouter_key}",
-                    "Content-Type": "application/json"
-                }
-                payload = {
-                    "model": self.openrouter_model,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7
-                }
-                async with httpx.AsyncClient(timeout=15.0) as client:
-                    resp = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-                    if resp.status_code == 200:
-                        raw = resp.json()["choices"][0]["message"]["content"]
-                        m = re.search(r'\{[\s\S]*\}', raw)
-                        if m:
-                            return json.loads(m.group(0))
-            except Exception:
-                pass
+        raw = await self._chat_completion(prompt, system="You are an elite YouTube Growth & SEO strategist. Output ONLY JSON.")
+        if raw:
+            m = re.search(r'\{[\s\S]*\}', raw)
+            if m:
+                try:
+                    return json.loads(m.group(0))
+                except Exception:
+                    pass
 
         # Offline High-Value SEO Fallback
-        topic_summary = " ".join(words[:6]) if len(words) >= 6 else "This Secret"
         return {
             "titles": [
                 f"Why Everyone Is Wrong About {topic_summary} ⚠️",
@@ -215,75 +300,9 @@ Respond strictly in valid JSON:
             "thumbnail_prompt": f"8k cinematic master shot of {topic_summary}, dramatic neon cyan and orange rim lighting, octane render, shocked expression foreground, hyper-detailed"
         }
 
-    async def _call_openrouter_decomposition(
-        self, script: str, target_clips: int, clip_duration: float, mood: str
-    ) -> Optional[List[Dict[str, Any]]]:
-        prompt = f"""Decompose this video script into exactly {target_clips} sequential visual scenes.
-Total duration: {target_clips * clip_duration}s. Each clip duration: {clip_duration}s.
-Visual Mood: {mood}
-Script: {script}
-
-Return strictly a JSON array:
-[
-  {{
-    "index": 1,
-    "time_start": 0.0,
-    "time_end": {clip_duration},
-    "duration": {clip_duration},
-    "script_segment": "exact spoken sentence fragment",
-    "keyword": "highly specific visual keyword (e.g. 'stock market trading screens')",
-    "camera_shot": "Drone Aerial Wide / Macro Close-up / Fast Tracking",
-    "fallback_keyword": "cinematic technology"
-  }}
-]"""
-        try:
-            headers = {
-                "Authorization": f"Bearer {self.openrouter_key}",
-                "Content-Type": "application/json"
-            }
-            payload = {
-                "model": self.openrouter_model,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.3
-            }
-            async with httpx.AsyncClient(timeout=20.0) as client:
-                resp = await client.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload)
-                if resp.status_code == 200:
-                    raw = resp.json()["choices"][0]["message"]["content"]
-                    m = re.search(r'\[[\s\S]*\]', raw)
-                    if m:
-                        return json.loads(m.group(0))
-        except Exception:
-            pass
-        return None
-
-    async def _call_cohere_decomposition(
-        self, script: str, target_clips: int, clip_duration: float, mood: str
-    ) -> Optional[List[Dict[str, Any]]]:
-        try:
-            headers = {
-                "Authorization": f"Bearer {self.cohere_key}",
-                "Content-Type": "application/json"
-            }
-            prompt = f"Decompose into {target_clips} visual clips JSON list for: {script}"
-            payload = {"message": prompt, "temperature": 0.3}
-            async with httpx.AsyncClient(timeout=15.0) as client:
-                resp = await client.post("https://api.cohere.com/v2/chat", headers=headers, json=payload)
-                if resp.status_code == 200:
-                    raw = resp.json()["message"]["content"][0]["text"]
-                    m = re.search(r'\[[\s\S]*\]', raw)
-                    if m:
-                        return json.loads(m.group(0))
-        except Exception:
-            pass
-        return None
-
     def _heuristic_decomposition(
         self, script: str, target_clips: int, clip_duration: float
     ) -> List[Dict[str, Any]]:
-        """
-        Deterministic NLP Sentence Slicer & Entity Extractor with smart camera rotation.
-        """
         sentences = [s.strip() for s in re.split(r'[.!?]+', script) if s.strip()]
         if not sentences:
             sentences = [script.strip() or "Cinematic visual narrative"]
