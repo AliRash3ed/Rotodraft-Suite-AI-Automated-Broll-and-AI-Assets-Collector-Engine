@@ -22,6 +22,11 @@ class RotoDraftPipeline:
         self,
         openrouter_key: Optional[str] = None,
         openrouter_model: Optional[str] = None,
+        gemini_key: Optional[str] = None,
+        gemini_model: Optional[str] = None,
+        openai_key: Optional[str] = None,
+        openai_base_url: Optional[str] = None,
+        openai_model: Optional[str] = None,
         cohere_key: Optional[str] = None,
         pexels_key: Optional[str] = None,
         pixabay_key: Optional[str] = None
@@ -29,12 +34,18 @@ class RotoDraftPipeline:
         self.ai = AIEngine(
             openrouter_key=openrouter_key,
             openrouter_model=openrouter_model,
+            gemini_key=gemini_key,
+            gemini_model=gemini_model,
+            openai_key=openai_key,
+            openai_base_url=openai_base_url,
+            openai_model=openai_model,
             cohere_key=cohere_key
         )
         self.tts = TTSEngine()
         self.stock = StockSearcher(
             pexels_key=pexels_key,
-            pixabay_key=pixabay_key
+            pixabay_key=pixabay_key,
+            dalle_key=openai_key
         )
         self.downloader = Downloader(concurrency=4)
         self.processor = VideoProcessor()
@@ -49,16 +60,25 @@ class RotoDraftPipeline:
         clip_duration: float = 3.0,
         aspect_ratio: str = "16:9",
         quality: str = "1080p",
+        tts_engine: str = "edge",
         voice: str = "en-US-ChristopherNeural",
         voice_rate: str = "+0%",
         voice_pitch: str = "+0Hz",
+        tts_key: Optional[str] = None,
+        media_filter: str = "mixed",
+        ai_image_engine: str = "pollinations",
+        color_filter: str = "natural",
+        subtitle_style: str = "hormozi",
+        mirror_flip: bool = False,
+        video_speed: float = 1.0,
         bgm_track: str = "none",
+        bgm_volume: float = 0.18,
         mood: str = "Cinematic",
         project_name: Optional[str] = None,
         custom_audio_path: Optional[str] = None
     ) -> AsyncGenerator[Dict[str, Any], None]:
         """
-        Executes pipeline and streams progress events in real-time.
+        Executes complete production pipeline and streams real-time SSE progress events.
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         safe_name = "".join(c for c in (project_name or "RotoDraft_Project") if c.isalnum() or c in ("_", "-")).strip() or "RotoDraft_Project"
@@ -81,29 +101,32 @@ class RotoDraftPipeline:
         srt_path = None
         actual_duration = duration_seconds
 
-        # Step 1: Voiceover Synthesis if full or voice_only
+        # Step 1: Voiceover Synthesis
         if mode in ["full", "voice_only"]:
             if custom_audio_path and Path(custom_audio_path).exists():
                 audio_path = Path(custom_audio_path)
                 actual_duration = self.tts.get_audio_duration(audio_path)
                 yield {
                     "type": "log",
-                    "message": f"🎙️ Using attached audio: {audio_path.name} ({actual_duration:.1f}s)",
+                    "message": f"🎙️ Loaded custom audio file: '{audio_path.name}' ({actual_duration:.1f}s)",
                     "progress": 20
                 }
             else:
                 yield {
                     "type": "log",
-                    "message": f"🎙️ Generating Edge-TTS Neural Voiceover ({voice} | Speed: {voice_rate})...",
-                    "progress": 10
+                    "message": f"🗣️ Synthesizing Neural Voiceover ({tts_engine.upper()} -> {voice})...",
+                    "progress": 15
                 }
+
                 voice_out = project_dir / "voiceover.mp3"
                 tts_res = await self.tts.generate_speech(
                     text=script,
                     output_path=voice_out,
+                    provider=tts_engine,
                     voice=voice,
                     rate=voice_rate,
-                    pitch=voice_pitch
+                    pitch=voice_pitch,
+                    api_key=tts_key
                 )
                 audio_path = Path(tts_res["audio_path"])
                 srt_path = Path(tts_res["srt_path"])
@@ -145,7 +168,7 @@ class RotoDraftPipeline:
             }
             bgm_file = await BGMEngine.get_track_audio(bgm_track)
 
-        # Step 3: Scene Decomposition (AI Script or Direct Keywords List)
+        # Step 3: Scene Decomposition
         clips_plan = []
         if mode == "keywords_only":
             lines = [l.strip() for l in script.splitlines() if l.strip()]
@@ -190,7 +213,7 @@ class RotoDraftPipeline:
 
         total_clips = len(clips_plan)
 
-        # Step 4: Concurrent Search, Download & FFmpeg Processing
+        # Step 4: Sourcing, Download & FFmpeg Processing
         processed_clips: List[Dict[str, Any]] = []
         clip_files: List[Path] = []
 
@@ -201,7 +224,7 @@ class RotoDraftPipeline:
 
             yield {
                 "type": "log",
-                "message": f"🔍 [{idx}/{total_clips}] Sourcing footage for: '{kw}'...",
+                "message": f"🔍 [{idx}/{total_clips}] Sourcing footage ({media_filter}) for: '{kw}'...",
                 "progress": round(40 + (i / total_clips) * 35, 1)
             }
 
@@ -210,124 +233,132 @@ class RotoDraftPipeline:
                 keyword=kw,
                 fallback_keyword=fb_kw,
                 aspect_ratio=aspect_ratio,
-                quality=quality
+                quality=quality,
+                media_filter=media_filter,
+                ai_image_engine=ai_image_engine
             )
 
-            is_img = stock_data.get("is_image", False)
+            is_img = stock_data.get("type") in ["image", "ai_image"]
             ext = ".jpg" if is_img else ".mp4"
             clean_kw = "".join(c for c in kw if c.isalnum() or c == " ").strip().replace(" ", "_")[:30]
             raw_filename = f"raw_{idx:02d}_{clean_kw}{ext}"
             raw_path = raw_dir / raw_filename
 
-            # Download stream
+            # Download
             await self.downloader.download_file(stock_data["url"], raw_path)
-
-            # Process / Trim with FFmpeg
-            out_filename = f"{idx:02d}_{clean_kw}.mp4"
-            out_clip_path = clips_dir / out_filename
 
             yield {
                 "type": "log",
-                "message": f"⚙️ [{idx}/{total_clips}] Rendering clip {out_filename} ({clip_duration:.1f}s | {aspect_ratio})...",
-                "progress": round(40 + ((i + 0.8) / total_clips) * 35, 1)
+                "message": f"⚙️ [{idx}/{total_clips}] Processing clip with {color_filter} color grade & motion...",
+                "progress": round(42 + (i / total_clips) * 35, 1)
             }
 
+            # Process / Trim / Ken Burns / Speed / Mirroring
+            out_filename = f"clip_{idx:02d}.mp4"
+            out_path = clips_dir / out_filename
             self.processor.process_clip(
                 input_path=raw_path,
-                output_path=out_clip_path,
+                output_path=out_path,
                 duration=clip_duration,
                 aspect_ratio=aspect_ratio,
                 quality=quality,
+                color_filter=color_filter,
+                mirror_flip=mirror_flip,
+                speed=video_speed,
                 is_image=is_img
             )
 
-            clip_files.append(out_clip_path)
-            processed_clips.append({
+            clip_files.append(out_path)
+
+            clip_meta = {
                 "index": idx,
                 "filename": out_filename,
-                "path": str(out_clip_path),
                 "url": f"/api/media/{project_id}/clips/{out_filename}",
+                "thumbnail": stock_data.get("thumbnail", stock_data["url"]),
                 "keyword": kw,
-                "provider": stock_data.get("provider", "stock"),
                 "time_start": clip_info["time_start"],
-                "time_end": clip_info["time_end"]
-            })
+                "time_end": clip_info["time_end"],
+                "duration": clip_duration,
+                "provider": stock_data.get("provider", "stock"),
+                "author": stock_data.get("author", "Stock Creator"),
+                "script_segment": clip_info.get("script_segment", "")
+            }
+            processed_clips.append(clip_meta)
 
             yield {
                 "type": "clip_ready",
-                "clip": processed_clips[-1],
-                "progress": round(40 + ((i + 1) / total_clips) * 35, 1)
+                "clip": clip_meta,
+                "progress": round(45 + (i / total_clips) * 35, 1)
             }
 
-        # Step 5: Pro Timeline Exporters (CapCut & Premiere XML)
-        yield {
-            "type": "log",
-            "message": "📁 Generating NLE project files (CapCut Desktop & Premiere Pro XML)...",
-            "progress": 85
-        }
+        # Step 5: Master Concat Video & Subtitle Mixing
+        master_url = None
+        has_master = False
 
-        # CapCut
-        self.exporter.export_capcut_draft(
-            clip_paths=clip_files,
-            output_dir=project_dir,
-            project_name=safe_name,
-            aspect_ratio=aspect_ratio,
-            duration_per_clip=clip_duration
-        )
-
-        # Premiere Pro XML
-        xml_path = project_dir / f"{safe_name}_timeline.xml"
-        self.exporter.export_premiere_xml(
-            clip_paths=clip_files,
-            output_xml_path=xml_path,
-            project_name=safe_name,
-            aspect_ratio=aspect_ratio,
-            duration_per_clip=clip_duration
-        )
-
-        # Step 6: Merge Master Video with Voiceover + BGM Auto-Ducking
-        master_video_path = None
-        if clip_files and mode in ["full", "stock_only", "keywords_only"]:
+        if mode in ["full", "stock_only", "keywords_only"] and clip_files:
             yield {
                 "type": "log",
-                "message": "🎬 Rendering Master Video with Audio Auto-Ducking (Full_Video_Master.mp4)...",
-                "progress": 90
+                "message": "🎬 Merging timeline into Full Master Video with audio mixing...",
+                "progress": 82
             }
-            master_video_path = project_dir / "Full_Video_Master.mp4"
+
+            master_path = project_dir / "Full_Video_Master.mp4"
             self.merger.merge_clips(
                 clip_paths=clip_files,
-                output_master_path=master_video_path,
-                audio_path=audio_path,
+                output_path=master_path,
+                voiceover_path=audio_path,
                 bgm_path=bgm_file,
-                srt_path=srt_path
+                bgm_volume=bgm_volume
             )
+            has_master = True
+            master_url = f"/api/media/{project_id}/Full_Video_Master.mp4"
+
+        # Step 6: Export Timeline Bundles (CapCut draft_info.json, Premiere FCPXML, EDL, CSV)
+        yield {
+            "type": "log",
+            "message": "📦 Exporting NLE Timeline Bundles (CapCut draft_info.json, Premiere XML, DaVinci EDL)...",
+            "progress": 92
+        }
+
+        self.exporter.export_all(
+            project_dir=project_dir,
+            clips=processed_clips,
+            audio_path=audio_path,
+            aspect_ratio=aspect_ratio
+        )
 
         # Save metadata.json
-        meta = {
+        meta_payload = {
             "project_id": project_id,
             "project_name": safe_name,
-            "timestamp": timestamp,
+            "created_at": timestamp,
             "mode": mode,
+            "duration": actual_duration,
+            "clip_duration": clip_duration,
             "aspect_ratio": aspect_ratio,
             "quality": quality,
-            "duration": actual_duration,
-            "total_clips": len(processed_clips),
-            "clips": processed_clips,
-            "has_master": master_video_path is not None and master_video_path.exists(),
-            "has_voiceover": audio_path is not None and audio_path.exists(),
-            "bgm_track": bgm_track
+            "voice": voice,
+            "color_filter": color_filter,
+            "subtitle_style": subtitle_style,
+            "media_filter": media_filter,
+            "ai_image_engine": ai_image_engine,
+            "script": script,
+            "clips_count": len(processed_clips),
+            "clips": processed_clips
         }
         with open(project_dir / "metadata.json", "w", encoding="utf-8") as f:
-            json.dump(meta, f, indent=2)
+            json.dump(meta_payload, f, indent=2)
 
         yield {
             "type": "done",
             "project_id": project_id,
             "project_dir": str(project_dir),
-            "master_url": f"/api/media/{project_id}/Full_Video_Master.mp4" if master_video_path else None,
-            "xml_url": f"/api/media/{project_id}/{safe_name}_timeline.xml",
-            "total_clips": len(processed_clips),
+            "has_master": has_master,
+            "master_url": master_url,
+            "audio_url": f"/api/media/{project_id}/voiceover.mp3" if audio_path else None,
+            "srt_url": f"/api/media/{project_id}/voiceover.srt" if srt_path and srt_path.exists() else None,
+            "duration": actual_duration,
             "clips": processed_clips,
             "progress": 100,
-            "message": f"🎉 Production suite completed! {len(processed_clips)} clips ready in {project_dir.name}"
+            "message": "🎉 Production Complete! All 4K video clips, master video, and NLE timeline exports are ready."
         }
