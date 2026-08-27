@@ -771,6 +771,111 @@ document.addEventListener("DOMContentLoaded", () => {
 
   closeSwapBtn.addEventListener("click", () => swapModal.classList.remove("active"));
 
+  // Settings Modal Tabs & BYOK Suite (MoneyPrinterTurbo Style)
+  const tabSetLlm = document.getElementById("tabSetLlm");
+  const tabSetMedia = document.getElementById("tabSetMedia");
+  const tabSetAudio = document.getElementById("tabSetAudio");
+  const tabSetVideo = document.getElementById("tabSetVideo");
+
+  const setSecLlm = document.getElementById("setSecLlm");
+  const setSecMedia = document.getElementById("setSecMedia");
+  const setSecAudio = document.getElementById("setSecAudio");
+  const setSecVideo = document.getElementById("setSecVideo");
+
+  const cfgBgmVolSlider = document.getElementById("cfgBgmVolSlider");
+  const cfgBgmVolVal = document.getElementById("cfgBgmVolVal");
+  if (cfgBgmVolSlider && cfgBgmVolVal) {
+    cfgBgmVolSlider.addEventListener("input", () => {
+      cfgBgmVolVal.textContent = `${cfgBgmVolSlider.value}%`;
+    });
+  }
+
+  function activateSettingsTab(tabBtn, sectionEl) {
+    [tabSetLlm, tabSetMedia, tabSetAudio, tabSetVideo].forEach(b => b && b.classList.remove("active"));
+    [setSecLlm, setSecMedia, setSecAudio, setSecVideo].forEach(s => s && (s.style.display = "none"));
+    if (tabBtn) tabBtn.classList.add("active");
+    if (sectionEl) sectionEl.style.display = "flex";
+  }
+
+  if (tabSetLlm) tabSetLlm.addEventListener("click", () => activateSettingsTab(tabSetLlm, setSecLlm));
+  if (tabSetMedia) tabSetMedia.addEventListener("click", () => activateSettingsTab(tabSetMedia, setSecMedia));
+  if (tabSetAudio) tabSetAudio.addEventListener("click", () => activateSettingsTab(tabSetAudio, setSecAudio));
+  if (tabSetVideo) tabSetVideo.addEventListener("click", () => activateSettingsTab(tabSetVideo, setSecVideo));
+
+  // Load Saved BYOK Settings from LocalStorage
+  const savedBYOK = JSON.parse(localStorage.getItem("rotodraft_byok_settings") || "{}");
+  if (savedBYOK.llmProvider) document.getElementById("llmProviderSelect").value = savedBYOK.llmProvider;
+  if (savedBYOK.llmKey) document.getElementById("activeLlmKeyInput").value = savedBYOK.llmKey;
+  if (savedBYOK.llmModel) document.getElementById("activeLlmModelInput").value = savedBYOK.llmModel;
+  if (savedBYOK.llmBaseUrl) document.getElementById("activeLlmBaseUrlInput").value = savedBYOK.llmBaseUrl;
+  if (savedBYOK.pexelsKey) document.getElementById("pexelsKeyInput").value = savedBYOK.pexelsKey;
+  if (savedBYOK.pixabayKey) document.getElementById("pixabayKeyInput").value = savedBYOK.pixabayKey;
+  if (savedBYOK.voiceRate) document.getElementById("cfgVoiceRate").value = savedBYOK.voiceRate;
+  if (savedBYOK.voicePitch) document.getElementById("cfgVoicePitch").value = savedBYOK.voicePitch;
+  if (savedBYOK.bgmVol) {
+    cfgBgmVolSlider.value = savedBYOK.bgmVol;
+    cfgBgmVolVal.textContent = `${savedBYOK.bgmVol}%`;
+  }
+  if (savedBYOK.mirrorFlip) document.getElementById("cfgMirrorFlip").value = savedBYOK.mirrorFlip;
+  if (savedBYOK.videoSpeed) document.getElementById("cfgVideoSpeed").value = savedBYOK.videoSpeed;
+
+  const saveStudioSettingsBtn = document.getElementById("saveStudioSettingsBtn");
+  if (saveStudioSettingsBtn) {
+    saveStudioSettingsBtn.addEventListener("click", () => {
+      const byok = {
+        llmProvider: document.getElementById("llmProviderSelect").value,
+        llmKey: document.getElementById("activeLlmKeyInput").value.trim(),
+        llmModel: document.getElementById("activeLlmModelInput").value.trim(),
+        llmBaseUrl: document.getElementById("activeLlmBaseUrlInput").value.trim(),
+        pexelsKey: document.getElementById("pexelsKeyInput").value.trim(),
+        pixabayKey: document.getElementById("pixabayKeyInput").value.trim(),
+        voiceRate: document.getElementById("cfgVoiceRate").value,
+        voicePitch: document.getElementById("cfgVoicePitch").value,
+        bgmVol: cfgBgmVolSlider ? cfgBgmVolSlider.value : "18",
+        mirrorFlip: document.getElementById("cfgMirrorFlip").value,
+        videoSpeed: document.getElementById("cfgVideoSpeed").value
+      };
+      localStorage.setItem("rotodraft_byok_settings", JSON.stringify(byok));
+      settingsModal.classList.remove("active");
+      logTerminal("⚙️ Applied & saved enterprise studio settings!");
+    });
+  }
+
+  // Active LLM Key Tester
+  const testActiveLlmKeyBtn = document.getElementById("testActiveLlmKeyBtn");
+  if (testActiveLlmKeyBtn) {
+    testActiveLlmKeyBtn.addEventListener("click", async () => {
+      const provider = document.getElementById("llmProviderSelect").value;
+      const key = document.getElementById("activeLlmKeyInput").value.trim();
+      const statusSpan = document.getElementById("activeLlmKeyStatus");
+      if (!key) {
+        statusSpan.textContent = "Please enter key first";
+        statusSpan.style.color = "#FF3366";
+        return;
+      }
+      statusSpan.textContent = "Testing...";
+      statusSpan.style.color = "#FFE600";
+      try {
+        const resp = await fetch("/api/test-key", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ provider, api_key: key })
+        });
+        const data = await resp.json();
+        if (data.success) {
+          statusSpan.textContent = "Valid & Active";
+          statusSpan.style.color = "#00FF66";
+        } else {
+          statusSpan.textContent = data.message || "Invalid Key";
+          statusSpan.style.color = "#FF3366";
+        }
+      } catch (err) {
+        statusSpan.textContent = "Test failed";
+        statusSpan.style.color = "#FF3366";
+      }
+    });
+  }
+
   // API Key Tester
   document.querySelectorAll(".test-key-btn").forEach((btn) => {
     btn.addEventListener("click", async () => {
