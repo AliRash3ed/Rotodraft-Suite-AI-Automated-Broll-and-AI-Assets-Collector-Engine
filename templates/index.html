@@ -53,25 +53,39 @@
       <!-- Script & Narrative Input (Col-8) -->
       <div class="card col-8">
         <div class="card-header">
-          <h2 class="card-title">📝 1. SCRIPT & NARRATIVE TIMING</h2>
+          <h2 class="card-title" id="scriptCardTitle">📝 1. SCRIPT & NARRATIVE TIMING</h2>
           <span class="card-badge" id="wordCountBadge">0 WORDS</span>
         </div>
 
-        <div class="form-group">
+        <!-- Workflow Mode Switcher -->
+        <div class="form-group" style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 12px;">
+          <label class="label" for="modeSelect" style="color: var(--accent-yellow);">
+            <span>🎯 SELECT WORKFLOW MODE</span>
+            <span id="modeDescriptionBadge" style="color: var(--text-muted); font-size: 11px;">Full Video Creation</span>
+          </label>
+          <select id="modeSelect" class="select" style="font-size: 16px; font-weight: 900;">
+            <option value="full" selected>🎬 1. Full Automation (Voiceover + Stock Clips + Master Video)</option>
+            <option value="stock_only">🎞️ 2. Stock B-Roll Clips Only (Script Breakdown -> No Audio)</option>
+            <option value="keywords_only">⚡ 3. Direct Keywords List Mode (Paste Raw Keywords -> 3s Clips)</option>
+            <option value="voice_only">🎙️ 4. AI Voiceover Only (Edge-TTS Neural Speech + SRT Subtitles)</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="scriptGroup">
           <label class="label" for="scriptInput">
-            <span>Voiceover Script Content</span>
-            <span style="color: var(--text-muted); font-size: 11px;">Paste YouTube / Shorts / TikTok Script</span>
+            <span id="scriptInputLabel">Voiceover Script Content</span>
+            <span style="color: var(--text-muted); font-size: 11px;">Paste Script or Narrative</span>
           </label>
           <textarea 
             id="scriptInput" 
             class="textarea" 
-            placeholder="Paste your voiceover script here... (e.g. In the heart of Wall Street, automated algorithms trade billions in milliseconds...)"
+            placeholder="Paste your voiceover script here... (e.g., In the heart of Wall Street, automated algorithms trade billions in milliseconds. As artificial intelligence advances, the financial markets are evolving...)"
             required
           ></textarea>
         </div>
 
-        <!-- Custom Audio Upload Dropzone -->
-        <div class="form-group">
+        <!-- Custom Audio Upload Dropzone (Hidden in Stock Only & Keywords Only) -->
+        <div class="form-group" id="audioDropzoneGroup">
           <label class="label">
             <span>Or Attach Recorded Voiceover (.MP3 / .WAV)</span>
             <span id="audioUploadStatus" style="font-size: 11px; color: var(--accent-cyan);">Optional</span>
@@ -84,22 +98,27 @@
           </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+        <!-- Timing & Duration Bar with Time Converter Button -->
+        <div id="timingGroup" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div class="form-group">
             <label class="label" for="durationInput">
               <span>Voiceover Duration</span>
-              <span style="color: var(--text-muted); font-size: 11px;">Seconds or MM:SS (e.g. 1:30)</span>
+              <button type="button" id="openTimeCalcBtn" class="chip-btn" style="padding: 2px 6px; font-size: 10px; background: var(--accent-cyan); color: #000;">
+                ⏱️ TIME CALCULATOR
+              </button>
             </label>
-            <input 
-              type="text" 
-              id="durationInput" 
-              class="input mono" 
-              placeholder="e.g. 90 or 1:30" 
-              value="30"
-            >
+            <div style="display: flex; gap: 8px;">
+              <input 
+                type="text" 
+                id="durationInput" 
+                class="input mono" 
+                placeholder="e.g. 90 or 1:30" 
+                value="30"
+              >
+            </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" id="clipDurGroup">
             <label class="label" for="clipDurationInput">
               <span>Retention Cut Interval</span>
               <span style="color: var(--text-muted); font-size: 11px;">Standard: 3.0s</span>
@@ -114,7 +133,7 @@
         </div>
 
         <!-- Dynamic Calculation Bar -->
-        <div style="background: var(--bg-secondary); border: 2px dashed var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
+        <div id="calcBar" style="background: var(--bg-secondary); border: 2px dashed var(--border); padding: 12px 16px; display: flex; justify-content: space-between; align-items: center;">
           <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 800;">⚡ PRODUCTION TIMELINE:</span>
           <span class="mono" id="clipCalcBadge" style="color: var(--accent-pink); font-weight: 900; font-size: 13px;">30s TOTAL -> ~10 CLIPS (3.0s EACH)</span>
         </div>
@@ -127,8 +146,8 @@
           <span class="card-badge">SPECS</span>
         </div>
 
-        <!-- Aspect Ratio Pills -->
-        <div class="form-group">
+        <!-- Aspect Ratio Pills (Hidden in Voice Only Mode) -->
+        <div class="form-group" id="aspectRatioGroup">
           <label class="label">Aspect Ratio</label>
           <div class="pill-grid">
             <div class="pill-option">
@@ -155,30 +174,46 @@
           </div>
         </div>
 
-        <!-- Operating Mode -->
-        <div class="form-group">
-          <label class="label" for="modeSelect">Workflow Mode</label>
-          <select id="modeSelect" class="select">
-            <option value="full" selected>🎬 Full Automation (Voiceover + B-Roll + Master Video)</option>
-            <option value="stock_only">🎞️ Stock B-Roll Clips Only (No Voiceover)</option>
-            <option value="voice_only">🎙️ AI Voiceover Only (Edge-TTS + Subtitles)</option>
-          </select>
+        <!-- Voiceover Settings Group (Hidden in Stock Only & Keywords Only) -->
+        <div id="voiceoverSettingsGroup" style="display: flex; flex-direction: column; gap: 14px;">
+          <div class="form-group" id="voiceGroup">
+            <label class="label" for="voiceSelect">
+              <span>Free AI Neural Voice</span>
+              <span style="color: var(--accent-lime); font-size: 11px;">100% FREE</span>
+            </label>
+            <select id="voiceSelect" class="select mono">
+              {% for v in voices %}
+                <option value="{{ v.id }}" {% if loop.first %}selected{% endif %}>{{ v.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group">
+              <label class="label" for="voiceRateSelect">Speed / Rate</label>
+              <select id="voiceRateSelect" class="select mono">
+                <option value="-20%">-20% (Slow)</option>
+                <option value="-10%">-10%</option>
+                <option value="+0%" selected>Normal (1.0x)</option>
+                <option value="+10%">+10%</option>
+                <option value="+20%">+20% (Fast)</option>
+                <option value="+30%">+30% (Speedrun)</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label class="label" for="voicePitchSelect">Voice Pitch</label>
+              <select id="voicePitchSelect" class="select mono">
+                <option value="-5Hz">-5Hz (Deeper)</option>
+                <option value="+0Hz" selected>Default (0Hz)</option>
+                <option value="+5Hz">+5Hz (Higher)</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <!-- Voiceover Voice Select -->
-        <div class="form-group" id="voiceGroup">
-          <label class="label" for="voiceSelect">
-            <span>Free AI Neural Voice</span>
-            <span style="color: var(--accent-lime); font-size: 11px;">100% FREE</span>
-          </label>
-          <select id="voiceSelect" class="select mono">
-            {% for v in voices %}
-              <option value="{{ v.id }}" {% if loop.first %}selected{% endif %}>{{ v.name }}</option>
-            {% endfor %}
-          </select>
-        </div>
-
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <!-- Video Specs (Hidden in Voice Only Mode) -->
+        <div id="videoSpecsGroup" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
           <div class="form-group">
             <label class="label" for="qualitySelect">Resolution</label>
             <select id="qualitySelect" class="select mono">
@@ -236,8 +271,32 @@
       </div>
     </div>
 
-    <!-- Output Showcase (Col-12) -->
-    <div class="bento-grid">
+    <!-- Voiceover Output Showcase (Active in Voice Only Mode) -->
+    <div class="bento-grid" id="voiceOnlyOutputCard" style="display: none;">
+      <div class="card col-12">
+        <div class="card-header">
+          <h2 class="card-title">🎙️ GENERATED NEURAL VOICEOVER & SUBTITLES</h2>
+          <span class="card-badge" style="background: var(--accent-lime);">COMPLETED</span>
+        </div>
+        
+        <div style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px; display: flex; flex-direction: column; gap: 12px;">
+          <audio id="voiceOnlyAudioPlayer" controls style="width: 100%;"></audio>
+          
+          <div style="display: flex; gap: 10px;">
+            <a id="downloadVoiceMp3Btn" href="#" download="voiceover.mp3" class="btn btn-yellow btn-sm">⬇️ DOWNLOAD VOICEOVER (.MP3)</a>
+            <a id="downloadVoiceSrtBtn" href="#" download="voiceover.srt" class="btn btn-cyan btn-sm">⬇️ DOWNLOAD SUBTITLES (.SRT)</a>
+          </div>
+
+          <div class="form-group">
+            <label class="label">Generated Subtitle Transcript (.SRT)</label>
+            <textarea id="srtTranscriptViewer" class="textarea mono" style="min-height: 100px;" readonly></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Output Showcase (Col-12) -->
+    <div class="bento-grid" id="videoOutputSection">
       <div class="card col-12">
         <div class="card-header">
           <h2 class="card-title">🎞️ 4. COLLECTED ASSETS & TIMELINE</h2>
@@ -248,7 +307,7 @@
         <div id="masterContainer" style="display: none; flex-direction: column; gap: 12px; background: var(--bg-secondary); border: 2px solid var(--border); padding: 16px;">
           <div style="display: flex; justify-content: space-between; align-items: center;">
             <h3 style="font-size: 16px;">🎬 MASTER CONCATENATED VIDEO (FULL_VIDEO_MASTER.MP4)</h3>
-            <span class="card-badge" style="background: var(--accent-cyan);">SYNCED WITH VOICEOVER</span>
+            <span class="card-badge" style="background: var(--accent-cyan);">READY TO WATCH</span>
           </div>
           <div style="width: 100%; max-width: 720px; margin: 0 auto; background: #000; border: var(--border-width) solid var(--border);">
             <video id="masterVideo" controls style="width: 100%; display: block;"></video>
@@ -268,7 +327,7 @@
         <!-- Sequential Clips Grid -->
         <div class="clips-grid" id="clipsGrid">
           <div style="grid-column: 1 / -1; padding: 32px; text-align: center; color: var(--text-muted); font-family: var(--font-mono); border: 2px dashed var(--border);">
-            No clips generated yet. Paste your script above or click a Quick Preset to get started!
+            No clips generated yet. Select a mode above and click "Generate & Collect Assets".
           </div>
         </div>
       </div>
@@ -325,6 +384,56 @@
     </div>
   </footer>
 
+</div>
+
+<!-- Interactive Time Calculator Modal -->
+<div class="modal-overlay" id="timeCalcModal">
+  <div class="modal-box">
+    <div class="card-header">
+      <h2 class="card-title">⏱️ TIME & DURATION CONVERTER</h2>
+      <button type="button" class="btn btn-dark btn-sm" id="closeTimeCalcBtn">✕ CLOSE</button>
+    </div>
+
+    <div style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">
+      Convert Minutes:Seconds or calculate voiceover timing from your script word count.
+    </div>
+
+    <!-- Mode A: Minutes & Seconds -->
+    <div class="form-group" style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 14px;">
+      <label class="label" style="color: var(--accent-yellow);">1. Enter Minutes & Seconds (MM:SS)</label>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div>
+          <span style="font-size: 11px; font-family: var(--font-mono);">Minutes:</span>
+          <input type="number" id="calcMinutesInput" class="input mono" placeholder="e.g. 2" min="0" value="0">
+        </div>
+        <div>
+          <span style="font-size: 11px; font-family: var(--font-mono);">Seconds:</span>
+          <input type="number" id="calcSecondsInput" class="input mono" placeholder="e.g. 45" min="0" max="59" value="30">
+        </div>
+      </div>
+      <div style="margin-top: 8px; font-weight: 800; font-family: var(--font-mono);">
+        Calculated Total: <span id="calcTotalSecDisplay" style="color: var(--accent-cyan);">30</span> Seconds
+      </div>
+    </div>
+
+    <!-- Mode B: Word Count Estimator -->
+    <div class="form-group" style="background: var(--bg-secondary); border: 2px solid var(--border); padding: 14px;">
+      <label class="label" style="color: var(--accent-lime);">2. Estimate from Script Words</label>
+      <div style="display: flex; gap: 8px; margin-bottom: 6px;">
+        <button type="button" class="chip-btn" id="wpmSlowBtn">130 WPM (Slow / Dramatic)</button>
+        <button type="button" class="chip-btn" id="wpmNormBtn" style="background: var(--accent-yellow); color: #000;">150 WPM (YouTube Standard)</button>
+        <button type="button" class="chip-btn" id="wpmFastBtn">180 WPM (Viral Shorts)</button>
+      </div>
+      <div style="font-size: 12px; font-family: var(--font-mono);">
+        Current Script Word Count: <span id="calcWordCountDisplay" style="font-weight: 800;">0 words</span> 
+        $\rightarrow$ <span id="calcWpmSecDisplay" style="color: var(--accent-pink); font-weight: 800;">0s</span>
+      </div>
+    </div>
+
+    <button type="button" id="applyTimeCalcBtn" class="btn btn-yellow btn-lg">
+      ⚡ APPLY DURATION & CLOSE
+    </button>
+  </div>
 </div>
 
 <!-- API Keys & Custom AI Modal (BYOK) -->
