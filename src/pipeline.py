@@ -15,6 +15,7 @@ from src.downloader import Downloader
 from src.video_processor import VideoProcessor
 from src.video_merger import VideoMerger
 from src.timeline_exporter import TimelineExporter
+from src.bgm_engine import BGMEngine
 
 class RotoDraftPipeline:
     def __init__(
@@ -51,6 +52,7 @@ class RotoDraftPipeline:
         voice: str = "en-US-ChristopherNeural",
         voice_rate: str = "+0%",
         voice_pitch: str = "+0Hz",
+        bgm_track: str = "none",
         mood: str = "Cinematic",
         project_name: Optional[str] = None,
         custom_audio_path: Optional[str] = None
@@ -133,10 +135,19 @@ class RotoDraftPipeline:
                 }
                 return
 
-        # Step 2: Scene Decomposition (AI Script or Direct Keywords List)
+        # Step 2: Sourcing Background Music (BGM)
+        bgm_file = None
+        if bgm_track and bgm_track != "none":
+            yield {
+                "type": "log",
+                "message": f"🎵 Preparing Background Music Track: '{bgm_track}'...",
+                "progress": 28
+            }
+            bgm_file = await BGMEngine.get_track_audio(bgm_track)
+
+        # Step 3: Scene Decomposition (AI Script or Direct Keywords List)
         clips_plan = []
         if mode == "keywords_only":
-            # Parse raw user keywords line by line or numbered
             lines = [l.strip() for l in script.splitlines() if l.strip()]
             for i, line in enumerate(lines):
                 clean_kw = re.sub(r'^\d+[\.\-\)]\s*', '', line).strip()
@@ -179,7 +190,7 @@ class RotoDraftPipeline:
 
         total_clips = len(clips_plan)
 
-        # Step 3: Concurrent Search, Download & FFmpeg Processing
+        # Step 4: Concurrent Search, Download & FFmpeg Processing
         processed_clips: List[Dict[str, Any]] = []
         clip_files: List[Path] = []
 
@@ -190,7 +201,7 @@ class RotoDraftPipeline:
 
             yield {
                 "type": "log",
-                "message": f"🔍 [{idx}/{total_clips}] Searching stock for: '{kw}'...",
+                "message": f"🔍 [{idx}/{total_clips}] Sourcing footage for: '{kw}'...",
                 "progress": round(40 + (i / total_clips) * 35, 1)
             }
 
@@ -248,7 +259,7 @@ class RotoDraftPipeline:
                 "progress": round(40 + ((i + 1) / total_clips) * 35, 1)
             }
 
-        # Step 4: Pro Timeline Exporters (CapCut & Premiere XML)
+        # Step 5: Pro Timeline Exporters (CapCut & Premiere XML)
         yield {
             "type": "log",
             "message": "📁 Generating NLE project files (CapCut Desktop & Premiere Pro XML)...",
@@ -274,12 +285,12 @@ class RotoDraftPipeline:
             duration_per_clip=clip_duration
         )
 
-        # Step 5: Merge Master Video
+        # Step 6: Merge Master Video with Voiceover + BGM Auto-Ducking
         master_video_path = None
         if clip_files and mode in ["full", "stock_only", "keywords_only"]:
             yield {
                 "type": "log",
-                "message": "🎬 Rendering Master Video (Full_Video_Master.mp4)...",
+                "message": "🎬 Rendering Master Video with Audio Auto-Ducking (Full_Video_Master.mp4)...",
                 "progress": 90
             }
             master_video_path = project_dir / "Full_Video_Master.mp4"
@@ -287,6 +298,7 @@ class RotoDraftPipeline:
                 clip_paths=clip_files,
                 output_master_path=master_video_path,
                 audio_path=audio_path,
+                bgm_path=bgm_file,
                 srt_path=srt_path
             )
 
@@ -302,7 +314,8 @@ class RotoDraftPipeline:
             "total_clips": len(processed_clips),
             "clips": processed_clips,
             "has_master": master_video_path is not None and master_video_path.exists(),
-            "has_voiceover": audio_path is not None and audio_path.exists()
+            "has_voiceover": audio_path is not None and audio_path.exists(),
+            "bgm_track": bgm_track
         }
         with open(project_dir / "metadata.json", "w", encoding="utf-8") as f:
             json.dump(meta, f, indent=2)
