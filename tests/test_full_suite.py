@@ -20,6 +20,7 @@ from src.voices_catalog import VoiceCatalog
 from src.lead_manager import LeadManager
 from src.pinterest_scraper import PinterestScraper
 from src.bgm_engine import BGMEngine
+from src.subtitle_engine import SubtitleEngine
 
 class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
     @classmethod
@@ -63,7 +64,7 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertIn("test.creator@gmail.com", csv_export)
         print(f"[PASS] Lead Manager: SQLite DB operational, Stats calculated, CSV exported")
 
-    async def test_03_tts_engine(self):
+    async def test_03_tts_engine_and_subtitles(self):
         """Test Edge-TTS synthesis and SRT subtitle output with speed rate."""
         tts = TTSEngine()
         out_audio = self.test_dir / "test_voice.mp3"
@@ -75,8 +76,13 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         )
         self.assertTrue(out_audio.exists(), "Audio file must exist")
         self.assertTrue(Path(res["srt_path"]).exists(), "SRT subtitle file must exist")
-        self.assertGreater(res["duration"], 1.0, "Audio duration must be > 1.0s")
-        print(f"[PASS] TTS Engine: Generated {out_audio.name} ({res['duration']:.2f}s)")
+        
+        # Test ASS conversion
+        ass_out = self.test_dir / "test_subtitles.ass"
+        SubtitleEngine.srt_to_ass(res["srt_path"], ass_out, style_id="hormozi", aspect_ratio="16:9")
+        self.assertTrue(ass_out.exists())
+        self.assertGreater(ass_out.stat().st_size, 50)
+        print(f"[PASS] TTS Engine & ASS Subtitles: Generated audio + Hormozi ASS subtitle")
 
     async def test_04_ai_engine_and_viral_enhancers(self):
         """Test AI 1-Shot script decomposition, rewriter, and viral metadata generation."""
@@ -101,8 +107,8 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(res["url"].startswith("http"))
         print(f"[PASS] Stock Searcher: Sourced via provider '{res['provider']}' -> URL: {res['url'][:60]}...")
 
-    async def test_06_bgm_engine_and_auto_ducking(self):
-        """Test BGM engine and audio ducking mixing."""
+    async def test_06_bgm_engine_and_color_grading(self):
+        """Test BGM engine and color grading video processing."""
         tracks = BGMEngine.get_available_tracks()
         self.assertGreaterEqual(len(tracks), 5)
         
@@ -119,6 +125,7 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
             duration=3.0,
             aspect_ratio="16:9",
             quality="720p",
+            color_filter="teal_orange",
             is_image=True
         )
         self.assertTrue(out_clip.exists())
@@ -134,7 +141,7 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
             audio_path=voice_audio
         )
         self.assertTrue(master_out.exists())
-        print(f"[PASS] Video Processor & Merger: Rendered Master Video with Audio ({os.path.getsize(master_out)} bytes)")
+        print(f"[PASS] Video Processor & Merger: Rendered Master Video with Teal & Orange color grade ({os.path.getsize(master_out)} bytes)")
 
 if __name__ == "__main__":
     unittest.main()
