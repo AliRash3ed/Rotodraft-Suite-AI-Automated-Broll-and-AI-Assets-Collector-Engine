@@ -1,5 +1,5 @@
 /* ==========================================================================
-   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2.1
+   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & NLE STUDIO V2.1
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -44,6 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const downloadZipBtn = document.getElementById("downloadZipBtn");
   const openFolderBtn = document.getElementById("openFolderBtn");
   const downloadXmlBtn = document.getElementById("downloadXmlBtn");
+
+  // NLE Timeline Elements
+  const timelineBoardContainer = document.getElementById("timelineBoardContainer");
+  const timelineVideoBlocks = document.getElementById("timelineVideoBlocks");
+  const timelineAudioTrack = document.getElementById("timelineAudioTrack");
 
   // Audio Upload
   const audioDropzone = document.getElementById("audioDropzone");
@@ -105,7 +110,9 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   function updateThemeIcon(theme) {
-    themeToggleBtn.textContent = theme === "dark" ? "☀️ LIGHT" : "🌙 DARK";
+    themeToggleBtn.innerHTML = theme === "dark" 
+      ? `<svg class="icon icon-sm"><use href="#icon-sun"/></svg> LIGHT` 
+      : `<svg class="icon icon-sm"><use href="#icon-moon"/></svg> DARK`;
   }
 
   // Dynamic Mode Visibility Switcher
@@ -124,31 +131,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (mode === "full") {
       modeDescriptionBadge.textContent = "Full Automation (Voiceover + B-Roll Clips + Master Video)";
-      scriptCardTitle.textContent = "📝 1. SCRIPT & NARRATIVE TIMING";
+      scriptCardTitle.innerHTML = `<svg class="icon"><use href="#icon-film"/></svg> 1. SCRIPT &amp; TIMING`;
       scriptInputLabel.textContent = "Voiceover Script Content";
       scriptInput.placeholder = "Paste your voiceover script here...";
       audioDropzoneGroup.style.display = "flex";
+      if (timelineAudioTrack) timelineAudioTrack.style.display = "flex";
     } 
     else if (mode === "stock_only") {
       modeDescriptionBadge.textContent = "Stock B-Rolls Only (Decompose Script -> Download 3s Clips)";
-      scriptCardTitle.textContent = "📝 1. SCRIPT FOR B-ROLL DECOMPOSITION";
+      scriptCardTitle.innerHTML = `<svg class="icon"><use href="#icon-film"/></svg> 1. SCRIPT FOR B-ROLL DECOMPOSITION`;
       scriptInputLabel.textContent = "Script / Story Narrative";
       scriptInput.placeholder = "Paste script here. AI will analyze the story and collect 3.0s b-roll scenes...";
       audioDropzoneGroup.style.display = "none"; // NO AUDIO
       voiceoverSettingsGroup.style.display = "none"; // NO TTS
+      if (timelineAudioTrack) timelineAudioTrack.style.display = "none";
     } 
     else if (mode === "keywords_only") {
       modeDescriptionBadge.textContent = "Direct Keywords List (Download 3s Clips For Your Custom Keywords)";
-      scriptCardTitle.textContent = "📝 1. PASTE RAW SEARCH KEYWORDS (1 PER LINE)";
+      scriptCardTitle.innerHTML = `<svg class="icon"><use href="#icon-film"/></svg> 1. PASTE RAW SEARCH KEYWORDS (1 PER LINE)`;
       scriptInputLabel.textContent = "Custom Keywords List";
       scriptInput.placeholder = "1. Wall street trading floor\n2. Server room flashing lights\n3. High speed city traffic timelapse\n4. Digital money animation";
       audioDropzoneGroup.style.display = "none";
       voiceoverSettingsGroup.style.display = "none";
       timingGroup.style.display = "none"; // Duration is auto computed from line count
+      if (timelineAudioTrack) timelineAudioTrack.style.display = "none";
     } 
     else if (mode === "voice_only") {
       modeDescriptionBadge.textContent = "AI Voiceover Only (Edge-TTS Neural Audio + Subtitles)";
-      scriptCardTitle.textContent = "🎙️ 1. SCRIPT FOR NEURAL VOICEOVER";
+      scriptCardTitle.innerHTML = `<svg class="icon"><use href="#icon-mic"/></svg> 1. SCRIPT FOR NEURAL VOICEOVER`;
       scriptInputLabel.textContent = "Voiceover Script";
       scriptInput.placeholder = "Paste text to convert into crystal clear natural voiceover and subtitles...";
       audioDropzoneGroup.style.display = "none";
@@ -242,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
     durationInput.value = total > 0 ? total : 30;
     updateCalculation();
     timeCalcModal.classList.remove("active");
-    logTerminal(`⏱️ Time Converter: Set narrative duration to ${total}s`);
+    logTerminal(`Time Converter: Set narrative duration to ${total}s`);
   });
 
   // Tab Switcher
@@ -278,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
             if (ratioRadio) ratioRadio.checked = true;
             projectNameInput.value = `Demo_${t.id}`;
             updateCalculation();
-            logTerminal(`✨ Loaded preset template: '${t.title}'`);
+            logTerminal(`Loaded preset template: '${t.title}'`);
           }
         });
     });
@@ -290,7 +300,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const file = audioFileInput.files[0];
     if (!file) return;
 
-    audioUploadStatus.textContent = `⏳ Uploading & measuring ${file.name}...`;
+    audioUploadStatus.textContent = `Uploading & measuring ${file.name}...`;
     const formData = new FormData();
     formData.append("file", file);
 
@@ -300,14 +310,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (data.success) {
         customAudioPath = data.file_path;
         durationInput.value = data.duration;
-        audioUploadStatus.textContent = `✅ Attached: ${data.filename} (${data.duration}s)`;
+        audioUploadStatus.textContent = `Attached: ${data.filename} (${data.duration}s)`;
         updateCalculation();
-        logTerminal(`🎙️ Custom Audio Attached: ${data.filename} -> ${data.duration}s detected`);
+        logTerminal(`Custom Audio Attached: ${data.filename} -> ${data.duration}s detected`);
       } else {
-        audioUploadStatus.textContent = "❌ Failed to read audio duration";
+        audioUploadStatus.textContent = "Failed to read audio duration";
       }
     } catch (e) {
-      audioUploadStatus.textContent = `❌ Upload error: ${e.message}`;
+      audioUploadStatus.textContent = `Upload error: ${e.message}`;
     }
   });
 
@@ -372,12 +382,12 @@ document.addEventListener("DOMContentLoaded", () => {
       
       const key = (input.value || "").trim();
       if (!key) {
-        statusSpan.textContent = "⚠️ Please enter key first";
+        statusSpan.textContent = "Please enter key first";
         statusSpan.style.color = "#FF3366";
         return;
       }
 
-      statusSpan.textContent = "⏳ Testing...";
+      statusSpan.textContent = "Testing...";
       statusSpan.style.color = "#FFE600";
 
       try {
@@ -388,14 +398,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         const data = await resp.json();
         if (data.success) {
-          statusSpan.textContent = "✅ Valid & Active";
+          statusSpan.textContent = "Valid & Active";
           statusSpan.style.color = "#00FF66";
         } else {
-          statusSpan.textContent = `❌ ${data.message}`;
+          statusSpan.textContent = `${data.message}`;
           statusSpan.style.color = "#FF3366";
         }
       } catch (err) {
-        statusSpan.textContent = "❌ Connection failed";
+        statusSpan.textContent = "Connection failed";
         statusSpan.style.color = "#FF3366";
       }
     });
@@ -445,9 +455,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Reset UI State
     submitBtn.disabled = true;
-    submitBtn.textContent = "⏳ PROCESSING PRODUCTION...";
+    submitBtn.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> PROCESSING PRODUCTION...`;
     terminal.innerHTML = "";
     clipsGrid.innerHTML = "";
+    if (timelineVideoBlocks) timelineVideoBlocks.innerHTML = "";
+    if (timelineBoardContainer) timelineBoardContainer.style.display = "none";
     masterContainer.style.display = "none";
     exportActions.style.display = "none";
     voiceOnlyOutputCard.style.display = "none";
@@ -510,7 +522,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setProgress(0, "FAILED");
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = "🚀 GENERATE & COLLECT ASSETS";
+      submitBtn.innerHTML = `<svg class="icon icon-lg"><use href="#icon-sparkles"/></svg> GENERATE &amp; COLLECT ASSETS`;
     }
   });
 
@@ -523,7 +535,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } else if (data.type === "clip_ready") {
       const clip = data.clip;
       renderClipCard(clip, aspect_ratio, clipDuration, quality);
-      logTerminal(`✨ Clip #${clip.index} ready: ${clip.filename}`);
+      addTimelineBlock(clip, clipDuration);
+      logTerminal(`Clip #${clip.index} ready: ${clip.filename}`);
     } else if (data.type === "done") {
       setProgress(100, "COMPLETED");
       logTerminal(data.message, "info");
@@ -550,11 +563,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.clips && data.clips.length > 0) {
         exportActions.style.display = "flex";
+        if (timelineBoardContainer) timelineBoardContainer.style.display = "flex";
       }
     } else if (data.type === "error") {
       logTerminal(`ERROR: ${data.message}`, "error");
       setProgress(0, "ERROR OCCURRED");
     }
+  }
+
+  function addTimelineBlock(clip, clipDuration) {
+    if (!timelineVideoBlocks) return;
+    if (timelineBoardContainer) timelineBoardContainer.style.display = "flex";
+
+    const node = document.createElement("div");
+    node.className = "timeline-clip-node";
+    node.innerHTML = `<span>#${clip.index}</span> <span>${clipDuration.toFixed(1)}s</span>`;
+    node.title = `Clip #${clip.index}: ${clip.keyword} (${clip.time_start}s - ${clip.time_end}s)`;
+    node.addEventListener("click", () => {
+      const targetCard = document.getElementById(`clip-card-${clip.index}`);
+      if (targetCard) {
+        targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
+        targetCard.style.borderColor = "var(--accent-yellow)";
+        setTimeout(() => (targetCard.style.borderColor = "var(--border)"), 2000);
+      }
+    });
+    timelineVideoBlocks.appendChild(node);
   }
 
   function renderClipCard(clip, aspect_ratio, clipDuration, quality) {
@@ -572,13 +605,13 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="clip-kw" title="${clip.keyword}">${clip.keyword}</div>
         <div class="clip-actions">
           <button type="button" class="btn btn-dark btn-sm swap-clip-btn" data-index="${clip.index}" data-kw="${clip.keyword}" title="Swap with next stock result or custom query">
-            🔄 SWAP
+            <svg class="icon icon-sm"><use href="#icon-refresh"/></svg> SWAP
           </button>
           <a href="${clip.url}" download="${clip.filename}" class="btn btn-yellow btn-sm" title="Download Clip MP4">
-            ⬇️ MP4
+            <svg class="icon icon-sm"><use href="#icon-download"/></svg> MP4
           </a>
           <button type="button" class="btn btn-cyan btn-sm copy-path-btn" data-path="${clip.path}" title="Copy Path">
-            📋 PATH
+            <svg class="icon icon-sm"><use href="#icon-copy"/></svg> PATH
           </button>
         </div>
       </div>
@@ -593,8 +626,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     card.querySelector(".copy-path-btn").addEventListener("click", (e) => {
       navigator.clipboard.writeText(clip.path);
-      e.target.textContent = "COPIED!";
-      setTimeout(() => (e.target.textContent = "📋 PATH"), 1500);
+      const btn = e.currentTarget;
+      btn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-check"/></svg> COPIED!`;
+      setTimeout(() => (btn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-copy"/></svg> PATH`), 1500);
     });
 
     clipsGrid.appendChild(card);
@@ -616,7 +650,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     swapModal.classList.remove("active");
-    logTerminal(`🔄 Swapping Clip #${clipIndex} with query: '${newKw}' (Page ${page})...`);
+    logTerminal(`Swapping Clip #${clipIndex} with query: '${newKw}' (Page ${page})...`);
 
     try {
       const resp = await fetch("/api/regenerate-clip", {
@@ -634,7 +668,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await resp.json();
       if (data.success) {
-        logTerminal(`✅ Clip #${clipIndex} replaced successfully with: ${data.filename}`);
+        logTerminal(`Clip #${clipIndex} replaced successfully with: ${data.filename}`);
         const card = document.getElementById(`clip-card-${clipIndex}`);
         if (card) {
           const video = card.querySelector("video");
@@ -642,10 +676,10 @@ document.addEventListener("DOMContentLoaded", () => {
           card.querySelector(".clip-kw").textContent = data.keyword;
         }
       } else {
-        logTerminal(`❌ Failed to swap clip: ${data.message}`, "error");
+        logTerminal(`Failed to swap clip: ${data.message}`, "error");
       }
     } catch (err) {
-      logTerminal(`❌ Swap error: ${err.message}`, "error");
+      logTerminal(`Swap error: ${err.message}`, "error");
     }
   });
 
@@ -670,13 +704,19 @@ document.addEventListener("DOMContentLoaded", () => {
           <td class="mono">${p.clip_count} clips (${p.duration}s)</td>
           <td class="mono">${p.aspect_ratio}</td>
           <td>
-            ${p.has_master ? `<a href="${p.master_url}" target="_blank" class="btn btn-yellow btn-sm">▶️ PLAY MASTER</a>` : `<span style="color:var(--text-muted); font-size:11px;">Clips only</span>`}
+            ${p.has_master ? `<a href="${p.master_url}" target="_blank" class="btn btn-yellow btn-sm"><svg class="icon icon-sm"><use href="#icon-play"/></svg> PLAY</a>` : `<span style="color:var(--text-muted); font-size:11px;">Clips only</span>`}
           </td>
           <td>
             <div style="display:flex; gap:6px;">
-              <button type="button" class="btn btn-lime btn-sm vault-open-btn" data-path="${p.path}">📁 EXPLORER</button>
-              <a href="/api/download-zip/${p.id}" class="btn btn-cyan btn-sm">📦 ZIP</a>
-              <button type="button" class="btn btn-pink btn-sm vault-del-btn" data-id="${p.id}">🗑️</button>
+              <button type="button" class="btn btn-lime btn-sm vault-open-btn" data-path="${p.path}">
+                <svg class="icon icon-sm"><use href="#icon-folder"/></svg> EXPLORER
+              </button>
+              <a href="/api/download-zip/${p.id}" class="btn btn-cyan btn-sm">
+                <svg class="icon icon-sm"><use href="#icon-download"/></svg> ZIP
+              </a>
+              <button type="button" class="btn btn-pink btn-sm vault-del-btn" data-id="${p.id}">
+                <svg class="icon icon-sm"><use href="#icon-trash"/></svg>
+              </button>
             </div>
           </td>
         `;
@@ -718,7 +758,7 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       const data = await res.json();
       if (data.success) {
-        logTerminal(`📂 ${data.message}`);
+        logTerminal(`${data.message}`);
       }
     } catch (e) {
       logTerminal(`Failed to open folder: ${e.message}`, "error");
