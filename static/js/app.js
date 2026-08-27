@@ -417,8 +417,73 @@ document.addEventListener("DOMContentLoaded", () => {
     scriptInput.value = rewriteOutputPreview.value;
     updateCalculation();
     rewriteModal.classList.remove("active");
-    logTerminal("✨ Applied AI-enhanced script to Studio Generator!");
-  });
+  // Script Doctor Handlers (from JJYB_AI_VideoAutoCut)
+  const openScriptDoctorBtn = document.getElementById("openScriptDoctorBtn");
+  const scriptDoctorModal = document.getElementById("scriptDoctorModal");
+  const closeScriptDoctorBtn = document.getElementById("closeScriptDoctorBtn");
+  const doctorScore = document.getElementById("doctorScore");
+  const doctorWpm = document.getElementById("doctorWpm");
+  const doctorDuration = document.getElementById("doctorDuration");
+  const doctorWords = document.getElementById("doctorWords");
+  const doctorDiagnosticsList = document.getElementById("doctorDiagnosticsList");
+  const doctorVariationsList = document.getElementById("doctorVariationsList");
+
+  if (openScriptDoctorBtn && scriptDoctorModal) {
+    openScriptDoctorBtn.addEventListener("click", async () => {
+      const script = (scriptInput.value || "").trim();
+      if (!script) {
+        alert("Please enter a script first to run the clinical retention audit.");
+        return;
+      }
+
+      scriptDoctorModal.classList.add("active");
+      doctorDiagnosticsList.innerHTML = "<div>Running AI Retention & Flow Audit...</div>";
+      doctorVariationsList.innerHTML = "<div>Generating optimized variations...</div>";
+
+      try {
+        const resp = await fetch("/api/diagnose-script", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: script, style: "viral_hook" })
+        });
+        const res = await resp.json();
+        if (res.success && res.data) {
+          const d = res.data;
+          doctorScore.textContent = `${d.overall_score}/100`;
+          doctorWpm.textContent = `${d.words_per_minute}`;
+          doctorDuration.textContent = `${d.estimated_duration}s`;
+          doctorWords.textContent = `${d.word_count}`;
+
+          doctorDiagnosticsList.innerHTML = (d.diagnostics || []).map(diag => `
+            <div style="display:flex; align-items:flex-start; gap:6px;">
+              <span>⚠️</span>
+              <span>${diag}</span>
+            </div>
+          `).join("");
+
+          doctorVariationsList.innerHTML = (d.optimized_variations || []).map((v, idx) => `
+            <div style="background:var(--bg-card); border:1px solid var(--border); padding:8px 12px; border-radius:4px; display:flex; justify-content:space-between; align-items:center; gap:10px;">
+              <span style="font-family:var(--font-mono); font-size:11px; flex:1;">${v}</span>
+              <button type="button" class="btn btn-cyan btn-sm apply-doctor-var-btn" data-text="${v.replace(/"/g, '&quot;')}">USE</button>
+            </div>
+          `).join("");
+
+          document.querySelectorAll(".apply-doctor-var-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+              scriptInput.value = btn.getAttribute("data-text");
+              updateCalculation();
+              scriptDoctorModal.classList.remove("active");
+              logTerminal("🩺 Applied AI Script Doctor optimized variation!");
+            });
+          });
+        }
+      } catch (err) {
+        doctorDiagnosticsList.innerHTML = `<div style="color:#FF3366;">Error running audit: ${err.message}</div>`;
+      }
+    });
+
+    closeScriptDoctorBtn.addEventListener("click", () => scriptDoctorModal.classList.remove("active"));
+  }
 
   // Viral Distribution & SEO Metadata Handlers
   openMetadataModalBtn.addEventListener("click", async () => {
@@ -700,6 +765,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === rewriteModal) rewriteModal.classList.remove("active");
     if (e.target === metadataModal) metadataModal.classList.remove("active");
     if (e.target === onboardingModal) onboardingModal.classList.remove("active");
+    if (e.target === batchModal) batchModal.classList.remove("active");
+    if (e.target === scriptDoctorModal) scriptDoctorModal.classList.remove("active");
   });
 
   closeSwapBtn.addEventListener("click", () => swapModal.classList.remove("active"));
