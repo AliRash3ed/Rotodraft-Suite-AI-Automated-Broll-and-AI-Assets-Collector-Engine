@@ -23,6 +23,18 @@ _raw/
 *.wav
 *.zip
 
+# Private Leads & SQLite Storage (Never committed to GitHub)
+data/
+*.db
+*.sqlite
+*.sqlite3
+leads.db
+leads.json
+leads.csv
+
+# Reference Architectures
+_reference_architectures/
+
 # IDE & OS
 .vscode/
 .idea/
