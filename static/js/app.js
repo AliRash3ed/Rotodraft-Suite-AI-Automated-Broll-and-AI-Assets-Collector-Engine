@@ -812,6 +812,7 @@ document.addEventListener("DOMContentLoaded", () => {
       voice,
       voice_rate,
       voice_pitch,
+      bgm_track: document.getElementById("bgmSelect")?.value || "none",
       mood,
       project_name: projectName,
       custom_audio_path: customAudioPath,
