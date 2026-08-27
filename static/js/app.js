@@ -1,6 +1,6 @@
 /* ==========================================================================
-   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2.1
-   Features: AI Script Rewriter, Drag & Drop Clip Reordering, Viral Distribution SEO
+   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2.2
+   Features: 300+ Voices, Voice Preview, Creator Workflow, Lead Onboarding, Owner Analytics
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -34,6 +34,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const downloadVoiceMp3Btn = document.getElementById("downloadVoiceMp3Btn");
   const downloadVoiceSrtBtn = document.getElementById("downloadVoiceSrtBtn");
   
+  // Voice Controls
+  const voiceSelect = document.getElementById("voiceSelect");
+  const voiceRateSelect = document.getElementById("voiceRateSelect");
+  const voicePitchSelect = document.getElementById("voicePitchSelect");
+  const previewVoiceBtn = document.getElementById("previewVoiceBtn");
+  const autoDetectVoiceBtn = document.getElementById("autoDetectVoiceBtn");
+
   // Progress & Terminal
   const progressBar = document.getElementById("progressBar");
   const progressText = document.getElementById("progressText");
@@ -64,15 +71,37 @@ document.addEventListener("DOMContentLoaded", () => {
   // Tabs & Views
   const studioView = document.getElementById("studioView");
   const vaultView = document.getElementById("vaultView");
+  const statsView = document.getElementById("statsView");
   const tabStudioBtn = document.getElementById("tabStudioBtn");
   const tabVaultBtn = document.getElementById("tabVaultBtn");
+  const tabStatsBtn = document.getElementById("tabStatsBtn");
   const vaultTableBody = document.getElementById("vaultTableBody");
+
+  // Owner Stats Elements
+  const statTotalVideos = document.getElementById("statTotalVideos");
+  const statTotalLeads = document.getElementById("statTotalLeads");
+  const statWhatsappClicks = document.getElementById("statWhatsappClicks");
+  const statConversionRate = document.getElementById("statConversionRate");
+  const recentLeadsTableBody = document.getElementById("recentLeadsTableBody");
+  const exportLeadsCsvBtn = document.getElementById("exportLeadsCsvBtn");
 
   // Modals & Settings
   const settingsModal = document.getElementById("settingsModal");
   const openSettingsBtn = document.getElementById("openSettingsBtn");
   const closeSettingsBtn = document.getElementById("closeSettingsBtn");
   const themeToggleBtn = document.getElementById("themeToggleBtn");
+
+  // Onboarding Modal Elements
+  const onboardingModal = document.getElementById("onboardingModal");
+  const onboardStep1 = document.getElementById("onboardStep1");
+  const onboardStep2 = document.getElementById("onboardStep2");
+  const onboardEmailForm = document.getElementById("onboardEmailForm");
+  const onboardNameInput = document.getElementById("onboardNameInput");
+  const onboardEmailInput = document.getElementById("onboardEmailInput");
+  const skipOnboardingBtn = document.getElementById("skipOnboardingBtn");
+  const finishOnboardBtn = document.getElementById("finishOnboardBtn");
+  const whatsappDirectLink = document.getElementById("whatsappDirectLink");
+  let userEmailSubmitted = localStorage.getItem("rotodraft_lead_submitted") || "";
 
   // Time Calculator Modal
   const timeCalcModal = document.getElementById("timeCalcModal");
@@ -121,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProjectDir = null;
   let currentXmlUrl = null;
   let currentScriptText = "";
+  let generationCount = parseInt(localStorage.getItem("rotodraft_gen_count") || "0", 10);
 
   // Theme Initializer
   const savedTheme = localStorage.getItem("rotodraft_theme") || "dark";
@@ -140,6 +170,65 @@ document.addEventListener("DOMContentLoaded", () => {
       ? `<svg class="icon icon-sm"><use href="#icon-sun"/></svg> LIGHT` 
       : `<svg class="icon icon-sm"><use href="#icon-moon"/></svg> DARK`;
   }
+
+  // Voice Preview Handler
+  let previewAudio = new Audio();
+  previewVoiceBtn.addEventListener("click", async () => {
+    const voice = voiceSelect.value;
+    const rate = voiceRateSelect.value;
+    const pitch = voicePitchSelect.value;
+    
+    previewVoiceBtn.disabled = true;
+    previewVoiceBtn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> PREVIEWING...`;
+
+    try {
+      const resp = await fetch("/api/voice-preview", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          voice,
+          rate,
+          pitch,
+          text: scriptInput.value.slice(0, 100) || "Hello, this is a sample of this neural voice in RotoDraft Suite."
+        })
+      });
+      const data = await resp.json();
+      if (data.success && data.audio_url) {
+        previewAudio.src = data.audio_url;
+        previewAudio.play();
+        logTerminal(`Playing voice preview for: ${voice}`);
+      }
+    } catch (e) {
+      logTerminal(`Voice preview failed: ${e.message}`, "error");
+    } finally {
+      previewVoiceBtn.disabled = false;
+      previewVoiceBtn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-volume"/></svg> PREVIEW`;
+    }
+  });
+
+  // Auto-Detect Voice Button
+  autoDetectVoiceBtn.addEventListener("click", async () => {
+    const text = scriptInput.value.trim();
+    if (!text) {
+      alert("Please enter script text first to auto-detect language.");
+      return;
+    }
+
+    try {
+      const resp = await fetch("/api/auto-detect-voice", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: text })
+      });
+      const data = await resp.json();
+      if (data.success && data.voice_id) {
+        voiceSelect.value = data.voice_id;
+        logTerminal(`🌐 Auto-detected language & selected recommended voice: ${data.voice_id}`);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
   // Dynamic Mode Visibility Switcher
   function updateModeVisibility() {
@@ -168,8 +257,8 @@ document.addEventListener("DOMContentLoaded", () => {
       scriptCardTitle.innerHTML = `<svg class="icon"><use href="#icon-film"/></svg> 1. SCRIPT FOR B-ROLL DECOMPOSITION`;
       scriptInputLabel.textContent = "Script / Story Narrative";
       scriptInput.placeholder = "Paste script here. AI will analyze the story and collect 3.0s b-roll scenes...";
-      audioDropzoneGroup.style.display = "none"; // NO AUDIO
-      voiceoverSettingsGroup.style.display = "none"; // NO TTS
+      audioDropzoneGroup.style.display = "none";
+      voiceoverSettingsGroup.style.display = "none";
       if (timelineAudioTrack) timelineAudioTrack.style.display = "none";
     } 
     else if (mode === "keywords_only") {
@@ -179,7 +268,7 @@ document.addEventListener("DOMContentLoaded", () => {
       scriptInput.placeholder = "1. Wall street trading floor\n2. Server room flashing lights\n3. High speed city traffic timelapse\n4. Digital money animation";
       audioDropzoneGroup.style.display = "none";
       voiceoverSettingsGroup.style.display = "none";
-      timingGroup.style.display = "none"; // Duration is auto computed from line count
+      timingGroup.style.display = "none";
       if (timelineAudioTrack) timelineAudioTrack.style.display = "none";
     } 
     else if (mode === "voice_only") {
@@ -395,20 +484,109 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 1500);
   });
 
+  // Onboarding Lead Form Handlers
+  onboardEmailForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = onboardEmailInput.value.trim();
+    const name = onboardNameInput.value.trim();
+    if (!email) return;
+
+    try {
+      await fetch("/api/leads/submit", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name, video_count: generationCount })
+      });
+      userEmailSubmitted = email;
+      localStorage.setItem("rotodraft_lead_submitted", email);
+      
+      // Transition to Step 2
+      onboardStep1.style.display = "none";
+      onboardStep2.style.display = "block";
+    } catch (err) {
+      console.error(err);
+      onboardingModal.classList.remove("active");
+    }
+  });
+
+  whatsappDirectLink.addEventListener("click", () => {
+    if (userEmailSubmitted) {
+      fetch("/api/leads/whatsapp-click", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: userEmailSubmitted })
+      });
+    }
+  });
+
+  skipOnboardingBtn.addEventListener("click", () => onboardingModal.classList.remove("active"));
+  finishOnboardBtn.addEventListener("click", () => onboardingModal.classList.remove("active"));
+
   // Tab Switcher
   tabStudioBtn.addEventListener("click", () => {
     tabStudioBtn.classList.add("active");
     tabVaultBtn.classList.remove("active");
+    tabStatsBtn.classList.remove("active");
     studioView.style.display = "flex";
     vaultView.style.display = "none";
+    statsView.style.display = "none";
   });
 
   tabVaultBtn.addEventListener("click", () => {
     tabVaultBtn.classList.add("active");
     tabStudioBtn.classList.remove("active");
+    tabStatsBtn.classList.remove("active");
     studioView.style.display = "none";
     vaultView.style.display = "flex";
+    statsView.style.display = "none";
     loadProjectVault();
+  });
+
+  tabStatsBtn.addEventListener("click", () => {
+    tabStatsBtn.classList.add("active");
+    tabStudioBtn.classList.remove("active");
+    tabVaultBtn.classList.remove("active");
+    studioView.style.display = "none";
+    vaultView.style.display = "none";
+    statsView.style.display = "flex";
+    loadOwnerStats();
+  });
+
+  // Owner Analytics Loader
+  async function loadOwnerStats() {
+    try {
+      const resp = await fetch("/api/admin/stats");
+      const data = await resp.json();
+      statTotalVideos.textContent = data.total_videos || 0;
+      statTotalLeads.textContent = data.total_leads || 0;
+      statWhatsappClicks.textContent = data.whatsapp_conversions || 0;
+      statConversionRate.textContent = `${data.conversion_rate_pct || 0}%`;
+
+      const leads = data.recent_leads || [];
+      if (leads.length === 0) {
+        recentLeadsTableBody.innerHTML = `<tr><td colspan="5" style="text-align:center; font-family:var(--font-mono);">No leads captured yet.</td></tr>`;
+        return;
+      }
+
+      recentLeadsTableBody.innerHTML = "";
+      leads.forEach((l) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td style="font-weight:800; color:var(--accent-cyan);">${l.email}</td>
+          <td>${l.name || 'Anonymous'}</td>
+          <td class="mono">${l.whatsapp_clicked ? '✅ YES' : '⏳ No'}</td>
+          <td class="mono">${l.video_count}</td>
+          <td class="mono">${l.created_at}</td>
+        `;
+        recentLeadsTableBody.appendChild(tr);
+      });
+    } catch (e) {
+      recentLeadsTableBody.innerHTML = `<tr><td colspan="5" style="color:#FF3366;">Error loading stats: ${e.message}</td></tr>`;
+    }
+  }
+
+  exportLeadsCsvBtn.addEventListener("click", () => {
+    window.location.href = "/api/admin/export-leads";
   });
 
   // Template Quick-Select Chips
@@ -428,6 +606,16 @@ document.addEventListener("DOMContentLoaded", () => {
             if (ratioRadio) ratioRadio.checked = true;
             projectNameInput.value = `Demo_${t.id}`;
             updateCalculation();
+            
+            // Auto detect language
+            fetch("/api/auto-detect-voice", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ script: t.script })
+            }).then(r => r.json()).then(d => {
+              if (d.success && d.voice_id) voiceSelect.value = d.voice_id;
+            });
+
             logTerminal(`Loaded preset template: '${t.title}'`);
           }
         });
@@ -511,6 +699,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === timeCalcModal) timeCalcModal.classList.remove("active");
     if (e.target === rewriteModal) rewriteModal.classList.remove("active");
     if (e.target === metadataModal) metadataModal.classList.remove("active");
+    if (e.target === onboardingModal) onboardingModal.classList.remove("active");
   });
 
   closeSwapBtn.addEventListener("click", () => swapModal.classList.remove("active"));
@@ -585,9 +774,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const mode = modeSelect.value;
     const aspect_ratio = document.querySelector('input[name="aspect_ratio"]:checked')?.value || "16:9";
     const quality = qualitySelect.value;
-    const voice = document.getElementById("voiceSelect").value;
-    const voice_rate = document.getElementById("voiceRateSelect")?.value || "+0%";
-    const voice_pitch = document.getElementById("voicePitchSelect")?.value || "+0Hz";
+    const voice = voiceSelect.value;
+    const voice_rate = voiceRateSelect.value || "+0%";
+    const voice_pitch = voicePitchSelect.value || "+0Hz";
     const mood = moodSelect.value;
     const projectName = (projectNameInput.value || "RotoDraft_Project").trim();
 
@@ -690,6 +879,17 @@ document.addEventListener("DOMContentLoaded", () => {
       currentProjectId = data.project_id;
       currentProjectDir = data.project_dir;
       currentXmlUrl = data.xml_url;
+      generationCount += 1;
+      localStorage.setItem("rotodraft_gen_count", generationCount.toString());
+
+      // Trigger Onboarding modal if not submitted yet or on milestone
+      if (!userEmailSubmitted || generationCount % 3 === 0) {
+        setTimeout(() => {
+          onboardStep1.style.display = "block";
+          onboardStep2.style.display = "none";
+          onboardingModal.classList.add("active");
+        }, 1500);
+      }
 
       // Handle Voice Only Output
       if (data.audio_url) {
