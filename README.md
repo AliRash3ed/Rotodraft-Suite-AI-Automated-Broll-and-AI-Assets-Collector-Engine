@@ -7,11 +7,19 @@
 </p>
 
 <p align="center">
-  <a href="#-quick-start-in-30-seconds"><img src="https://img.shields.io/badge/Quick_Start-30s_Setup-FFE600?style=for-the-badge&logo=rocket&logoColor=black" alt="Quick Start"></a>
+  <a href="#-quick-start-in-30-seconds"><img src="https://img.shields.io/badge/Quick_Start-30s_Setup-0066FF?style=for-the-badge&logo=rocket&logoColor=white" alt="Quick Start"></a>
   <a href="https://github.com/AliRash3ed/rotodraft-suite/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-00F0FF?style=for-the-badge&logo=opensourceinitiative&logoColor=black" alt="License MIT"></a>
-  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-CCFF00?style=for-the-badge&logo=python&logoColor=black" alt="Python Version"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-00FF88?style=for-the-badge&logo=python&logoColor=black" alt="Python Version"></a>
   <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-Production_Grade-FF3366?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
-  <a href="https://ffmpeg.org"><img src="https://img.shields.io/badge/FFmpeg-NVENC_GPU_Accel-A370F7?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg"></a>
+  <a href="https://ffmpeg.org"><img src="https://img.shields.io/badge/FFmpeg-NVENC_GPU_Accel-8B5CF6?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg"></a>
+</p>
+
+---
+
+## 📸 Studio Interface Preview
+
+<p align="center">
+  <img src="assets/app_screenshot.png" alt="RotoDraft Suite Live Studio Interface" width="100%" style="border-radius: 8px; border: 3px solid #0066FF; box-shadow: 6px 6px 0px #000000;">
 </p>
 
 ---
@@ -147,12 +155,14 @@ Ran 6 tests in 10.925s - OK (100% SUCCESS)
 
 ## 👨‍💻 Author & Creator
 
-<table style="border: 3px solid #000; box-shadow: 4px 4px 0px #000; background: #161622; color: #fff; padding: 16px; border-radius: 8px;">
+<table style="border: 3px solid #000; box-shadow: 4px 4px 0px #0066FF; background: #101626; color: #fff; padding: 16px; border-radius: 8px;">
   <tr>
-    <td width="90" align="center" style="font-size: 48px;">🇵🇰</td>
+    <td width="90" align="center">
+      <img src="assets/creator_avatar.png" width="76" height="76" style="border-radius: 50%; border: 3px solid #0066FF; box-shadow: 2px 2px 0px #000;" alt="Ali Rasheed Bhatti">
+    </td>
     <td>
-      <h3 style="margin: 0; color: #FFE600;">Ali Rasheed Bhatti</h3>
-      <p style="margin: 4px 0; color: #D0D0E0; font-family: monospace;">Full Stack &amp; AI Systems Engineer • Lahore, Pakistan</p>
+      <h3 style="margin: 0; color: #00F0FF; font-family: sans-serif;">Ali Rasheed Bhatti</h3>
+      <p style="margin: 4px 0; color: #D0DBF5; font-family: monospace;">Full Stack &amp; AI Systems Engineer • Lahore, Pakistan</p>
       <p style="margin: 8px 0 0 0;">
         <a href="https://github.com/AliRash3ed"><img src="https://img.shields.io/badge/GitHub-AliRash3ed-181717?style=flat&logo=github" alt="GitHub"></a>
         <a href="https://www.linkedin.com/in/alirasheedbhatt"><img src="https://img.shields.io/badge/LinkedIn-Ali_Rasheed-0077B5?style=flat&logo=linkedin" alt="LinkedIn"></a>
