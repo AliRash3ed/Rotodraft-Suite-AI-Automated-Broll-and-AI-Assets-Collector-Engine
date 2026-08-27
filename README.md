@@ -11,6 +11,7 @@
   <a href="https://github.com/AliRash3ed/rotodraft-suite/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-00F0FF?style=for-the-badge&logo=opensourceinitiative&logoColor=black" alt="License MIT"></a>
   <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-00FF88?style=for-the-badge&logo=python&logoColor=black" alt="Python Version"></a>
   <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-Production_Grade-FF3366?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
+  <a href="https://playwright.dev"><img src="https://img.shields.io/badge/Playwright-Stealth_Scraper-45BA4B?style=for-the-badge&logo=playwright&logoColor=white" alt="Playwright"></a>
   <a href="https://ffmpeg.org"><img src="https://img.shields.io/badge/FFmpeg-NVENC_GPU_Accel-8B5CF6?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg"></a>
 </p>
 
@@ -31,12 +32,14 @@ Creating high-retention video content requires finding and timing dozens of B-Ro
 **RotoDraft Suite solves this in 1 click.**
 
 Simply paste your script, click **Generate**, and watch the engine:
-1. 🎙️ **Generate Free Neural Voiceover & Subtitles** using Microsoft Edge-TTS.
-2. 🧠 **Decompose your script** into sequential 3.0s visual scenes using 100% Free AI models (`llama-3.3-70b`, `openrouter/free`).
-3. 🔍 **Search & Scrape B-Roll Media** across **Pexels, Pixabay, Pinterest Scrapers, and 4K Ken-Burns cinematic fallbacks**.
-4. ⚙️ **GPU-Accelerated FFmpeg Trimming** to precise retention intervals (3.0s) and aspect ratios (`16:9` YouTube widescreen or `9:16` TikTok/Shorts vertical).
-5. 🎬 **Master Video Concatenation** (`Full_Video_Master.mp4`) with audio ducking and synchronized subtitles.
-6. ✂️ **Export Pro NLE Timelines** directly to **CapCut Desktop (`draft_info.json`)** and **Premiere Pro / DaVinci Resolve (`timeline.xml`)**.
+1. 🎙️ **320+ Neural Voices & Subtitles** across 50+ languages using Microsoft Edge-TTS with language auto-detection and voice preview.
+2. ⚡ **1-Click Creator Workflow**: Transform rough bullet points into viral scripts (MrBeast / Hormozi / Vox style).
+3. 🧠 **Decompose your script** into sequential 3.0s visual scenes using 100% Free AI models (`llama-3.3-70b`, `openrouter/free`).
+4. 🔍 **Multi-Tier Media Sourcing**: Playwright Stealth Pinterest Scraper, Pexels 4K, Pixabay HD, and 4K Ken-Burns cinematic fallbacks.
+5. ⚙️ **GPU-Accelerated FFmpeg Trimming** to precise retention intervals (3.0s) and aspect ratios (`16:9` YouTube widescreen, `9:16` TikTok/Shorts vertical, `1:1` Square).
+6. 🎬 **Master Video Concatenation** (`Full_Video_Master.mp4`) with synchronized subtitles and drag-and-drop timeline reordering.
+7. ✂️ **Export Pro NLE Timelines** directly to **CapCut Desktop (`draft_info.json`)** and **Premiere Pro / DaVinci Resolve (`timeline.xml`)**.
+8. 🚀 **Viral Distribution Engine**: 5 High-CTR Click-worthy titles, SEO descriptions with timestamps, hashtags, and Midjourney/Flux thumbnail prompts.
 
 ---
 
@@ -45,9 +48,9 @@ Simply paste your script, click **Generate**, and watch the engine:
 ```mermaid
 flowchart LR
     A["📝 Voiceover Script"] --> B["🧠 1-Shot AI Scene Decomposition\n(Duration / 3.0s = N Scenes)"]
-    A --> C["🎙️ Microsoft Edge-TTS\n(Neural Speech + .SRT Subtitles)"]
+    A --> C["🎙️ Microsoft Edge-TTS\n(320+ Voices + .SRT Subtitles)"]
     
-    B --> D["🔍 Concurrent Media Search Engine\n(Pexels + Pixabay + Pinterest + Ken Burns)"]
+    B --> D["🔍 Media Sourcing Engine\n(Playwright Pinterest + Pexels + Pixabay + Ken Burns)"]
     
     D --> E["⚙️ GPU FFmpeg Processing\n(3.0s Trimmer, 16:9 / 9:16 Scale, NVENC)"]
     
@@ -60,24 +63,24 @@ flowchart LR
 
 ## ✨ Core Features & Capabilities
 
-### 🎛️ 4 Specialized Workflow Modes
-* **🎬 1. Full Automation**: Complete end-to-end video generator (Voiceover + Subtitles + 3s Stock Clips + Concatenated Master Video).
-* **🎞️ 2. Stock B-Roll Clips Only**: AI decomposes your narrative and downloads sequential 3.0s B-Roll video clips. **No audio needed!**
-* **⚡ 3. Direct Keywords List Mode**: Have your own keywords list? Paste them (1 per line) to immediately scrape and render 3.0s clips.
-* **🎙️ 4. AI Voiceover Only**: Generates ultra-natural neural speech (`.mp3`) with timestamps (`.srt`) and speech speed/pitch modifiers.
+### 🎙️ Complete Voiceover Engine (320+ Voices)
+* **All Microsoft Neural Voices**: Full catalog across 50+ languages (English, Urdu, Hindi, Spanish, Arabic, French, German, Japanese, etc.).
+* **⭐ Recommended Badges**: Top high-retention voices highlighted for viral YouTube and TikTok content.
+* **🌐 Language Auto-Detect**: 1-click analyzes your script and selects the optimal neural voice.
+* **🔊 Audio Preview**: Listen to any voice before rendering.
 
-### ⏱️ Integrated Time Converter & Word Estimator
-* **Minutes:Seconds $\leftrightarrow$ Seconds Converter**: Enter `2` min `45` sec $\rightarrow$ auto-calculates `165` seconds.
-* **WPM Script Estimator**: Calculates duration from word count at *130 WPM (Slow)*, *150 WPM (YouTube Standard)*, or *180 WPM (Viral Shorts)*.
-* **1-Click Timeline Sync**: Automatically updates total required 3.0s clip counts.
+### ⚡ 1-Click Creator Workflow (AI Viral Hook Rewriter)
+* Located directly below Voiceover for instant access.
+* 4 Copywriting Frameworks: *⚡ High-Retention Viral Hook*, *📱 30s TikTok/Shorts*, *🎬 Cinematic Documentary*, *💼 Authoritative Explainer*.
 
-### 🔄 Real-Time Clip Swapper & Replacer
-* Don't like a specific b-roll in your 30-clip batch? Click **`🔄 SWAP`** on that clip's card.
-* Enter a custom search term or select **Variation Page 2/3** to replace and re-render only that clip in real-time.
+### 🔀 Drag-and-Drop NLE Timeline & 1-Click Re-Merge
+* Native HTML5 drag-and-drop on clip cards.
+* **`⚡ RE-MERGE CUSTOM CLIP ORDER`**: Instantly stitches the master video in your new sequence without re-encoding in under 2 seconds.
 
-### 📁 Local Media Vault & Project History
-* Full offline local project management dashboard (`/api/projects`).
-* Browse past generations, play master videos in 1 click, open in Windows Explorer, or download a complete bundled ZIP.
+### 🔒 Privacy-First Lead Capture & Owner Analytics
+* End-user emails are stored in a **local encrypted SQLite vault (`data/leads.db`)** that is strictly `.gitignore`'d and never committed to GitHub.
+* Optional private cloud webhook sync (`OWNER_WEBHOOK_URL`).
+* Protected **Owner Analytics Dashboard** with total generation counts, conversion metrics, and CSV lead export.
 
 ---
 
@@ -100,6 +103,7 @@ cd rotodraft-suite
 
 # 2. Install dependencies
 pip install -r requirements.txt
+playwright install chromium
 
 # 3. Ensure FFmpeg is installed
 # macOS: brew install ffmpeg
@@ -108,27 +112,6 @@ pip install -r requirements.txt
 # 4. Launch Studio
 python app.py
 ```
-
----
-
-## 📦 Supported Video Stock Engines & Fallbacks
-
-| Search Provider | Media Type | API Key Required? | Description |
-| :--- | :--- | :--- | :--- |
-| **Pexels Video API** | Real HD/4K Video | Optional (Free BYOK) | Direct 1080p/4K stock video footage |
-| **Pixabay Video API** | Real HD/4K Video | Optional (Free BYOK) | High-quality stock footage clips |
-| **Pinterest Video Scraper** | Aesthetic Vertical/Horizontal | None (100% Free Scraper) | Web-scraped b-roll and aesthetic clips |
-| **4K Ken Burns Motion Engine** | Dynamic 60fps Video | None (100% Free Fallback) | Smooth pan & zoom motion on ultra-res images |
-
----
-
-## ✂️ NLE Project Compatibility
-
-RotoDraft Suite outputs ready-to-edit project files for industry-standard editors:
-
-* **CapCut Desktop**: Generates `draft_info.json` and `draft_content.json` compatible with CapCut Desktop project import.
-* **Adobe Premiere Pro**: Final Cut Pro XML (`_timeline.xml`) with exact 3.0s cut markers and timecodes.
-* **DaVinci Resolve**: Standard XML and EDL compatibility for color grading and finishing.
 
 ---
 
@@ -141,14 +124,14 @@ python -m unittest tests/test_full_suite.py
 
 Output:
 ```text
-[PASS] TTS Engine: Generated test_voice.mp3 (4.78s + SRT subtitles with +10% speed)
-[PASS] AI Engine: Decomposed into 2 scenes (Chronological timing)
-[PASS] Stock Searcher: Found provider 'pexels' -> URL resolved
-[PASS] Video Processor: Created 3.0s clip (6.6 KB, 30 FPS, NVENC/CPU)
-[PASS] Timeline Exporter: Created CapCut JSON & Premiere XML files
-[PASS] Video Merger: Rendered Master Video (Full_Video_Master.mp4)
+[PASS] Voice Catalog: Loaded 322 voices (23 recommended) + Auto-detect verified
+[PASS] Lead Manager: SQLite DB operational, Stats calculated, CSV exported
+[PASS] TTS Engine: Generated test_voice.mp3 (4.78s)
+[PASS] AI Engine: Decomposed 2 scenes, Rewrote script, Generated 5 Viral Titles & SEO Metadata
+[PASS] Stock Searcher: Found provider 'unsplash_image_kenburns' -> URL resolved
+[PASS] Video Processor & Merger: Rendered clip + Master Video (68.8 KB)
 ----------------------------------------------------------------------
-Ran 6 tests in 10.925s - OK (100% SUCCESS)
+Ran 6 tests in 23.9s - OK (100% SUCCESS)
 ```
 
 ---
