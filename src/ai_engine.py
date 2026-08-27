@@ -57,6 +57,143 @@ class AIEngine:
         # Offline heuristic fallback (zero API dependency)
         return self._heuristic_fallback(clean_script, total_clips, clip_duration)
 
+    async def rewrite_script(self, raw_text: str, style: str = "viral_hook") -> Dict[str, Any]:
+        """
+        AI Script Rewriter & Hook Enhancer.
+        Transforms rough bullet points into high-retention video scripts.
+        """
+        raw_text = raw_text.strip()
+        if not raw_text:
+            raise ValueError("Text cannot be empty")
+
+        style_prompts = {
+            "viral_hook": "Rewrite this into a viral, high-retention video voiceover (MrBeast / Hormozi style). The first 3 seconds MUST have an irresistible hook, followed by high-energy pacing, actionable insight, and a sharp closing takeaway.",
+            "storytelling": "Rewrite this into a cinematic documentary narrative (Vox / Kurzgesagt style). Evocative, atmospheric, with intellectual depth and curiosity loops.",
+            "shorts": "Rewrite this into a fast-paced 20-30 second viral TikTok/Shorts script with extreme retention hooks and zero filler words.",
+            "educational": "Rewrite this into a clean, authoritative, clear tutorial/explainer script for professional creators."
+        }
+        instruction = style_prompts.get(style, style_prompts["viral_hook"])
+
+        prompt = f"""{instruction}
+
+ORIGINAL DRAFT / BULLET POINTS:
+\"\"\"{raw_text}\"\"\"
+
+CRITICAL RULES:
+1. Provide the enhanced voiceover script.
+2. Estimated duration should be around 30 to 60 seconds (approx 70 - 140 words).
+3. Output ONLY a valid JSON object with keys: "enhanced_script", "hook", "estimated_words", "estimated_seconds".
+
+JSON FORMAT:
+{{
+  "hook": "The single opening sentence...",
+  "enhanced_script": "Full rewritten voiceover text...",
+  "estimated_words": 85,
+  "estimated_seconds": 34
+}}
+"""
+        if self.openrouter_key:
+            try:
+                url = "https://openrouter.ai/api/v1/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {self.openrouter_key}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "https://github.com/AliRash3ed/rotodraft-suite",
+                    "X-Title": "RotoDraft Suite"
+                }
+                payload = {
+                    "model": self.openrouter_model,
+                    "messages": [
+                        {"role": "system", "content": "You are a world-class viral video copywriter. Output strict JSON only."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.5
+                }
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    resp = await client.post(url, headers=headers, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    content = data["choices"][0]["message"]["content"]
+                    match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if match:
+                        return json.loads(match.group(0))
+            except Exception as e:
+                print(f"[WARN] AI Script Rewrite failed: {e}. Using offline enhancement...")
+
+        # Offline enhancement fallback
+        words = raw_text.split()
+        return {
+            "hook": f"What if everything you knew about this was about to change?",
+            "enhanced_script": f"What if everything you knew was wrong? {raw_text}. If you want to stay ahead of the curve, you must understand this now.",
+            "estimated_words": len(words) + 20,
+            "estimated_seconds": max(20, round((len(words) + 20) / 2.5))
+        }
+
+    async def generate_viral_metadata(self, script: str, topic: str = "") -> Dict[str, Any]:
+        """
+        Generates 5 Viral YouTube Titles, SEO Description with Timestamps, Tags, and Thumbnail Prompt.
+        """
+        clean_script = script.strip()
+        prompt = f"""Generate YouTube and TikTok viral distribution metadata for this video script.
+
+SCRIPT:
+\"\"\"{clean_script[:1500]}\"\"\"
+
+Generate:
+1. 5 High-CTR Viral Titles (Curiosity gap, numbers, power words).
+2. SEO Description (compelling summary + auto-formatted timestamps).
+3. Top 15 Search Hashtags (e.g. #Tech #AI #ViralShorts).
+4. Photorealistic Midjourney / Flux Prompt for a high-converting YouTube Thumbnail.
+
+Output ONLY a JSON object:
+{{
+  "titles": ["Title 1", "Title 2", "Title 3", "Title 4", "Title 5"],
+  "description": "Video description with timestamps...",
+  "hashtags": ["#tag1", "#tag2", ...],
+  "thumbnail_prompt": "Hyper-realistic 8k cinematic thumbnail of..."
+}}
+"""
+        if self.openrouter_key:
+            try:
+                url = "https://openrouter.ai/api/v1/chat/completions"
+                headers = {
+                    "Authorization": f"Bearer {self.openrouter_key}",
+                    "Content-Type": "application/json"
+                }
+                payload = {
+                    "model": self.openrouter_model,
+                    "messages": [
+                        {"role": "system", "content": "You are a YouTube growth & viral SEO specialist. Output strict JSON only."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    "temperature": 0.6
+                }
+                async with httpx.AsyncClient(timeout=30.0) as client:
+                    resp = await client.post(url, headers=headers, json=payload)
+                    resp.raise_for_status()
+                    data = resp.json()
+                    content = data["choices"][0]["message"]["content"]
+                    match = re.search(r'\{.*\}', content, re.DOTALL)
+                    if match:
+                        return json.loads(match.group(0))
+            except Exception as e:
+                print(f"[WARN] AI Metadata generation failed: {e}. Using offline metadata...")
+
+        # Fallback offline generator
+        first_sentence = clean_script.split(".")[0] if "." in clean_script else clean_script[:50]
+        return {
+            "titles": [
+                f"The Truth Behind {first_sentence[:30]} (Nobody Tells You This)",
+                f"Why 99% Of People Fail At This In 2026",
+                f"This AI Secret Changes Everything We Know",
+                f"How I Mastered This In 30 Seconds",
+                f"Stop Doing This Right Now! (Watch Before It's Too Late)"
+            ],
+            "description": f"{clean_script}\n\n⏱️ TIMESTAMPS:\n00:00 - The Unseen Reality\n00:03 - Deep Dive & Strategy\n00:15 - Key Takeaway\n\n🔔 Subscribe for more high-value insights!",
+            "hashtags": ["#ViralVideo", "#TechRevolution", "#ContentCreator", "#YouTubeGrowth", "#IndieHacker", "#ArtificialIntelligence"],
+            "thumbnail_prompt": f"Hyperrealistic 8K cinematic YouTube thumbnail, dramatic neon blue lighting, glowing focal subject showing {first_sentence[:40]}, extreme depth of field, high contrast, 16:9 widescreen, octane render."
+        }
+
     async def _call_openrouter(self, script: str, total_clips: int, clip_duration: float, mood: str) -> List[Dict[str, Any]]:
         prompt = self._build_prompt(script, total_clips, clip_duration, mood)
         url = "https://openrouter.ai/api/v1/chat/completions"
@@ -135,7 +272,6 @@ JSON FORMAT EXAMPLE:
 
     def _extract_json(self, text: str) -> List[Dict[str, Any]]:
         text = text.strip()
-        # Try direct parse
         try:
             parsed = json.loads(text)
             if isinstance(parsed, list):
@@ -145,7 +281,6 @@ JSON FORMAT EXAMPLE:
         except Exception:
             pass
 
-        # Regex extract JSON array
         match = re.search(r'\[\s*\{.*\}\s*\]', text, re.DOTALL)
         if match:
             try:
@@ -186,7 +321,6 @@ JSON FORMAT EXAMPLE:
         words = script.split()
         words_per_clip = max(1, len(words) // total_clips)
         
-        # Generic visual dictionary for offline mode
         stock_seeds = [
             "modern business meeting", "cyberpunk digital technology", "ai neural network data",
             "stock market trading graph", "cinematic nature drone", "busy urban city street",
@@ -199,7 +333,6 @@ JSON FORMAT EXAMPLE:
             end_w = (i + 1) * words_per_clip if i < total_clips - 1 else len(words)
             chunk = " ".join(words[start_w:end_w])
             
-            # Simple keyword from chunk
             clean_chunk = re.sub(r'[^a-zA-Z0-9\s]', '', chunk)
             chunk_words = [w for w in clean_chunk.split() if len(w) > 3]
             kw = " ".join(chunk_words[:3]) if chunk_words else stock_seeds[i % len(stock_seeds)]
