@@ -97,7 +97,12 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         
         meta = await ai.generate_viral_metadata(script)
         self.assertEqual(len(meta["titles"]), 5)
-        print(f"[PASS] AI Engine: Decomposed {len(clips)} scenes, Rewrote script, Generated 5 Viral Titles & SEO Metadata")
+        
+        doctor_report = await ai.diagnose_script(script)
+        self.assertIn("overall_score", doctor_report)
+        self.assertGreater(doctor_report["overall_score"], 50)
+        self.assertIn("words_per_minute", doctor_report)
+        print(f"[PASS] AI Engine & Script Doctor: Decomposed {len(clips)} scenes, Rewrote script, Audited Retention ({doctor_report['overall_score']}/100) & Generated SEO Metadata")
 
     async def test_05_pinterest_and_stock_search_flux_fallback(self):
         """Test stock search with integrated Pinterest scraper and Pollinations Flux AI fallback."""
