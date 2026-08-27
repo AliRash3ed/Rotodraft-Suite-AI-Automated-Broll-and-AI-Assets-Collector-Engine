@@ -25,13 +25,14 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         cls.test_dir.mkdir(parents=True, exist_ok=True)
 
     async def test_01_tts_engine(self):
-        """Test Edge-TTS synthesis and SRT subtitle output."""
+        """Test Edge-TTS synthesis and SRT subtitle output with speed rate."""
         tts = TTSEngine()
         out_audio = self.test_dir / "test_voice.mp3"
         res = await tts.generate_speech(
             text="Welcome to RotoDraft Suite, the AI powered stock media collector.",
             output_path=out_audio,
-            voice="en-US-ChristopherNeural"
+            voice="en-US-ChristopherNeural",
+            rate="+10%"
         )
         self.assertTrue(out_audio.exists(), "Audio file must exist")
         self.assertTrue(Path(res["srt_path"]).exists(), "SRT subtitle file must exist")
@@ -49,18 +50,17 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(len(clips[0]["keyword"]) > 0)
         print(f"[PASS] AI Engine: Decomposed into {len(clips)} scenes: {[c['keyword'] for c in clips]}")
 
-    async def test_03_stock_search_and_kenburns(self):
-        """Test stock search with fallback mechanism."""
+    async def test_03_stock_search_and_pagination(self):
+        """Test stock search with pagination / offset."""
         stock = StockSearcher()
-        res = await stock.find_stock("modern city skyscraper", aspect_ratio="16:9")
+        res = await stock.find_stock("modern city skyscraper", aspect_ratio="16:9", page=2)
         self.assertIn("url", res)
         self.assertTrue(res["url"].startswith("http"))
-        print(f"[PASS] Stock Searcher: Found provider '{res['provider']}' -> URL: {res['url'][:60]}...")
+        print(f"[PASS] Stock Searcher (Page 2): Found provider '{res['provider']}' -> URL: {res['url'][:60]}...")
 
     async def test_04_video_processor_and_kenburns(self):
         """Test FFmpeg precision clip rendering."""
         processor = VideoProcessor()
-        # Create a sample image for Ken Burns test
         from PIL import Image
         img_path = self.test_dir / "sample_img.jpg"
         img = Image.new("RGB", (1920, 1080), color=(30, 60, 90))
@@ -83,7 +83,6 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         """Test CapCut and Premiere Pro XML generation."""
         dummy_clips = [self.test_dir / "01_sample_clip.mp4", self.test_dir / "01_sample_clip.mp4"]
         
-        # CapCut
         capcut_res = TimelineExporter.export_capcut_draft(
             clip_paths=dummy_clips,
             output_dir=self.test_dir,
@@ -92,7 +91,6 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertTrue(capcut_res["draft_info"].exists())
         self.assertTrue(capcut_res["draft_content"].exists())
 
-        # Premiere XML
         xml_path = self.test_dir / "test_timeline.xml"
         TimelineExporter.export_premiere_xml(
             clip_paths=dummy_clips,
