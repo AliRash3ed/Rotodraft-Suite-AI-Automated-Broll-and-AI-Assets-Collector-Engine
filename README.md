@@ -1,67 +1,90 @@
-<div align="center">
-
-# 🎬 RotoDraft Suite
-### *AI-Powered Stock Media, B-Roll Collector & Automated Video Creation Studio*
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
-[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg?style=for-the-badge&logo=python)](https://python.org)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.110%2B-009688.svg?style=for-the-badge&logo=fastapi)](https://fastapi.tiangolo.com)
-[![FFmpeg](https://img.shields.io/badge/FFmpeg-GPU%20Accelerated-green.svg?style=for-the-badge&logo=ffmpeg)](https://ffmpeg.org)
-[![Edge-TTS](https://img.shields.io/badge/Edge--TTS-100%25%20Free%20Voice-purple.svg?style=for-the-badge)](https://github.com/rany2/edge-tts)
-
 <p align="center">
-  <b>Turn raw voiceover scripts into fully-assembled, retention-optimized video timelines in seconds.</b><br>
-  Built with authentic <b>Neo-Brutalism & Impeccable UI</b>, zero AI slop, and 100% free AI model defaults.
+  <img src="assets/banner.svg" alt="RotoDraft Suite Banner" width="100%">
 </p>
 
-[Quick Start](#-quick-start) • [Core Features](#-key-features) • [Workflow](#-system-architecture) • [Pro NLE Exports](#-professional-nle-exports) • [Author](#-built-by)
+<p align="center">
+  <strong>The Ultimate Open-Source AI B-Roll Collector & Video Production Studio for Creators, Video Editors & Indie Hackers.</strong>
+</p>
 
-</div>
-
----
-
-## ⚡ What is RotoDraft Suite?
-
-Video editors and content creators spend **hours** manually searching for stock footage, downloading clips, trimming them to 3-second retention intervals, and arranging them on their timeline.
-
-**RotoDraft Suite** automates this entire pipeline into a single 1-click workflow:
-1. **Paste Voiceover Script & Timing** (e.g. `90s` or `4:30`).
-2. **AI Visual Breakdown**: AI analyzes the entire narrative in 1-shot and calculates exact scenes ($\text{Clips} = \frac{\text{Duration}}{3.0\text{s}}$).
-3. **Multi-Platform Stock Search**: Queries Pexels, Pixabay, and Pinterest with automatic 4K Ken Burns image fallback so **zero clips are ever missing**.
-4. **Precision Video Rendering**: Trims clips to exact 3.0s duration, normalizes aspect ratio (16:9 Landscape, 9:16 Shorts/Reels, 1:1 Square), and applies GPU acceleration (`h264_nvenc`).
-5. **Pro Timeline Export**: Instantly outputs project files ready for **CapCut Desktop (`draft_info.json`)**, **Adobe Premiere Pro (`.xml`)**, **DaVinci Resolve (`.edl`)**, or a merged **`Full_Video_Master.mp4`**.
+<p align="center">
+  <a href="#-quick-start-in-30-seconds"><img src="https://img.shields.io/badge/Quick_Start-30s_Setup-FFE600?style=for-the-badge&logo=rocket&logoColor=black" alt="Quick Start"></a>
+  <a href="https://github.com/AliRash3ed/rotodraft-suite/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-00F0FF?style=for-the-badge&logo=opensourceinitiative&logoColor=black" alt="License MIT"></a>
+  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-CCFF00?style=for-the-badge&logo=python&logoColor=black" alt="Python Version"></a>
+  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-Production_Grade-FF3366?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
+  <a href="https://ffmpeg.org"><img src="https://img.shields.io/badge/FFmpeg-NVENC_GPU_Accel-A370F7?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg"></a>
+</p>
 
 ---
 
-## ✨ Key Features
+## 💡 What is RotoDraft Suite?
 
-| Feature | Standard Tools | RotoDraft Suite Pro |
-| :--- | :---: | :---: |
-| **Script Breakdown** | ❌ Manual or multi-turn | ✅ **1-Shot Full Narrative Decomposition** |
-| **Clip Cut Length** | ❌ Random lengths | ✅ **Strict Retention Interval (Default 3.00s)** |
-| **AI Voice Generation** | 💸 Paid API ($30/mo) | ✅ **100% Free Unlimited Edge-TTS Neural Voices** |
-| **Aspect Ratios** | ❌ Landscape only | ✅ **16:9 (YouTube), 9:16 (Shorts/Reels/TikTok), 1:1** |
-| **Stock Providers** | ⚠️ Single source | ✅ **Pexels + Pixabay + Pinterest Video Scraper** |
-| **Zero Missing Clips** | ❌ Blank / failed clips | ✅ **4K Ken Burns Pan & Zoom Motion Fallback** |
-| **CapCut Desktop Export** | ❌ | ✅ **Native `draft_info.json` & `draft_content.json`** |
-| **Premiere / DaVinci XML** | ❌ | ✅ **Final Cut Pro XML (`timeline.xml`) & EDL** |
-| **Master Concatenation** | ❌ | ✅ **Streamable `Full_Video_Master.mp4` with Audio Ducking** |
-| **Design Aesthetics** | 🤖 AI Template Slop | 🎨 **Neo-Brutalism & Impeccable Style (Light/Dark)** |
+Creating high-retention video content requires finding and timing dozens of B-Roll stock footage clips for every few seconds of voiceover. Doing this manually takes **hours** of searching stock websites, downloading clips, trimming them to 3.0s retention intervals, and arranging them on an NLE timeline.
+
+**RotoDraft Suite solves this in 1 click.**
+
+Simply paste your script, click **Generate**, and watch the engine:
+1. 🎙️ **Generate Free Neural Voiceover & Subtitles** using Microsoft Edge-TTS.
+2. 🧠 **Decompose your script** into sequential 3.0s visual scenes using 100% Free AI models (`llama-3.3-70b`, `openrouter/free`).
+3. 🔍 **Search & Scrape B-Roll Media** across **Pexels, Pixabay, Pinterest Scrapers, and 4K Ken-Burns cinematic fallbacks**.
+4. ⚙️ **GPU-Accelerated FFmpeg Trimming** to precise retention intervals (3.0s) and aspect ratios (`16:9` YouTube widescreen or `9:16` TikTok/Shorts vertical).
+5. 🎬 **Master Video Concatenation** (`Full_Video_Master.mp4`) with audio ducking and synchronized subtitles.
+6. ✂️ **Export Pro NLE Timelines** directly to **CapCut Desktop (`draft_info.json`)** and **Premiere Pro / DaVinci Resolve (`timeline.xml`)**.
 
 ---
 
-## 🚀 Quick Start
+## 🖥️ Studio Architecture & Pipeline
 
-### Option A: 1-Click Launch (Windows Portable)
-1. Clone or download the repository:
+```mermaid
+flowchart LR
+    A["📝 Voiceover Script"] --> B["🧠 1-Shot AI Scene Decomposition\n(Duration / 3.0s = N Scenes)"]
+    A --> C["🎙️ Microsoft Edge-TTS\n(Neural Speech + .SRT Subtitles)"]
+    
+    B --> D["🔍 Concurrent Media Search Engine\n(Pexels + Pixabay + Pinterest + Ken Burns)"]
+    
+    D --> E["⚙️ GPU FFmpeg Processing\n(3.0s Trimmer, 16:9 / 9:16 Scale, NVENC)"]
+    
+    E --> F["🎞️ Numbered B-Roll Asset Folder\n(01_clip.mp4, 02_clip.mp4 ...)"]
+    E --> G["🎬 Concat Demuxer\n(Full_Video_Master.mp4 + Synced Audio)"]
+    E --> H["✂️ NLE Exporters\n(CapCut Desktop Draft + Premiere XML)"]
+```
+
+---
+
+## ✨ Core Features & Capabilities
+
+### 🎛️ 4 Specialized Workflow Modes
+* **🎬 1. Full Automation**: Complete end-to-end video generator (Voiceover + Subtitles + 3s Stock Clips + Concatenated Master Video).
+* **🎞️ 2. Stock B-Roll Clips Only**: AI decomposes your narrative and downloads sequential 3.0s B-Roll video clips. **No audio needed!**
+* **⚡ 3. Direct Keywords List Mode**: Have your own keywords list? Paste them (1 per line) to immediately scrape and render 3.0s clips.
+* **🎙️ 4. AI Voiceover Only**: Generates ultra-natural neural speech (`.mp3`) with timestamps (`.srt`) and speech speed/pitch modifiers.
+
+### ⏱️ Integrated Time Converter & Word Estimator
+* **Minutes:Seconds $\leftrightarrow$ Seconds Converter**: Enter `2` min `45` sec $\rightarrow$ auto-calculates `165` seconds.
+* **WPM Script Estimator**: Calculates duration from word count at *130 WPM (Slow)*, *150 WPM (YouTube Standard)*, or *180 WPM (Viral Shorts)*.
+* **1-Click Timeline Sync**: Automatically updates total required 3.0s clip counts.
+
+### 🔄 Real-Time Clip Swapper & Replacer
+* Don't like a specific b-roll in your 30-clip batch? Click **`🔄 SWAP`** on that clip's card.
+* Enter a custom search term or select **Variation Page 2/3** to replace and re-render only that clip in real-time.
+
+### 📁 Local Media Vault & Project History
+* Full offline local project management dashboard (`/api/projects`).
+* Browse past generations, play master videos in 1 click, open in Windows Explorer, or download a complete bundled ZIP.
+
+---
+
+## ⚡ Quick Start in 30 Seconds
+
+### Windows (1-Click Launch)
+1. Clone or download this repository:
    ```bash
    git clone https://github.com/AliRash3ed/rotodraft-suite.git
    cd rotodraft-suite
    ```
 2. Double-click **`START_TOOL.bat`**.
-3. The launcher will automatically verify dependencies and open **`http://127.0.0.1:8000`** in your browser!
+3. Your browser will automatically open to **`http://127.0.0.1:8000`**!
 
-### Option B: Manual Setup
+### Linux / macOS
 ```bash
 # 1. Clone repository
 git clone https://github.com/AliRash3ed/rotodraft-suite.git
@@ -70,101 +93,78 @@ cd rotodraft-suite
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. (Optional) Copy .env.example to .env and add your free keys
-cp .env.example .env
+# 3. Ensure FFmpeg is installed
+# macOS: brew install ffmpeg
+# Ubuntu: sudo apt install ffmpeg
 
-# 4. Launch server
+# 4. Launch Studio
 python app.py
 ```
-Open **[http://127.0.0.1:8000](http://127.0.0.1:8000)**.
 
 ---
 
-## 🏗️ System Architecture
+## 📦 Supported Video Stock Engines & Fallbacks
 
-```
-                                  [ User Voiceover Script ]
-                                             │
-                       ┌─────────────────────┴─────────────────────┐
-                       ▼                                           ▼
-             [ Edge-TTS Neural Voice ]                 [ AI Visual Decomposer ]
-          (Exact Audio Duration + SRT)                 (Calculates N = Dur / 3.0s)
-                       │                                           │
-                       │                       ┌───────────────────┴───────────────────┐
-                       │                       ▼                                       ▼
-                       │               [ Pexels / Pixabay ]                  [ Pinterest Scraper ]
-                       │                       │                                       │
-                       │                       └───────────────────┬───────────────────┘
-                       │                                           ▼
-                       │                              [ Ken Burns Motion Fallback ]
-                       │                              (Smooth 3.0s Pan & Zoom)
-                       │                                           │
-                       │                                           ▼
-                       │                              [ FFmpeg Precision Trimmer ]
-                       │                              (30 FPS, 16:9 / 9:16, GPU Accel)
-                       │                                           │
-                       └─────────────────────┬─────────────────────┘
-                                             ▼
-                                  [ Video Output Suite ]
-                                             │
-                 ┌───────────────────────────┼───────────────────────────┐
-                 ▼                           ▼                           ▼
-      [ Full_Video_Master.mp4 ]     [ CapCut Desktop Project ]   [ Premiere / DaVinci XML ]
-      (Audio Mixed + Ducked)        (draft_info.json)            (timeline.xml & EDL)
+| Search Provider | Media Type | API Key Required? | Description |
+| :--- | :--- | :--- | :--- |
+| **Pexels Video API** | Real HD/4K Video | Optional (Free BYOK) | Direct 1080p/4K stock video footage |
+| **Pixabay Video API** | Real HD/4K Video | Optional (Free BYOK) | High-quality stock footage clips |
+| **Pinterest Video Scraper** | Aesthetic Vertical/Horizontal | None (100% Free Scraper) | Web-scraped b-roll and aesthetic clips |
+| **4K Ken Burns Motion Engine** | Dynamic 60fps Video | None (100% Free Fallback) | Smooth pan & zoom motion on ultra-res images |
+
+---
+
+## ✂️ NLE Project Compatibility
+
+RotoDraft Suite outputs ready-to-edit project files for industry-standard editors:
+
+* **CapCut Desktop**: Generates `draft_info.json` and `draft_content.json` compatible with CapCut Desktop project import.
+* **Adobe Premiere Pro**: Final Cut Pro XML (`_timeline.xml`) with exact 3.0s cut markers and timecodes.
+* **DaVinci Resolve**: Standard XML and EDL compatibility for color grading and finishing.
+
+---
+
+## 🧪 Testing & Verification
+
+Run the comprehensive unit & integration test suite:
+```bash
+python -m unittest tests/test_full_suite.py
 ```
 
----
-
-## 🎬 Professional NLE Exports
-
-### 1. CapCut Desktop Import
-Open CapCut Desktop, navigate to your Projects directory, and copy the project folder. All clips will automatically load into your timeline with exact 3.0s cut points!
-
-### 2. Adobe Premiere Pro & DaVinci Resolve
-In Premiere Pro or DaVinci Resolve, go to:
-`File` $\rightarrow$ `Import` $\rightarrow$ Select `{project_name}_timeline.xml`.
-Your sequence will open with every clip aligned consecutively.
-
----
-
-## 🎨 UI/UX: Authentic Neo-Brutalism
-
-RotoDraft Suite follows the **Impeccable Style** design principles:
-* **High Contrast Tactile Borders**: `3px solid var(--border)` with hard drop shadows.
-* **Bento Grid Layout**: Clear separation of script input, format controls, live telemetry, and output repository.
-* **Realtime Terminal**: Server-Sent Events (SSE) telemetry feed showing live download speeds, keyword matching, and FFmpeg render stages.
-* **Instant Light / Dark Mode**: Custom theme persistence.
+Output:
+```text
+[PASS] TTS Engine: Generated test_voice.mp3 (4.78s + SRT subtitles with +10% speed)
+[PASS] AI Engine: Decomposed into 2 scenes (Chronological timing)
+[PASS] Stock Searcher: Found provider 'pexels' -> URL resolved
+[PASS] Video Processor: Created 3.0s clip (6.6 KB, 30 FPS, NVENC/CPU)
+[PASS] Timeline Exporter: Created CapCut JSON & Premiere XML files
+[PASS] Video Merger: Rendered Master Video (Full_Video_Master.mp4)
+----------------------------------------------------------------------
+Ran 6 tests in 10.925s - OK (100% SUCCESS)
+```
 
 ---
 
-## 👨‍💻 Built By
+## 👨‍💻 Author & Creator
 
-<div align="center">
-
-### **Ali Rasheed Bhatti**
-*Full Stack & AI Engineer • Lahore, Pakistan*
-
-[![GitHub](https://img.shields.io/badge/GitHub-AliRash3ed-181717?style=for-the-badge&logo=github)](https://github.com/AliRash3ed)
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-Ali%20Rasheed%20Bhatti-0A66C2?style=for-the-badge&logo=linkedin)](https://www.linkedin.com/in/alirasheedbhatt)
-[![Instagram](https://img.shields.io/badge/Instagram-this__is__ali__r-E4405F?style=for-the-badge&logo=instagram)](https://www.instagram.com/this_is_ali_r/)
-[![Facebook](https://img.shields.io/badge/Facebook-Ali%20Rasheed-1877F2?style=for-the-badge&logo=facebook)](https://www.facebook.com/profile.php?id=61579456175357)
-[![Email](https://img.shields.io/badge/Email-alihouse512%40gmail.com-D14836?style=for-the-badge&logo=gmail)](mailto:alihouse512@gmail.com)
-
-</div>
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! If you'd like to add support for new stock platforms (e.g. Storyblocks, Motion Array), new AI voice models, or video transition effects:
-1. Fork the Project (`https://github.com/AliRash3ed/rotodraft-suite`)
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+<table style="border: 3px solid #000; box-shadow: 4px 4px 0px #000; background: #161622; color: #fff; padding: 16px; border-radius: 8px;">
+  <tr>
+    <td width="90" align="center" style="font-size: 48px;">🇵🇰</td>
+    <td>
+      <h3 style="margin: 0; color: #FFE600;">Ali Rasheed Bhatti</h3>
+      <p style="margin: 4px 0; color: #D0D0E0; font-family: monospace;">Full Stack &amp; AI Systems Engineer • Lahore, Pakistan</p>
+      <p style="margin: 8px 0 0 0;">
+        <a href="https://github.com/AliRash3ed"><img src="https://img.shields.io/badge/GitHub-AliRash3ed-181717?style=flat&logo=github" alt="GitHub"></a>
+        <a href="https://www.linkedin.com/in/alirasheedbhatt"><img src="https://img.shields.io/badge/LinkedIn-Ali_Rasheed-0077B5?style=flat&logo=linkedin" alt="LinkedIn"></a>
+        <a href="https://www.instagram.com/this_is_ali_r/"><img src="https://img.shields.io/badge/Instagram-@this_is_ali_r-E4405F?style=flat&logo=instagram" alt="Instagram"></a>
+        <a href="mailto:alihouse512@gmail.com"><img src="https://img.shields.io/badge/Email-alihouse512@gmail.com-D14836?style=flat&logo=gmail" alt="Email"></a>
+      </p>
+    </td>
+  </tr>
+</table>
 
 ---
 
 ## 📄 License
 
-Distributed under the **MIT License**. See [`LICENSE`](LICENSE) for more information.
+This project is licensed under the **MIT License** — feel free to use, modify, and distribute for personal and commercial content production.
