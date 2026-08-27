@@ -1,21 +1,37 @@
 /* ==========================================================================
-   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2
+   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2.1
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
   // DOM Elements
   const form = document.getElementById("generateForm");
   const scriptInput = document.getElementById("scriptInput");
+  const scriptInputLabel = document.getElementById("scriptInputLabel");
+  const scriptCardTitle = document.getElementById("scriptCardTitle");
   const durationInput = document.getElementById("durationInput");
   const clipDurationInput = document.getElementById("clipDurationInput");
   const clipCalcBadge = document.getElementById("clipCalcBadge");
   const wordCountBadge = document.getElementById("wordCountBadge");
   const modeSelect = document.getElementById("modeSelect");
-  const voiceGroup = document.getElementById("voiceGroup");
+  const modeDescriptionBadge = document.getElementById("modeDescriptionBadge");
   const qualitySelect = document.getElementById("qualitySelect");
   const moodSelect = document.getElementById("moodSelect");
   const projectNameInput = document.getElementById("projectNameInput");
   const submitBtn = document.getElementById("submitBtn");
+
+  // Groups for Dynamic Visibility
+  const audioDropzoneGroup = document.getElementById("audioDropzoneGroup");
+  const timingGroup = document.getElementById("timingGroup");
+  const calcBar = document.getElementById("calcBar");
+  const aspectRatioGroup = document.getElementById("aspectRatioGroup");
+  const voiceoverSettingsGroup = document.getElementById("voiceoverSettingsGroup");
+  const videoSpecsGroup = document.getElementById("videoSpecsGroup");
+  const videoOutputSection = document.getElementById("videoOutputSection");
+  const voiceOnlyOutputCard = document.getElementById("voiceOnlyOutputCard");
+  const voiceOnlyAudioPlayer = document.getElementById("voiceOnlyAudioPlayer");
+  const srtTranscriptViewer = document.getElementById("srtTranscriptViewer");
+  const downloadVoiceMp3Btn = document.getElementById("downloadVoiceMp3Btn");
+  const downloadVoiceSrtBtn = document.getElementById("downloadVoiceSrtBtn");
   
   // Progress & Terminal
   const progressBar = document.getElementById("progressBar");
@@ -48,6 +64,21 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeSettingsBtn = document.getElementById("closeSettingsBtn");
   const themeToggleBtn = document.getElementById("themeToggleBtn");
 
+  // Time Calculator Modal
+  const timeCalcModal = document.getElementById("timeCalcModal");
+  const openTimeCalcBtn = document.getElementById("openTimeCalcBtn");
+  const closeTimeCalcBtn = document.getElementById("closeTimeCalcBtn");
+  const applyTimeCalcBtn = document.getElementById("applyTimeCalcBtn");
+  const calcMinutesInput = document.getElementById("calcMinutesInput");
+  const calcSecondsInput = document.getElementById("calcSecondsInput");
+  const calcTotalSecDisplay = document.getElementById("calcTotalSecDisplay");
+  const calcWordCountDisplay = document.getElementById("calcWordCountDisplay");
+  const calcWpmSecDisplay = document.getElementById("calcWpmSecDisplay");
+  const wpmSlowBtn = document.getElementById("wpmSlowBtn");
+  const wpmNormBtn = document.getElementById("wpmNormBtn");
+  const wpmFastBtn = document.getElementById("wpmFastBtn");
+  let currentWpm = 150;
+
   // Swap Clip Modal
   const swapModal = document.getElementById("swapModal");
   const closeSwapBtn = document.getElementById("closeSwapBtn");
@@ -77,6 +108,143 @@ document.addEventListener("DOMContentLoaded", () => {
     themeToggleBtn.textContent = theme === "dark" ? "☀️ LIGHT" : "🌙 DARK";
   }
 
+  // Dynamic Mode Visibility Switcher
+  function updateModeVisibility() {
+    const mode = modeSelect.value;
+    
+    // Reset defaults
+    audioDropzoneGroup.style.display = "none";
+    timingGroup.style.display = "grid";
+    calcBar.style.display = "flex";
+    aspectRatioGroup.style.display = "flex";
+    voiceoverSettingsGroup.style.display = "flex";
+    videoSpecsGroup.style.display = "grid";
+    videoOutputSection.style.display = "grid";
+    voiceOnlyOutputCard.style.display = "none";
+
+    if (mode === "full") {
+      modeDescriptionBadge.textContent = "Full Automation (Voiceover + B-Roll Clips + Master Video)";
+      scriptCardTitle.textContent = "📝 1. SCRIPT & NARRATIVE TIMING";
+      scriptInputLabel.textContent = "Voiceover Script Content";
+      scriptInput.placeholder = "Paste your voiceover script here...";
+      audioDropzoneGroup.style.display = "flex";
+    } 
+    else if (mode === "stock_only") {
+      modeDescriptionBadge.textContent = "Stock B-Rolls Only (Decompose Script -> Download 3s Clips)";
+      scriptCardTitle.textContent = "📝 1. SCRIPT FOR B-ROLL DECOMPOSITION";
+      scriptInputLabel.textContent = "Script / Story Narrative";
+      scriptInput.placeholder = "Paste script here. AI will analyze the story and collect 3.0s b-roll scenes...";
+      audioDropzoneGroup.style.display = "none"; // NO AUDIO
+      voiceoverSettingsGroup.style.display = "none"; // NO TTS
+    } 
+    else if (mode === "keywords_only") {
+      modeDescriptionBadge.textContent = "Direct Keywords List (Download 3s Clips For Your Custom Keywords)";
+      scriptCardTitle.textContent = "📝 1. PASTE RAW SEARCH KEYWORDS (1 PER LINE)";
+      scriptInputLabel.textContent = "Custom Keywords List";
+      scriptInput.placeholder = "1. Wall street trading floor\n2. Server room flashing lights\n3. High speed city traffic timelapse\n4. Digital money animation";
+      audioDropzoneGroup.style.display = "none";
+      voiceoverSettingsGroup.style.display = "none";
+      timingGroup.style.display = "none"; // Duration is auto computed from line count
+    } 
+    else if (mode === "voice_only") {
+      modeDescriptionBadge.textContent = "AI Voiceover Only (Edge-TTS Neural Audio + Subtitles)";
+      scriptCardTitle.textContent = "🎙️ 1. SCRIPT FOR NEURAL VOICEOVER";
+      scriptInputLabel.textContent = "Voiceover Script";
+      scriptInput.placeholder = "Paste text to convert into crystal clear natural voiceover and subtitles...";
+      audioDropzoneGroup.style.display = "none";
+      timingGroup.style.display = "none";
+      calcBar.style.display = "none";
+      aspectRatioGroup.style.display = "none";
+      videoSpecsGroup.style.display = "none";
+      videoOutputSection.style.display = "none";
+    }
+
+    updateCalculation();
+  }
+
+  modeSelect.addEventListener("change", updateModeVisibility);
+
+  // Time Calculator Modal Interactivity
+  openTimeCalcBtn.addEventListener("click", () => {
+    const dur = parseDurationInput(durationInput.value) || 30;
+    calcMinutesInput.value = Math.floor(dur / 60);
+    calcSecondsInput.value = Math.floor(dur % 60);
+    updateTimeCalcDisplays();
+    timeCalcModal.classList.add("active");
+  });
+
+  closeTimeCalcBtn.addEventListener("click", () => timeCalcModal.classList.remove("active"));
+  
+  function updateTimeCalcDisplays() {
+    const mins = parseInt(calcMinutesInput.value, 10) || 0;
+    const secs = parseInt(calcSecondsInput.value, 10) || 0;
+    const total = mins * 60 + secs;
+    calcTotalSecDisplay.textContent = total;
+
+    const words = (scriptInput.value || "").trim().split(/\s+/).filter(Boolean).length;
+    calcWordCountDisplay.textContent = `${words} words`;
+    const wpmSecs = words > 0 ? Math.round((words / currentWpm) * 60) : 0;
+    calcWpmSecDisplay.textContent = `${wpmSecs}s (at ${currentWpm} WPM)`;
+  }
+
+  calcMinutesInput.addEventListener("input", updateTimeCalcDisplays);
+  calcSecondsInput.addEventListener("input", updateTimeCalcDisplays);
+
+  wpmSlowBtn.addEventListener("click", () => {
+    currentWpm = 130;
+    wpmSlowBtn.style.background = "var(--accent-yellow)";
+    wpmSlowBtn.style.color = "#000";
+    wpmNormBtn.style.background = "var(--bg-card)";
+    wpmNormBtn.style.color = "var(--text-primary)";
+    wpmFastBtn.style.background = "var(--bg-card)";
+    wpmFastBtn.style.color = "var(--text-primary)";
+    const words = (scriptInput.value || "").trim().split(/\s+/).filter(Boolean).length;
+    const total = words > 0 ? Math.round((words / currentWpm) * 60) : 30;
+    calcMinutesInput.value = Math.floor(total / 60);
+    calcSecondsInput.value = total % 60;
+    updateTimeCalcDisplays();
+  });
+
+  wpmNormBtn.addEventListener("click", () => {
+    currentWpm = 150;
+    wpmNormBtn.style.background = "var(--accent-yellow)";
+    wpmNormBtn.style.color = "#000";
+    wpmSlowBtn.style.background = "var(--bg-card)";
+    wpmSlowBtn.style.color = "var(--text-primary)";
+    wpmFastBtn.style.background = "var(--bg-card)";
+    wpmFastBtn.style.color = "var(--text-primary)";
+    const words = (scriptInput.value || "").trim().split(/\s+/).filter(Boolean).length;
+    const total = words > 0 ? Math.round((words / currentWpm) * 60) : 30;
+    calcMinutesInput.value = Math.floor(total / 60);
+    calcSecondsInput.value = total % 60;
+    updateTimeCalcDisplays();
+  });
+
+  wpmFastBtn.addEventListener("click", () => {
+    currentWpm = 180;
+    wpmFastBtn.style.background = "var(--accent-yellow)";
+    wpmFastBtn.style.color = "#000";
+    wpmSlowBtn.style.background = "var(--bg-card)";
+    wpmSlowBtn.style.color = "var(--text-primary)";
+    wpmNormBtn.style.background = "var(--bg-card)";
+    wpmNormBtn.style.color = "var(--text-primary)";
+    const words = (scriptInput.value || "").trim().split(/\s+/).filter(Boolean).length;
+    const total = words > 0 ? Math.round((words / currentWpm) * 60) : 30;
+    calcMinutesInput.value = Math.floor(total / 60);
+    calcSecondsInput.value = total % 60;
+    updateTimeCalcDisplays();
+  });
+
+  applyTimeCalcBtn.addEventListener("click", () => {
+    const mins = parseInt(calcMinutesInput.value, 10) || 0;
+    const secs = parseInt(calcSecondsInput.value, 10) || 0;
+    const total = mins * 60 + secs;
+    durationInput.value = total > 0 ? total : 30;
+    updateCalculation();
+    timeCalcModal.classList.remove("active");
+    logTerminal(`⏱️ Time Converter: Set narrative duration to ${total}s`);
+  });
+
   // Tab Switcher
   tabStudioBtn.addEventListener("click", () => {
     tabStudioBtn.classList.add("active");
@@ -94,7 +262,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Template Quick-Select Chips
-  document.querySelectorAll(".chip-btn").forEach((chip) => {
+  document.querySelectorAll(".chip-btn[data-template-id]").forEach((chip) => {
     chip.addEventListener("click", () => {
       const tId = chip.getAttribute("data-template-id");
       fetch("/api/templates")
@@ -134,7 +302,7 @@ document.addEventListener("DOMContentLoaded", () => {
         durationInput.value = data.duration;
         audioUploadStatus.textContent = `✅ Attached: ${data.filename} (${data.duration}s)`;
         updateCalculation();
-        logTerminal(`🎙️ Custom Audio Attached: ${data.filename} -> ${data.duration}s duration detected`);
+        logTerminal(`🎙️ Custom Audio Attached: ${data.filename} -> ${data.duration}s detected`);
       } else {
         audioUploadStatus.textContent = "❌ Failed to read audio duration";
       }
@@ -143,7 +311,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Live Time Parsing & Calculation Helper
   function parseDurationInput(val) {
     val = (val || "").trim();
     if (val.includes(":")) {
@@ -157,8 +324,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function updateCalculation() {
     const text = (scriptInput.value || "").trim();
-    const words = text ? text.split(/\s+/).length : 0;
+    const words = text ? text.split(/\s+/).filter(Boolean).length : 0;
+    const mode = modeSelect.value;
+
     wordCountBadge.textContent = `${words} WORDS`;
+
+    if (mode === "keywords_only") {
+      const lines = text.split("\n").filter((l) => l.trim().length > 0);
+      const clipDur = parseFloat(clipDurationInput.value) || 3.0;
+      const totalSec = lines.length * clipDur;
+      clipCalcBadge.textContent = `${lines.length} CUSTOM KEYWORDS -> ${totalSec.toFixed(0)}s VIDEO (${clipDur}s EACH)`;
+      return;
+    }
 
     let dur = parseDurationInput(durationInput.value);
     const clipDur = parseFloat(clipDurationInput.value) || 3.0;
@@ -175,21 +352,13 @@ document.addEventListener("DOMContentLoaded", () => {
   durationInput.addEventListener("input", updateCalculation);
   clipDurationInput.addEventListener("change", updateCalculation);
 
-  modeSelect.addEventListener("change", () => {
-    const mode = modeSelect.value;
-    if (mode === "stock_only") {
-      voiceGroup.style.display = "none";
-    } else {
-      voiceGroup.style.display = "flex";
-    }
-  });
-
   // Settings Modal Handlers
   openSettingsBtn.addEventListener("click", () => settingsModal.classList.add("active"));
   closeSettingsBtn.addEventListener("click", () => settingsModal.classList.remove("active"));
   window.addEventListener("click", (e) => {
     if (e.target === settingsModal) settingsModal.classList.remove("active");
     if (e.target === swapModal) swapModal.classList.remove("active");
+    if (e.target === timeCalcModal) timeCalcModal.classList.remove("active");
   });
 
   closeSwapBtn.addEventListener("click", () => swapModal.classList.remove("active"));
@@ -253,7 +422,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const script = (scriptInput.value || "").trim();
     if (!script) {
-      alert("Please enter a voiceover script.");
+      alert("Please enter a voiceover script or keywords.");
       return;
     }
 
@@ -263,6 +432,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const aspect_ratio = document.querySelector('input[name="aspect_ratio"]:checked')?.value || "16:9";
     const quality = qualitySelect.value;
     const voice = document.getElementById("voiceSelect").value;
+    const voice_rate = document.getElementById("voiceRateSelect")?.value || "+0%";
+    const voice_pitch = document.getElementById("voicePitchSelect")?.value || "+0Hz";
     const mood = moodSelect.value;
     const projectName = (projectNameInput.value || "RotoDraft_Project").trim();
 
@@ -279,6 +450,7 @@ document.addEventListener("DOMContentLoaded", () => {
     clipsGrid.innerHTML = "";
     masterContainer.style.display = "none";
     exportActions.style.display = "none";
+    voiceOnlyOutputCard.style.display = "none";
     setProgress(0, "INITIALIZING...");
 
     logTerminal(`Starting pipeline in ${mode.toUpperCase()} mode for '${projectName}'...`);
@@ -291,6 +463,8 @@ document.addEventListener("DOMContentLoaded", () => {
       aspect_ratio,
       quality,
       voice,
+      voice_rate,
+      voice_pitch,
       mood,
       project_name: projectName,
       custom_audio_path: customAudioPath,
@@ -358,12 +532,25 @@ document.addEventListener("DOMContentLoaded", () => {
       currentProjectDir = data.project_dir;
       currentXmlUrl = data.xml_url;
 
+      // Handle Voice Only Output
+      if (data.audio_url) {
+        voiceOnlyAudioPlayer.src = data.audio_url;
+        downloadVoiceMp3Btn.href = data.audio_url;
+        if (data.srt_url) {
+          downloadVoiceSrtBtn.href = data.srt_url;
+          srtTranscriptViewer.value = data.srt_content || "SRT subtitles generated.";
+        }
+        voiceOnlyOutputCard.style.display = "flex";
+      }
+
       if (data.master_url) {
         masterVideo.src = data.master_url;
         masterContainer.style.display = "flex";
       }
 
-      exportActions.style.display = "flex";
+      if (data.clips && data.clips.length > 0) {
+        exportActions.style.display = "flex";
+      }
     } else if (data.type === "error") {
       logTerminal(`ERROR: ${data.message}`, "error");
       setProgress(0, "ERROR OCCURRED");
@@ -397,7 +584,6 @@ document.addEventListener("DOMContentLoaded", () => {
       </div>
     `;
 
-    // Swap button event
     card.querySelector(".swap-clip-btn").addEventListener("click", () => {
       swapClipIndexInput.value = clip.index;
       swapKeywordInput.value = clip.keyword;
@@ -405,7 +591,6 @@ document.addEventListener("DOMContentLoaded", () => {
       swapModal.classList.add("active");
     });
 
-    // Copy path button event
     card.querySelector(".copy-path-btn").addEventListener("click", (e) => {
       navigator.clipboard.writeText(clip.path);
       e.target.textContent = "COPIED!";
@@ -550,6 +735,6 @@ document.addEventListener("DOMContentLoaded", () => {
     window.location.href = currentXmlUrl;
   });
 
-  // Initial Calculation Run
-  updateCalculation();
+  // Initial Visibility Setup
+  updateModeVisibility();
 });
