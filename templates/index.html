@@ -827,69 +827,153 @@
 <div class="modal-overlay" id="settingsModal">
   <div class="modal-box">
     <div class="card-header">
-      <h2 class="card-title">
-        <svg class="icon"><use href="#icon-settings"/></svg> API KEYS &amp; MODEL CONFIGURATION
+      <h2 class="card-title" style="color: var(--accent-cyan);">
+        <svg class="icon"><use href="#icon-settings"/></svg> ⚙️ STUDIO SETTINGS &amp; BYOK HUB
       </h2>
       <button type="button" class="btn btn-dark btn-sm" id="closeSettingsBtn">✕ CLOSE</button>
     </div>
 
-    <div style="font-size: 13px; color: var(--text-muted); font-family: var(--font-mono);">
-      Bring Your Own Keys (BYOK). All keys remain 100% local on your machine. By default, 100% Free models are selected.
+    <div style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
+      Bring Your Own Keys (BYOK). All settings and keys are stored locally on your machine in encrypted browser storage and local .env.
     </div>
 
-    <!-- OpenRouter -->
-    <div class="form-group">
-      <label class="label">
-        <span>OpenRouter API Key (Optional / Free Models)</span>
-        <span id="openrouterKeyStatus" style="font-size: 11px;"></span>
-      </label>
-      <div style="display: flex; gap: 8px;">
-        <input type="password" id="openrouterKeyInput" class="input mono" placeholder="sk-or-v1-..." value="{{ '' if not has_openrouter else '********' }}">
-        <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="openrouter">TEST</button>
+    <!-- Provider Tabs -->
+    <div style="display: flex; gap: 6px; border-bottom: 2px solid var(--border); padding-bottom: 8px;">
+      <button type="button" class="chip-btn active" id="tabSetLlm" style="font-size: 11px;">🤖 LLM &amp; AI</button>
+      <button type="button" class="chip-btn" id="tabSetMedia" style="font-size: 11px;">🎬 FOOTAGE &amp; STOCK</button>
+      <button type="button" class="chip-btn" id="tabSetAudio" style="font-size: 11px;">🎵 AUDIO &amp; BGM</button>
+      <button type="button" class="chip-btn" id="tabSetVideo" style="font-size: 11px;">🎨 VIDEO &amp; RENDER</button>
+    </div>
+
+    <!-- Section 1: LLM & AI -->
+    <div id="setSecLlm" style="display: flex; flex-direction: column; gap: 12px;">
+      <div class="form-group">
+        <label class="label">Primary LLM Provider</label>
+        <select id="llmProviderSelect" class="select mono">
+          <option value="openrouter" selected>OpenRouter (Auto-Free &amp; All Models)</option>
+          <option value="gemini">Google Gemini (Gemini 2.0 Flash / Pro)</option>
+          <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
+          <option value="deepseek">DeepSeek (DeepSeek V3 / R1)</option>
+          <option value="groq">Groq (Ultra-Fast Llama 3.3 70B)</option>
+          <option value="ollama">Ollama (Local Offline LLM)</option>
+          <option value="custom">Custom OpenAI-Compatible Endpoint</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="label">
+          <span>API Key</span>
+          <span id="activeLlmKeyStatus" style="font-size: 11px;"></span>
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="activeLlmKeyInput" class="input mono" placeholder="Enter provider API key...">
+          <button type="button" class="btn btn-cyan btn-sm" id="testActiveLlmKeyBtn">TEST</button>
+        </div>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label class="label">Model Name / ID</label>
+          <input type="text" id="activeLlmModelInput" class="input mono" placeholder="openrouter/free" value="openrouter/free">
+        </div>
+        <div class="form-group">
+          <label class="label">Custom Base URL (Optional)</label>
+          <input type="text" id="activeLlmBaseUrlInput" class="input mono" placeholder="https://api.openai.com/v1">
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label class="label">Selected AI Model</label>
-      <select id="openrouterModelSelect" class="select mono">
-        {% for m in models %}
-          <option value="{{ m.id }}" {% if m.id == default_model %}selected{% endif %}>{{ m.name }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <!-- Pexels -->
-    <div class="form-group">
-      <label class="label">
-        <span>Pexels Video API Key</span>
-        <span id="pexelsKeyStatus" style="font-size: 11px;"></span>
-      </label>
-      <div style="display: flex; gap: 8px;">
-        <input type="password" id="pexelsKeyInput" class="input mono" placeholder="Pexels Key..." value="{{ '' if not has_pexels else '********' }}">
-        <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pexels">TEST</button>
+    <!-- Section 2: Footage & Stock -->
+    <div id="setSecMedia" style="display: none; flex-direction: column; gap: 12px;">
+      <div class="form-group">
+        <label class="label">
+          <span>Pexels Video API Key</span>
+          <span id="pexelsKeyStatus" style="font-size: 11px;"></span>
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="pexelsKeyInput" class="input mono" placeholder="Pexels API Key...">
+          <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pexels">TEST</button>
+        </div>
       </div>
-      <small style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">
-        Get free API key: <a href="https://www.pexels.com/api/" target="_blank" style="color: var(--accent-cyan);">pexels.com/api</a>
-      </small>
-    </div>
 
-    <!-- Pixabay -->
-    <div class="form-group">
-      <label class="label">
-        <span>Pixabay Video API Key</span>
-        <span id="pixabayKeyStatus" style="font-size: 11px;"></span>
-      </label>
-      <div style="display: flex; gap: 8px;">
-        <input type="password" id="pixabayKeyInput" class="input mono" placeholder="Pixabay Key..." value="{{ '' if not has_pixabay else '********' }}">
-        <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pixabay">TEST</button>
+      <div class="form-group">
+        <label class="label">
+          <span>Pixabay Video API Key</span>
+          <span id="pixabayKeyStatus" style="font-size: 11px;"></span>
+        </label>
+        <div style="display: flex; gap: 8px;">
+          <input type="password" id="pixabayKeyInput" class="input mono" placeholder="Pixabay API Key...">
+          <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pixabay">TEST</button>
+        </div>
       </div>
-      <small style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">
-        Get free API key: <a href="https://pixabay.com/api/docs/" target="_blank" style="color: var(--accent-cyan);">pixabay.com/api</a>
-      </small>
+
+      <div class="form-group">
+        <label class="label" style="display: flex; justify-content: space-between;">
+          <span>Stealth Scraper &amp; Fallback Engines</span>
+        </label>
+        <div style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 12px;">
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="cfgEnablePinterest" checked> Playwright Pinterest Stealth Scraper
+          </label>
+          <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+            <input type="checkbox" id="cfgEnableFlux" checked> Pollinations 4K Flux AI Image Fallback (with 60fps Ken Burns)
+          </label>
+        </div>
+      </div>
     </div>
 
-    <button type="button" class="btn btn-blue" onclick="document.getElementById('settingsModal').classList.remove('active')">
-      SAVE &amp; APPLY SETTINGS
+    <!-- Section 3: Audio & BGM -->
+    <div id="setSecAudio" style="display: none; flex-direction: column; gap: 12px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label class="label">Default Voice Speed</label>
+          <select id="cfgVoiceRate" class="select mono">
+            <option value="+0%" selected>Normal (+0%)</option>
+            <option value="+10%">Fast (+10%)</option>
+            <option value="+20%">Ultra-Fast (+20%)</option>
+            <option value="-10%">Slow (-10%)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="label">Default Voice Pitch</label>
+          <select id="cfgVoicePitch" class="select mono">
+            <option value="+0Hz" selected>Natural (+0Hz)</option>
+            <option value="-5Hz">Deep (-5Hz)</option>
+            <option value="+5Hz">Energetic (+5Hz)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Default BGM Mixing Volume (<span id="cfgBgmVolVal">18%</span>)</label>
+        <input type="range" id="cfgBgmVolSlider" min="0" max="50" value="18" class="input" style="padding: 0;">
+      </div>
+    </div>
+
+    <!-- Section 4: Video & Render -->
+    <div id="setSecVideo" style="display: none; flex-direction: column; gap: 12px;">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <div class="form-group">
+          <label class="label">Anti-Duplicate Mirroring</label>
+          <select id="cfgMirrorFlip" class="select mono">
+            <option value="false" selected>Disabled (Original Footage)</option>
+            <option value="true">Enable Horizontal Flip (Bypass AI Filters)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="label">Video Clip Playback Speed</label>
+          <select id="cfgVideoSpeed" class="select mono">
+            <option value="1.0" selected>1.0x Normal</option>
+            <option value="1.1">1.1x Fast-Paced Retention</option>
+            <option value="1.25">1.25x Dynamic Speedrun</option>
+            <option value="0.9">0.9x Cinematic Slow</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn btn-blue" id="saveStudioSettingsBtn" style="width: 100%; margin-top: 6px;">
+      💾 SAVE &amp; APPLY SETTINGS
     </button>
   </div>
 </div>
