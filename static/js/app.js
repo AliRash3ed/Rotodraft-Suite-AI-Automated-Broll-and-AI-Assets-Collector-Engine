@@ -1,5 +1,6 @@
 /* ==========================================================================
-   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & NLE STUDIO V2.1
+   ROTODRAFT SUITE - INTERACTIVE CONTROLLER & ADVANCED STUDIO V2.1
+   Features: AI Script Rewriter, Drag & Drop Clip Reordering, Viral Distribution SEO
    ========================================================================== */
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -45,6 +46,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const openFolderBtn = document.getElementById("openFolderBtn");
   const downloadXmlBtn = document.getElementById("downloadXmlBtn");
 
+  // Reorder & Metadata Buttons
+  const remergeMasterBtn = document.getElementById("remergeMasterBtn");
+  const openMetadataModalBtn = document.getElementById("openMetadataModalBtn");
+
   // NLE Timeline Elements
   const timelineBoardContainer = document.getElementById("timelineBoardContainer");
   const timelineVideoBlocks = document.getElementById("timelineVideoBlocks");
@@ -84,6 +89,26 @@ document.addEventListener("DOMContentLoaded", () => {
   const wpmFastBtn = document.getElementById("wpmFastBtn");
   let currentWpm = 150;
 
+  // AI Script Rewriter Modal
+  const rewriteModal = document.getElementById("rewriteModal");
+  const openRewriteModalBtn = document.getElementById("openRewriteModalBtn");
+  const closeRewriteBtn = document.getElementById("closeRewriteBtn");
+  const rewriteStyleSelect = document.getElementById("rewriteStyleSelect");
+  const rewriteSourceInput = document.getElementById("rewriteSourceInput");
+  const executeRewriteBtn = document.getElementById("executeRewriteBtn");
+  const rewriteResultBox = document.getElementById("rewriteResultBox");
+  const rewriteOutputPreview = document.getElementById("rewriteOutputPreview");
+  const applyRewrittenScriptBtn = document.getElementById("applyRewrittenScriptBtn");
+
+  // Viral Distribution & SEO Modal
+  const metadataModal = document.getElementById("metadataModal");
+  const closeMetadataBtn = document.getElementById("closeMetadataBtn");
+  const metaTitlesList = document.getElementById("metaTitlesList");
+  const metaDescriptionInput = document.getElementById("metaDescriptionInput");
+  const metaHashtagsInput = document.getElementById("metaHashtagsInput");
+  const metaThumbnailPromptInput = document.getElementById("metaThumbnailPromptInput");
+  const copyAllMetadataBtn = document.getElementById("copyAllMetadataBtn");
+
   // Swap Clip Modal
   const swapModal = document.getElementById("swapModal");
   const closeSwapBtn = document.getElementById("closeSwapBtn");
@@ -95,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let currentProjectId = null;
   let currentProjectDir = null;
   let currentXmlUrl = null;
+  let currentScriptText = "";
 
   // Theme Initializer
   const savedTheme = localStorage.getItem("rotodraft_theme") || "dark";
@@ -202,8 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   wpmSlowBtn.addEventListener("click", () => {
     currentWpm = 130;
-    wpmSlowBtn.style.background = "var(--accent-yellow)";
-    wpmSlowBtn.style.color = "#000";
+    wpmSlowBtn.style.background = "var(--accent-blue)";
+    wpmSlowBtn.style.color = "#fff";
     wpmNormBtn.style.background = "var(--bg-card)";
     wpmNormBtn.style.color = "var(--text-primary)";
     wpmFastBtn.style.background = "var(--bg-card)";
@@ -217,8 +243,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   wpmNormBtn.addEventListener("click", () => {
     currentWpm = 150;
-    wpmNormBtn.style.background = "var(--accent-yellow)";
-    wpmNormBtn.style.color = "#000";
+    wpmNormBtn.style.background = "var(--accent-blue)";
+    wpmNormBtn.style.color = "#fff";
     wpmSlowBtn.style.background = "var(--bg-card)";
     wpmSlowBtn.style.color = "var(--text-primary)";
     wpmFastBtn.style.background = "var(--bg-card)";
@@ -232,8 +258,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   wpmFastBtn.addEventListener("click", () => {
     currentWpm = 180;
-    wpmFastBtn.style.background = "var(--accent-yellow)";
-    wpmFastBtn.style.color = "#000";
+    wpmFastBtn.style.background = "var(--accent-blue)";
+    wpmFastBtn.style.color = "#fff";
     wpmSlowBtn.style.background = "var(--bg-card)";
     wpmSlowBtn.style.color = "var(--text-primary)";
     wpmNormBtn.style.background = "var(--bg-card)";
@@ -253,6 +279,120 @@ document.addEventListener("DOMContentLoaded", () => {
     updateCalculation();
     timeCalcModal.classList.remove("active");
     logTerminal(`Time Converter: Set narrative duration to ${total}s`);
+  });
+
+  // AI Script Rewriter Handlers
+  openRewriteModalBtn.addEventListener("click", () => {
+    rewriteSourceInput.value = scriptInput.value || "";
+    rewriteResultBox.style.display = "none";
+    rewriteModal.classList.add("active");
+  });
+
+  closeRewriteBtn.addEventListener("click", () => rewriteModal.classList.remove("active"));
+
+  executeRewriteBtn.addEventListener("click", async () => {
+    const text = rewriteSourceInput.value.trim();
+    if (!text) {
+      alert("Please enter draft text or bullet points to rewrite.");
+      return;
+    }
+
+    executeRewriteBtn.disabled = true;
+    executeRewriteBtn.innerHTML = `<svg class="icon"><use href="#icon-refresh"/></svg> ENHANCING SCRIPT...`;
+
+    try {
+      const resp = await fetch("/api/rewrite-script", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          text,
+          style: rewriteStyleSelect.value
+        })
+      });
+      const res = await resp.json();
+      if (res.success && res.data) {
+        rewriteOutputPreview.value = res.data.enhanced_script || "";
+        rewriteResultBox.style.display = "flex";
+      } else {
+        alert("Failed to rewrite script.");
+      }
+    } catch (e) {
+      alert(`Error rewriting script: ${e.message}`);
+    } finally {
+      executeRewriteBtn.disabled = false;
+      executeRewriteBtn.innerHTML = `<svg class="icon"><use href="#icon-sparkles"/></svg> GENERATE VIRAL SCRIPT`;
+    }
+  });
+
+  applyRewrittenScriptBtn.addEventListener("click", () => {
+    scriptInput.value = rewriteOutputPreview.value;
+    updateCalculation();
+    rewriteModal.classList.remove("active");
+    logTerminal("✨ Applied AI-enhanced script to Studio Generator!");
+  });
+
+  // Viral Distribution & SEO Metadata Handlers
+  openMetadataModalBtn.addEventListener("click", async () => {
+    if (!currentScriptText && scriptInput.value) {
+      currentScriptText = scriptInput.value;
+    }
+    if (!currentScriptText) {
+      alert("No script available to generate metadata for.");
+      return;
+    }
+
+    metadataModal.classList.add("active");
+    metaTitlesList.innerHTML = `<div style="color:var(--text-muted);">Generating viral titles...</div>`;
+    metaDescriptionInput.value = "Generating SEO description & timestamps...";
+    metaHashtagsInput.value = "Generating tags...";
+    metaThumbnailPromptInput.value = "Generating Midjourney prompt...";
+
+    try {
+      const resp = await fetch("/api/generate-metadata", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          script: currentScriptText,
+          project_id: currentProjectId
+        })
+      });
+      const res = await resp.json();
+      if (res.success && res.data) {
+        const d = res.data;
+        metaTitlesList.innerHTML = (d.titles || []).map((t, idx) => `
+          <div style="background:var(--bg-card); border:1px solid var(--border); padding:6px 10px; border-radius:3px; display:flex; justify-content:space-between; align-items:center;">
+            <span><strong>${idx + 1}.</strong> ${t}</span>
+            <button type="button" class="btn btn-dark btn-sm copy-title-btn" data-title="${t}">COPY</button>
+          </div>
+        `).join("");
+
+        document.querySelectorAll(".copy-title-btn").forEach((btn) => {
+          btn.addEventListener("click", (e) => {
+            navigator.clipboard.writeText(btn.getAttribute("data-title"));
+            btn.textContent = "COPIED!";
+            setTimeout(() => (btn.textContent = "COPY"), 1500);
+          });
+        });
+
+        metaDescriptionInput.value = d.description || "";
+        metaHashtagsInput.value = (d.hashtags || []).join(" ");
+        metaThumbnailPromptInput.value = d.thumbnail_prompt || "";
+        logTerminal("🚀 Generated viral distribution & thumbnail pack!");
+      }
+    } catch (e) {
+      metaDescriptionInput.value = `Failed to generate metadata: ${e.message}`;
+    }
+  });
+
+  closeMetadataBtn.addEventListener("click", () => metadataModal.classList.remove("active"));
+
+  copyAllMetadataBtn.addEventListener("click", () => {
+    const fullText = `TITLES:\n${Array.from(metaTitlesList.querySelectorAll("span")).map(s => s.innerText).join("\n")}\n\nDESCRIPTION:\n${metaDescriptionInput.value}\n\nHASHTAGS:\n${metaHashtagsInput.value}\n\nTHUMBNAIL PROMPT:\n${metaThumbnailPromptInput.value}`;
+    navigator.clipboard.writeText(fullText);
+    copyAllMetadataBtn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-check"/></svg> COPIED TO CLIPBOARD!`;
+    setTimeout(() => {
+      copyAllMetadataBtn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-copy"/></svg> COPY ALL TO CLIPBOARD`;
+    }, 1500);
   });
 
   // Tab Switcher
@@ -369,6 +509,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (e.target === settingsModal) settingsModal.classList.remove("active");
     if (e.target === swapModal) swapModal.classList.remove("active");
     if (e.target === timeCalcModal) timeCalcModal.classList.remove("active");
+    if (e.target === rewriteModal) rewriteModal.classList.remove("active");
+    if (e.target === metadataModal) metadataModal.classList.remove("active");
   });
 
   closeSwapBtn.addEventListener("click", () => swapModal.classList.remove("active"));
@@ -436,6 +578,8 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    currentScriptText = script;
+
     const duration = parseDurationInput(durationInput.value) || 30.0;
     const clipDuration = parseFloat(clipDurationInput.value) || 3.0;
     const mode = modeSelect.value;
@@ -462,6 +606,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (timelineBoardContainer) timelineBoardContainer.style.display = "none";
     masterContainer.style.display = "none";
     exportActions.style.display = "none";
+    remergeMasterBtn.style.display = "none";
+    openMetadataModalBtn.style.display = "none";
     voiceOnlyOutputCard.style.display = "none";
     setProgress(0, "INITIALIZING...");
 
@@ -563,6 +709,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       if (data.clips && data.clips.length > 0) {
         exportActions.style.display = "flex";
+        openMetadataModalBtn.style.display = "inline-flex";
         if (timelineBoardContainer) timelineBoardContainer.style.display = "flex";
       }
     } else if (data.type === "error") {
@@ -577,23 +724,130 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const node = document.createElement("div");
     node.className = "timeline-clip-node";
+    node.id = `timeline-node-${clip.index}`;
     node.innerHTML = `<span>#${clip.index}</span> <span>${clipDuration.toFixed(1)}s</span>`;
     node.title = `Clip #${clip.index}: ${clip.keyword} (${clip.time_start}s - ${clip.time_end}s)`;
     node.addEventListener("click", () => {
       const targetCard = document.getElementById(`clip-card-${clip.index}`);
       if (targetCard) {
         targetCard.scrollIntoView({ behavior: "smooth", block: "center" });
-        targetCard.style.borderColor = "var(--accent-yellow)";
+        targetCard.style.borderColor = "var(--accent-blue)";
         setTimeout(() => (targetCard.style.borderColor = "var(--border)"), 2000);
       }
     });
     timelineVideoBlocks.appendChild(node);
   }
 
+  // HTML5 Drag and Drop Clip Reordering
+  let draggedCard = null;
+
+  function initDragAndDrop(card) {
+    card.setAttribute("draggable", "true");
+
+    card.addEventListener("dragstart", (e) => {
+      draggedCard = card;
+      card.style.opacity = "0.4";
+      e.dataTransfer.effectAllowed = "move";
+    });
+
+    card.addEventListener("dragend", () => {
+      card.style.opacity = "1";
+      draggedCard = null;
+      recalculateTimelineFromCards();
+    });
+
+    card.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+    });
+
+    card.addEventListener("drop", (e) => {
+      e.preventDefault();
+      if (draggedCard && draggedCard !== card) {
+        const allCards = Array.from(clipsGrid.children);
+        const draggedIdx = allCards.indexOf(draggedCard);
+        const targetIdx = allCards.indexOf(card);
+
+        if (draggedIdx < targetIdx) {
+          card.after(draggedCard);
+        } else {
+          card.before(draggedCard);
+        }
+
+        remergeMasterBtn.style.display = "inline-flex";
+        logTerminal("🔀 Clip reordered on timeline. Click 'RE-MERGE CUSTOM CLIP ORDER' to render new master.");
+      }
+    });
+  }
+
+  function recalculateTimelineFromCards() {
+    if (!timelineVideoBlocks) return;
+    timelineVideoBlocks.innerHTML = "";
+    const allCards = Array.from(clipsGrid.querySelectorAll(".clip-card"));
+    allCards.forEach((c, idx) => {
+      const filename = c.getAttribute("data-filename") || `clip_${idx+1}`;
+      const node = document.createElement("div");
+      node.className = "timeline-clip-node";
+      node.innerHTML = `<span>#${idx+1}</span> <span>3.0s</span>`;
+      node.title = `Position #${idx+1}: ${filename}`;
+      node.addEventListener("click", () => {
+        c.scrollIntoView({ behavior: "smooth", block: "center" });
+        c.style.borderColor = "var(--accent-blue)";
+        setTimeout(() => (c.style.borderColor = "var(--border)"), 2000);
+      });
+      timelineVideoBlocks.appendChild(node);
+    });
+  }
+
+  // Re-Merge Custom Clip Order
+  remergeMasterBtn.addEventListener("click", async () => {
+    if (!currentProjectId) {
+      alert("No active project ID found.");
+      return;
+    }
+
+    const allCards = Array.from(clipsGrid.querySelectorAll(".clip-card"));
+    const filenames = allCards.map((c) => c.getAttribute("data-filename")).filter(Boolean);
+
+    if (filenames.length === 0) {
+      alert("No clips to merge.");
+      return;
+    }
+
+    remergeMasterBtn.disabled = true;
+    remergeMasterBtn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> RE-RENDERING MASTER...`;
+    logTerminal(`⚡ Re-merging Master Video with ${filenames.length} clips in custom order...`);
+
+    try {
+      const resp = await fetch("/api/reorder-clips", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          project_id: currentProjectId,
+          clip_filenames: filenames
+        })
+      });
+      const data = await resp.json();
+      if (data.success) {
+        masterVideo.src = data.master_url;
+        logTerminal(`✅ Master Video updated with your custom clip sequence!`);
+        remergeMasterBtn.style.display = "none";
+      } else {
+        logTerminal(`❌ Re-merge failed: ${data.message}`, "error");
+      }
+    } catch (e) {
+      logTerminal(`❌ Re-merge error: ${e.message}`, "error");
+    } finally {
+      remergeMasterBtn.disabled = false;
+      remergeMasterBtn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-refresh"/></svg> ⚡ RE-MERGE CUSTOM CLIP ORDER`;
+    }
+  });
+
   function renderClipCard(clip, aspect_ratio, clipDuration, quality) {
     const card = document.createElement("div");
     card.className = "clip-card";
     card.id = `clip-card-${clip.index}`;
+    card.setAttribute("data-filename", clip.filename);
     const isVertical = aspect_ratio === "9:16";
 
     card.innerHTML = `
@@ -601,7 +855,10 @@ document.addEventListener("DOMContentLoaded", () => {
         <video src="${clip.url}" controls preload="metadata" loop onmouseenter="this.play()" onmouseleave="this.pause()"></video>
       </div>
       <div class="clip-info">
-        <div class="clip-tag">#${clip.index} • [${clip.time_start}s - ${clip.time_end}s] • ${clip.provider}</div>
+        <div class="clip-tag" style="display:flex; justify-content:space-between; align-items:center;">
+          <span>#${clip.index} • [${clip.time_start}s - ${clip.time_end}s] • ${clip.provider}</span>
+          <span style="font-size:9px; color:var(--text-muted); cursor:grab;" title="Drag card to reorder">☰ DRAG</span>
+        </div>
         <div class="clip-kw" title="${clip.keyword}">${clip.keyword}</div>
         <div class="clip-actions">
           <button type="button" class="btn btn-dark btn-sm swap-clip-btn" data-index="${clip.index}" data-kw="${clip.keyword}" title="Swap with next stock result or custom query">
@@ -631,6 +888,7 @@ document.addEventListener("DOMContentLoaded", () => {
       setTimeout(() => (btn.innerHTML = `<svg class="icon icon-sm"><use href="#icon-copy"/></svg> PATH`), 1500);
     });
 
+    initDragAndDrop(card);
     clipsGrid.appendChild(card);
   }
 
@@ -674,6 +932,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const video = card.querySelector("video");
           video.src = `${data.url}?t=${Date.now()}`;
           card.querySelector(".clip-kw").textContent = data.keyword;
+          card.setAttribute("data-filename", data.filename);
         }
       } else {
         logTerminal(`Failed to swap clip: ${data.message}`, "error");
