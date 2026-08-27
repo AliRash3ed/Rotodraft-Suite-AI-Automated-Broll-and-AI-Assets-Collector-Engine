@@ -68,6 +68,9 @@
     </div>
 
     <div class="header-actions">
+      <button type="button" class="btn btn-yellow btn-sm" id="openBatchModalBtn">
+        <svg class="icon icon-sm"><use href="#icon-zap"/></svg> ⚡ BATCH FACTORY
+      </button>
       <button type="button" class="btn btn-dark btn-sm" id="themeToggleBtn">
         <svg class="icon icon-sm"><use href="#icon-sun"/></svg> LIGHT
       </button>
@@ -317,13 +320,39 @@
           </div>
 
           <div class="form-group">
+            <label class="label" for="colorFilterSelect">Color Grade</label>
+            <select id="colorFilterSelect" class="select mono">
+              <option value="natural" selected>✨ Natural</option>
+              <option value="teal_orange">🎬 Teal &amp; Orange</option>
+              <option value="cyberpunk">⚡ Cyberpunk Neon</option>
+              <option value="noir">🖤 Moody Noir</option>
+              <option value="vintage">🌿 Vintage Film</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+          <div class="form-group">
+            <label class="label" for="subtitleStyleSelect">
+              <span>Subtitles</span>
+              <span style="color: var(--accent-yellow); font-size: 10px;">HORMOZI</span>
+            </label>
+            <select id="subtitleStyleSelect" class="select mono" style="font-size: 11px;">
+              <option value="hormozi" selected>🔥 Hormozi Yellow</option>
+              <option value="cyber_cyan">💎 Cyber Cyan</option>
+              <option value="clean_white">⚪ Clean White</option>
+              <option value="none">None (SRT Only)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
             <label class="label" for="moodSelect">Visual Mood</label>
             <select id="moodSelect" class="select">
               <option value="Cinematic" selected>Cinematic</option>
-              <option value="Cyberpunk / Tech">Cyberpunk / Tech</option>
-              <option value="Corporate / Clean">Corporate / Clean</option>
+              <option value="Cyberpunk / Tech">Cyberpunk</option>
+              <option value="Corporate / Clean">Corporate</option>
               <option value="Documentary / Moody">Documentary</option>
-              <option value="Vibrant / Nature">Vibrant Nature</option>
+              <option value="Vibrant / Nature">Vibrant</option>
             </select>
           </div>
         </div>
@@ -894,6 +923,60 @@
         <svg class="icon"><use href="#icon-sparkles"/></svg> FETCH &amp; REPLACE CLIP
       </button>
     </form>
+  </div>
+</div>
+
+<!-- Batch Channel Factory Modal -->
+<div class="modal-overlay" id="batchModal">
+  <div class="modal-box" style="max-width: 680px;">
+    <div class="card-header">
+      <h2 class="card-title" style="color: var(--accent-yellow);">
+        <svg class="icon"><use href="#icon-zap"/></svg> ⚡ BATCH CHANNEL VIDEO FACTORY
+      </h2>
+      <button type="button" class="btn btn-dark btn-sm" id="closeBatchBtn">✕ CLOSE</button>
+    </div>
+
+    <p style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin: 0 0 12px 0;">
+      Enter 3 to 10 video topics or ideas (1 per line). RotoDraft Suite will generate scripts, voiceovers, download footage, and render master videos in the background!
+    </p>
+
+    <div class="form-group">
+      <label class="label">Video Topics / Titles (1 per line)</label>
+      <textarea id="batchTopicsInput" class="textarea mono" rows="5" placeholder="1. 5 High Income Skills to Learn in 2026
+2. Why Quantum Computers Will Break Bitcoin
+3. The Daily Routine of Marcus Aurelius
+4. How High Frequency Trading Algorithms Work"></textarea>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px;">
+      <div class="form-group">
+        <label class="label">Platform Preset</label>
+        <select id="batchRatioSelect" class="select mono">
+          <option value="9:16" selected>9:16 Vertical (TikTok / YouTube Shorts)</option>
+          <option value="16:9">16:9 Widescreen (YouTube Standard)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="label">Script Hook Style</label>
+        <select id="batchStyleSelect" class="select mono">
+          <option value="viral_hook" selected>⚡ High-Retention Viral Hook</option>
+          <option value="storytelling">🎬 Cinematic Storytelling</option>
+          <option value="educational">💼 Explainer Breakdown</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="button" id="startBatchBtn" class="btn btn-yellow" style="width: 100%;">
+      <svg class="icon"><use href="#icon-sparkles"/></svg> 🚀 START AUTONOMOUS BATCH GENERATION
+    </button>
+
+    <div id="batchStatusBox" style="display: none; margin-top: 14px; background: var(--bg-card); border: 2px solid var(--border); padding: 12px; border-radius: 4px;">
+      <div style="font-family: var(--font-heading); font-weight: 800; font-size: 13px; color: var(--accent-yellow); margin-bottom: 8px;">
+        BATCH PROGRESS: <span id="batchProgressLabel">0 / 0 Completed</span>
+      </div>
+      <div id="batchItemsList" style="display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 11px;"></div>
+    </div>
   </div>
 </div>
 
