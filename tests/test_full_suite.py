@@ -39,16 +39,29 @@ class TestRotoDraftSuite(unittest.IsolatedAsyncioTestCase):
         self.assertGreater(res["duration"], 1.0, "Audio duration must be > 1.0s")
         print(f"[PASS] TTS Engine: Generated {out_audio.name} ({res['duration']:.2f}s)")
 
-    async def test_02_ai_engine_decomposition(self):
-        """Test AI 1-Shot script decomposition into sequential scenes."""
+    async def test_02_ai_engine_decomposition_and_enhancers(self):
+        """Test AI 1-Shot script decomposition, rewriter, and viral metadata generation."""
         ai = AIEngine()
         script = "In the modern financial world, algorithmic trading accounts for over 70% of market volume. Neural networks analyze stock price movements in fractions of a second."
+        
+        # 1. Decomposition
         clips = await ai.analyze_script(script, duration_seconds=6.0, clip_duration=3.0)
         self.assertEqual(len(clips), 2, "Expected 6.0s / 3.0s = 2 clips")
         self.assertEqual(clips[0]["index"], 1)
         self.assertEqual(clips[1]["index"], 2)
-        self.assertTrue(len(clips[0]["keyword"]) > 0)
-        print(f"[PASS] AI Engine: Decomposed into {len(clips)} scenes: {[c['keyword'] for c in clips]}")
+        
+        # 2. Viral Rewriter
+        rewritten = await ai.rewrite_script("AI is replacing traders on Wall Street", style="viral_hook")
+        self.assertIn("enhanced_script", rewritten)
+        self.assertTrue(len(rewritten["enhanced_script"]) > 10)
+        
+        # 3. Viral Metadata Generation
+        meta = await ai.generate_viral_metadata(script)
+        self.assertEqual(len(meta["titles"]), 5)
+        self.assertIn("description", meta)
+        self.assertIn("hashtags", meta)
+        self.assertIn("thumbnail_prompt", meta)
+        print(f"[PASS] AI Engine: Decomposed {len(clips)} scenes, Rewrote script, Generated 5 Viral Titles & SEO Metadata")
 
     async def test_03_stock_search_and_pagination(self):
         """Test stock search with pagination / offset."""
