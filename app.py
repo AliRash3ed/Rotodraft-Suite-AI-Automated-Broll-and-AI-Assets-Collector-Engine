@@ -30,13 +30,15 @@ app.mount("/static", StaticFiles(directory=str(Config.ROOT_DIR / "static")), nam
 templates = Jinja2Templates(directory=str(Config.ROOT_DIR / "templates"))
 
 class GenerateRequest(BaseModel):
-    mode: str = "full"  # "full", "stock_only", "voice_only"
+    mode: str = "full"  # "full", "stock_only", "voice_only", "keywords_only"
     script: str
     duration_seconds: float = 30.0
     clip_duration: float = 3.0
     aspect_ratio: str = "16:9"
     quality: str = "1080p"
     voice: str = "en-US-ChristopherNeural"
+    voice_rate: str = "+0%"
+    voice_pitch: str = "+0Hz"
     mood: str = "Cinematic"
     project_name: Optional[str] = "My_Video_Project"
     custom_audio_path: Optional[str] = None
@@ -172,7 +174,6 @@ async def list_projects():
                     "path": str(p.resolve())
                 })
     
-    # Sort descending by creation
     projects.sort(key=lambda x: x["created"], reverse=True)
     return {"projects": projects}
 
@@ -342,8 +343,11 @@ async def stream_generation(req: GenerateRequest):
                 aspect_ratio=req.aspect_ratio,
                 quality=req.quality,
                 voice=req.voice,
+                voice_rate=req.voice_rate,
+                voice_pitch=req.voice_pitch,
                 mood=req.mood,
-                project_name=req.project_name
+                project_name=req.project_name,
+                custom_audio_path=req.custom_audio_path
             ):
                 payload = json.dumps(event)
                 yield f"data: {payload}\n\n"
