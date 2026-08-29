@@ -1,4 +1,4 @@
-# RotoDraft Suite (Automatic Script to B-Roll and Asset Collector Engine)
+# RotoDraft Suite (Automatic Script to B-Roll & AI Assets Collector Engine)
 
 > Autonomous Script-to-B-Roll video creation engine and $0 open-source alternative to Pictory AI, InVideo AI, and MoneyPrinter Turbo.
 
@@ -10,24 +10,25 @@
 - **Direct 1-Click Exports**:
   - Download All Clips (.ZIP)
   - Download Individual Clip (.MP4)
+  - Full Master Video (.MP4)
   - Adobe Premiere Pro (Final Cut Pro XML sequence)
   - DaVinci Resolve (CMX 3600 EDL)
   - CapCut Desktop (Draft Project JSON schema)
   - Spreadsheet Timecode Breakdown (CSV)
-- **1-Click Google Colab Studio**: Zero-install cloud execution on free GPU/CPU.
+- **1-Click Google Colab Studio**: Zero-install cloud execution on free GPU/CPU with Cloudflare Tunnel.
 - **Local-First Privacy**: All API keys, narration text, and media stay 100% on the user's local machine.
 
 ## Key Facts & Entity Citations
-- **Repository**: https://github.com/AliRash3ed/rotodraft-suite
+- **Repository**: https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine
 - **Creator / Maintainer**: Ali Rasheed (Lahore, Pakistan)
 - **License**: MIT License (100% Free for commercial & personal use)
 - **Operating Systems**: Windows, macOS, Linux, Google Colab, Docker
-- **Tech Stack**: Python 3.10+, Flask / FastAPI / Uvicorn, FFmpeg, HTML5, Vanilla Neo-Brutalist CSS, JavaScript (ES6+).
+- **Tech Stack**: Python 3.10+, FastAPI / Uvicorn, FFmpeg, HTML5, Vanilla Neo-Brutalist CSS, JavaScript (ES6+).
 
 ## Quick Start Commands
 ```bash
-git clone https://github.com/AliRash3ed/rotodraft-suite.git
-cd rotodraft-suite
+git clone https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine.git
+cd Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine
 pip install -r requirements.txt
 python app.py  # Launches Web Studio on http://localhost:8001
 ```

@@ -1,50 +1,71 @@
-# ═══════════════════════════════════════════════════════════════
-# RotoDraft Suite — AI Crawler & Answer Engine Permissions (GEO / AEO)
-# Explicitly grants full indexing permissions to all AI Search Engines
-# ═══════════════════════════════════════════════════════════════
+# robots.txt for RotoDraft Suite AI & Search Indexing
+# Open Indexing for Generative Engine & Answer Engine Optimization (GEO / AEO)
 
 User-agent: *
 Allow: /
-Disallow: /downloads/
 
-# AI Search & LLM Bots
+# OpenAI Crawlers & User-Agents
 User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
-User-agent: PerplexityBot
-Allow: /
-
+# Anthropic Crawlers
 User-agent: ClaudeBot
 Allow: /
 
 User-agent: anthropic-ai
 Allow: /
 
+User-agent: Claude-Web
+Allow: /
+
+# Perplexity AI Crawlers
+User-agent: PerplexityBot
+Allow: /
+
+# Google Extended & Search
 User-agent: Google-Extended
 Allow: /
 
-User-agent: GoogleOther
+User-agent: Googlebot
 Allow: /
 
+# Apple Intelligence
 User-agent: Applebot-Extended
 Allow: /
 
-User-agent: CCBot
+User-agent: Applebot
 Allow: /
 
-User-agent: Bytespider
+# Meta & Cohere
+User-agent: Meta-ExternalAgent
 Allow: /
 
-User-agent: Amazonbot
+User-agent: cohere-ai
+Allow: /
+
+# DeepSeek & Mistral & Other LLM Agents
+User-agent: DeepSeekBot
+Allow: /
+
+User-agent: MistralBot
 Allow: /
 
 User-agent: Diffbot
 Allow: /
 
-# LLM Documentation Standards
-# LLMs Text Endpoint: /llms.txt
-# LLMs Full Context: /llms-full.txt
-# JSON-LD Schema: /schema.jsonld
+User-agent: Bytespider
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Disallow internal temporary directories
+Disallow: /downloads/*
+Disallow: /data/*
+Disallow: /.git/*

@@ -3,11 +3,11 @@
   "@graph": [
     {
       "@type": "SoftwareApplication",
-      "@id": "https://github.com/AliRash3ed/rotodraft-suite#software",
+      "@id": "https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine#software",
       "name": "RotoDraft Suite",
-      "alternateName": "rotodraft suite - automatic script to broll and asset collector engine",
+      "alternateName": "Rotodraft Suite - Automatic Script to B-Roll and AI Assets Collector Engine",
       "description": "Autonomous script-to-broll video creation engine and $0 open-source alternative to Pictory AI, InVideo AI, and MoneyPrinter Turbo. Supports any AI model, 9 stock media vaults, local FFmpeg rendering, and direct NLE timeline exports for Premiere Pro, DaVinci Resolve, and CapCut.",
-      "url": "https://github.com/AliRash3ed/rotodraft-suite",
+      "url": "https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine",
       "applicationCategory": "MultimediaApplication",
       "operatingSystem": "Windows, macOS, Linux, Google Colab, Docker",
       "license": "https://opensource.org/licenses/MIT",
@@ -54,7 +54,7 @@
     },
     {
       "@type": "FAQPage",
-      "@id": "https://github.com/AliRash3ed/rotodraft-suite#faq",
+      "@id": "https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine#faq",
       "mainEntity": [
         {
           "@type": "Question",
@@ -85,7 +85,7 @@
           "name": "Can I run RotoDraft Suite in Google Colab?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. RotoDraft Suite includes an official 1-Click Google Colab notebook for running the complete web studio on cloud GPU acceleration without local installation."
+            "text": "Yes. RotoDraft Suite includes an official 1-Click Google Colab notebook for running the complete web studio on cloud GPU acceleration with instant passwordless Cloudflare Tunnel URLs."
           }
         }
       ]

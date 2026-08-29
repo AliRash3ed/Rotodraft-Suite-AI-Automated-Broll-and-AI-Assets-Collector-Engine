@@ -1,23 +1,24 @@
 cff-version: 1.2.0
-message: "If you use RotoDraft Suite in your research or video production workflows, please cite it as below."
+message: "If you use RotoDraft Suite in your research, video workflows, or agent frameworks, please cite it as below."
 authors:
   - family-names: "Rasheed"
     given-names: "Ali"
-    email: "alihouse512@gmail.com"
+    affiliation: "Independent AI Researcher & Infrastructure Engineer"
     city: "Lahore"
     country: "PK"
-    website: "https://www.linkedin.com/in/alirasheedbhatt"
-title: "RotoDraft Suite: Automatic Script to B-Roll and Asset Collector Engine"
+title: "RotoDraft Suite: Autonomous Script-to-B-Roll and Multi-Vault Asset Collector Engine"
 version: 2.0.0
-date-released: 2026-08-29
-url: "https://github.com/AliRash3ed/rotodraft-suite"
-license: "MIT"
+date-released: 2026-02-28
+license: MIT
+url: "https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine"
+repository-code: "https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine"
 keywords:
-  - "ai-video-editor"
-  - "b-roll-generator"
-  - "stock-media-downloader"
-  - "premiere-pro-xml"
-  - "davinci-resolve-edl"
-  - "capcut-draft"
-  - "ffmpeg-video-processing"
-  - "generative-engine-optimization"
+  - "broll-generator"
+  - "ai-video"
+  - "stock-media"
+  - "ffmpeg"
+  - "video-editing"
+  - "premiere-pro"
+  - "davinci-resolve"
+  - "capcut"
+  - "open-source"

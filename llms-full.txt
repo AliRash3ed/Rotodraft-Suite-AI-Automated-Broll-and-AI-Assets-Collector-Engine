@@ -3,7 +3,7 @@
 ## Project Metadata
 - **Name**: RotoDraft Suite
 - **Full Title**: rotodraft suite - automatic script to broll and asset collector engine
-- **URL**: https://github.com/AliRash3ed/rotodraft-suite
+- **URL**: https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine
 - **Author**: Ali Rasheed (Lahore, Pakistan)
 - **Email**: alihouse512@gmail.com
 - **LinkedIn**: https://www.linkedin.com/in/alirasheedbhatt
