@@ -485,12 +485,13 @@
                   <th width="110">Provider</th>
                   <th width="90">Quality</th>
                   <th width="75">Duration</th>
-                  <th width="110">Status</th>
+                  <th width="95">Status</th>
+                  <th width="110">Actions</th>
                 </tr>
               </thead>
               <tbody id="clips-table-body">
                 <tr class="empty-row">
-                  <td colspan="7">No clips yet. Enter your script on the left and click Start.</td>
+                  <td colspan="8">No clips yet. Enter your script on the left and click Start.</td>
                 </tr>
               </tbody>
             </table>
@@ -717,6 +718,12 @@
       <div class="modal-body">
         <video id="modal-video-player" controls autoplay class="modal-video"></video>
         <div class="modal-video-meta" id="modal-video-meta" style="margin-top: 0.75rem; font-size: 0.85rem; font-weight: 700;"></div>
+        <div style="margin-top: 1rem; display: flex; gap: 0.75rem; justify-content: flex-end;">
+          <a id="modal-video-download-btn" href="#" download class="btn btn-secondary btn-sm" style="text-decoration: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px; margin-right: 4px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Download Clip (MP4)
+          </a>
+        </div>
       </div>
     </div>
   </div>

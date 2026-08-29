@@ -2,32 +2,45 @@
 
 # 🎬 RotoDraft Suite
 ### Automatic Script to B-Roll and Asset Collector Engine
-**The #1 Free, Local-First, Open-Source Alternative to Pictory AI, InVideo AI & MoneyPrinter Turbo**
+**The #1 Free, Local-First, Model-Agnostic Open-Source Alternative to Pictory AI, InVideo AI & MoneyPrinter Turbo**
+
+<p align="center">
+  <a href="https://colab.research.google.com/github/AliRash3ed/rotodraft-suite/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank">
+    <img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open in Colab" height="32" />
+  </a>
+</p>
 
 <p align="center">
   <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
   <img src="https://img.shields.io/badge/Python-3.10%2B-6366f1.svg?style=for-the-badge" alt="Python" />
   <img src="https://img.shields.io/badge/Cost-%240%20Free%20Forever-10b981.svg?style=for-the-badge" alt="Cost" />
   <img src="https://img.shields.io/badge/Design-Neo--Brutalist%202026-ff006e.svg?style=for-the-badge" alt="Design" />
-  <img src="https://img.shields.io/badge/Export-Premiere%20|%20DaVinci%20|%20CapCut-f59e0b.svg?style=for-the-badge" alt="Export" />
-  <img src="https://img.shields.io/badge/Agent%20Skill-Hermes%20|%20OpenClaw%20|%20Claude%20Code-00d9ff.svg?style=for-the-badge" alt="Agents" />
+  <img src="https://img.shields.io/badge/BYOK-Any%20AI%20Model-00d9ff.svg?style=for-the-badge" alt="Universal AI" />
+  <img src="https://img.shields.io/badge/Export-ZIP%20|%20Premiere%20|%20DaVinci%20|%20CapCut-f59e0b.svg?style=for-the-badge" alt="Export" />
   <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" />
 </p>
 
 <p align="center">
-  <strong>Transform raw voiceover scripts and narrative text into timeline-ready, exact 3.0-second 1080p/4K stock b-roll video clips in seconds. Features DeepSeek-R1 reasoning monologue parsing, 9 parallel stock media vaults, local FFmpeg hardware acceleration, and 1-click NLE project exports for Premiere Pro, DaVinci Resolve, and CapCut.</strong>
+  <strong>Transform raw voiceover scripts and narrative text into timeline-ready, exact 3.0-second 1080p/4K stock b-roll video clips in seconds. Universal BYOK (Bring Your Own Key) support for ANY AI Model (OpenRouter, Gemini, Groq, OpenAI, Claude, Cohere, Ollama, DeepSeek & Custom Endpoints), 9 parallel stock vaults, local FFmpeg hardware rendering, 1-Click ZIP Downloads, and direct NLE project exporters.</strong>
 </p>
 
 <p align="center">
   <a href="#-quick-start-in-60-seconds">Quick Start</a> •
+  <a href="#-google-colab-1-click-cloud-run">Google Colab</a> •
   <a href="#-why-rotodraft-suite-comparison-matrix">Comparison Matrix</a> •
   <a href="#-key-features">Key Features</a> •
+  <a href="#-how-to-download-clips--export">Download & Export</a> •
   <a href="#-step-by-step-visual-tutorial">Tutorial</a> •
   <a href="#-nle-video-editor-export-guides">NLE Guides</a> •
   <a href="#-agent--cli-integrations">Agent Skills</a> •
-  <a href="#-privacy--security-guarantee">Privacy</a> •
   <a href="#-creator--maintainer">Author</a>
 </p>
+
+---
+
+## 🎥 Live Studio Walkthrough (In Action)
+
+![RotoDraft Suite Live Demo](assets/demo_walkthrough.webp)
 
 ---
 
@@ -41,71 +54,32 @@
 
 | Feature | 🚫 Pictory AI ($49/mo) | 🚫 InVideo AI ($35/mo) | ⚠️ MoneyPrinter Turbo | 🚀 **RotoDraft Suite ($0 Free)** |
 | :--- | :--- | :--- | :--- | :--- |
-| **Monthly Cost** | $49 / month | $35 / month | Free | **$0.00 (100% Free & Open Source)** |
-| **AI Reasoning Models** | ❌ Locked GPT-3.5 | ❌ Proprietary | Basic OpenAI | **✅ Full DeepSeek-R1, OpenRouter, Groq, Claude 3.5, Gemini 1.5, Ollama** |
-| **Thinking Monologue** | ❌ None | ❌ None | ❌ None | **✅ Auto-Strips `<think>` Tags & Reasoning Tokens cleanly** |
+| **Monthly Cost** | $49 / month | $35 / month | Free | **$0.00 (100% Free Forever)** |
+| **AI Model Freedom** | ❌ Locked Proprietary | ❌ Locked GPT-3.5 | OpenAI Only | **✅ Universal BYOK: OpenRouter, Gemini, Groq, OpenAI, Claude, Cohere, Ollama, DeepSeek, Custom APIs** |
+| **Direct ZIP & MP4 Downloads** | ❌ Behind Paywall | ❌ Watermarked | Basic | **✅ 1-Click ZIP of All Clips + Individual MP4 Downloads with Zero Watermarks** |
 | **Stock Media Vaults** | 1 (Storyblocks only) | 1 (Shutterstock only) | 2 (Pexels, Pixabay) | **✅ 9 Vaults: Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, Wikimedia** |
 | **NLE Timeline Exports** | ❌ None | ❌ None | ❌ None | **✅ Adobe Premiere Pro XML, DaVinci Resolve EDL, CapCut Draft JSON, CSV** |
-| **Ken Burns Photo Engine**| Basic Zoom | Basic Zoom | Static | **✅ Mathematical 2.5D Ken Burns Dynamic Pan & Zoom on Photos** |
-| **Custom AI Builder** | ❌ None | ❌ None | ❌ None | **✅ Any OpenAI-Compatible Endpoint (vLLM, LM Studio, Together, Ollama)** |
-| **Data Privacy** | ❌ Cloud Server Upload | ❌ Cloud Server Upload | Local | **✅ 100% Local-First (Keys & Videos NEVER leave your PC)** |
-| **AI Error Doctor** | ❌ Generic Error | ❌ Generic Error | Terminal Crash | **✅ Built-in AI Medical Diagnosis for FFmpeg, Network, & Quotas** |
+| **Ken Burns Photo Motion**| Basic Zoom | Basic Zoom | Static | **✅ Mathematical 2.5D Ken Burns Pan & Zoom on Photos** |
+| **Custom OpenAI API Builder**| ❌ None | ❌ None | ❌ None | **✅ Connect Any Local LLM (vLLM, LM Studio, Ollama, Together AI, Exo)** |
+| **Data Privacy** | ❌ Cloud Server Upload | ❌ Cloud Server Upload | Local | **✅ 100% Local-First (Keys & Videos NEVER leave your machine)** |
+| **Self-Healing Error Doctor** | ❌ Generic Error | ❌ Generic Error | Terminal Crash | **✅ Built-in AI Medical Diagnosis for FFmpeg, Network, & Quotas** |
 | **Agent Ecosystem** | ❌ None | ❌ None | ❌ None | **✅ Hermes Agent, OpenClaw, Claude Code & Codex Native Skills** |
 
 ---
 
-## 🏗️ System Architecture & Workflow
+## ☁️ Google Colab (1-Click Cloud Run)
 
-```
-                       ┌─────────────────────────────────┐
-                       │    VOICEOVER SCRIPT INPUT       │
-                       │ (60s -> 20 scenes @ 3.0s each)  │
-                       └────────────────┬────────────────┘
-                                        │
-                                        ▼
-                    ┌────────────────────────────────────────┐
-                    │           AI BRAIN ENGINE              │
-                    │ • DeepSeek-R1 (Thinking Monologue)     │
-                    │ • OpenRouter / Groq / Claude / Gemini  │
-                    │ • Custom Endpoint / Ollama Local       │
-                    │ • Auto-Strips <think> Tags -> JSON     │
-                    └───────────────────┬────────────────────┘
-                                        │
-                                        ▼
-                    ┌────────────────────────────────────────┐
-                    │       9 PARALLEL STOCK VAULTS          │
-                    │ • Pexels API (200 req/hr free)         │
-                    │ • Pixabay API (5,000 req/hr free)      │
-                    │ • Coverr.co (Free HD/4K Video CDN)     │
-                    │ • Mixkit.co (Envato Free B-Roll)       │
-                    │ • Storyblocks API (Enterprise Stock)   │
-                    │ • Videvo.net & Wikimedia Commons       │
-                    │ • Pinterest 9:16 & 1080p Video Scraper │
-                    └───────────────────┬────────────────────┘
-                                        │
-                                        ▼
-                    ┌────────────────────────────────────────┐
-                    │     LOCAL FFMPEG HARDWARE ENGINE       │
-                    │ • Exact 3.0s duration trimming         │
-                    │ • Smart aspect ratio cropping (16:9)   │
-                    │ • 2.5D Ken Burns Photo Animation       │
-                    │ • Color grading LUTs & Transitions     │
-                    │ • Full Master Video Concatenation      │
-                    └───────────────────┬────────────────────┘
-                                        │
-                                        ▼
-                    ┌────────────────────────────────────────┐
-                    │       1-CLICK NLE EXPORT SUITE         │
-                    │ • Adobe Premiere Pro (XML Timeline)    │
-                    │ • DaVinci Resolve (CMX 3600 EDL)       │
-                    │ • CapCut Desktop (Draft Project JSON)  │
-                    │ • CSV Timecode Sequence Sheet          │
-                    └────────────────────────────────────────┘
-```
+Don't have FFmpeg or Python installed locally? Run RotoDraft Suite directly in Google Colab with 1 click:
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/AliRash3ed/rotodraft-suite/blob/main/RotoDraft_Suite_Google_Colab.ipynb)
+
+1. Click the **Open in Colab** badge above.
+2. Run the cells in the notebook.
+3. Click the generated **Localtunnel public URL** to use RotoDraft Suite in your browser with full cloud GPU acceleration!
 
 ---
 
-## 🚀 Quick Start in 60 Seconds
+## 🚀 Quick Start in 60 Seconds (Local Run)
 
 ### Step 1: Clone Repository
 ```bash
@@ -130,56 +104,65 @@ Open **`http://localhost:8001`** in your browser.
 
 ---
 
+## 📥 How to Download Clips & Export
+
+You have complete freedom over how you use the collected media:
+
+```
+                                  ┌─────────────────────────────────┐
+                                  │      COLLECTED B-ROLL ASSETS    │
+                                  └────────────────┬────────────────┘
+                                                   │
+                  ┌────────────────────────────────┼────────────────────────────────┐
+                  │                                │                                │
+                  ▼                                ▼                                ▼
+    ┌───────────────────────────┐    ┌───────────────────────────┐    ┌───────────────────────────┐
+    │   📦 1-CLICK ZIP ARCHIVE  │    │   🎬 FULL MASTER VIDEO    │    │  🎞️ 1-CLICK NLE EXPORTERS │
+    │ Download all rendered     │    │ Concatenate all clips     │    │ • Premiere Pro (XML)      │
+    │ 3.0s clips in a single    │    │ into one ready-to-watch   │    │ • DaVinci Resolve (EDL)   │
+    │ clean .zip file.          │    │ master video (MP4).       │    │ • CapCut Desktop (JSON)   │
+    └───────────────────────────┘    └───────────────────────────┘    └───────────────────────────┘
+```
+
+1. **📦 Download All Clips (.ZIP)**: Click the **"Download ZIP"** button to get a single archive of all rendered MP4 clips.
+2. **⬇️ Download Individual Clips**: Click the **"⬇ MP4"** button on any row in the timeline table or inside the video preview modal.
+3. **🎬 Full Master Video (MP4)**: Click **"Stitch Full Video (MP4)"** to concatenate all clips sequentially into a complete master video.
+4. **🎞️ Video Editor Timelines**: Export directly to **Adobe Premiere Pro** (`.xml`), **DaVinci Resolve** (`.edl`), or **CapCut** (`.json`).
+
+---
+
 ## 🖥️ User Interface Tour
 
 <div align="center">
 
-### AI Brains Configuration & Model Selection
+### 1. Interactive Video Preview Modal with Direct MP4 Download
+![Video Preview Modal](assets/video_preview_modal.png)
+
+### 2. Universal Multi-Model AI Brains (BYOK Freedom)
 ![AI Brains Configuration](assets/settings_ai_brains.png)
 
-### Stock Media Vaults & Live Quota Monitoring
+### 3. Parallel Stock Media Vaults & Free Quota Tracking
 ![Stock Media APIs Configuration](assets/stock_apis_config.png)
 
-### Custom OpenAI-Compatible LLM Builder
+### 4. Custom OpenAI-Compatible LLM Builder
 ![Custom AI Builder](assets/custom_api_builder.png)
-
-### Agent Hub & Automation Guide
-![Agent Hub](assets/agent_hub.png)
 
 </div>
 
 ---
 
-## 🎬 Step-by-Step Visual Tutorial
+## 🧠 Universal Multi-Model Freedom (BYOK)
 
-### 1. Paste Your Voiceover Script
-Type or paste your narrative script into the Script text area. Choose your target video duration (e.g. 60 seconds) and clip pacing (e.g. 3.0s per clip = 20 visual scenes).
+RotoDraft Suite is **100% model-agnostic**. You can use ANY AI model of your choice:
 
-### 2. Configure Your AI Brain
-Select your preferred AI provider:
-- **OpenRouter** (Models like `minimax/minimax-m3:free`, `deepseek/deepseek-r1`, `anthropic/claude-3.5-sonnet`)
-- **DeepSeek** (`deepseek-chat`, `deepseek-reasoner`)
-- **Groq** (`llama-3.3-70b-versatile`)
+- **OpenRouter** (Minimax, Qwen 2.5, DeepSeek, Claude, Llama 3.3)
 - **Google Gemini** (`gemini-1.5-flash`, `gemini-1.5-pro`)
+- **Groq Cloud** (`llama-3.3-70b-versatile`, `mixtral-8x7b`)
 - **OpenAI** (`gpt-4o`, `gpt-4o-mini`, `o1`, `o3-mini`)
-- **Ollama Local** (`llama3.2`, `mistral`, `qwen2.5`)
-
-### 3. Select Stock Media Providers
-Toggle on your desired stock footage sources:
-- `Pexels` (Free 1080p/4K footage)
-- `Pixabay` (Free nature, technology & motion graphics)
-- `Coverr.co` (Free CDN high-speed stock)
-- `Mixkit.co` (Envato free b-roll library)
-- `Pinterest` (Aesthetic vertical & horizontal reels)
-
-### 4. Click 'Start B-Roll Collection'
-Watch the real-time event stream as RotoDraft Suite:
-1. Breaks the script into chronological visual scenes.
-2. Queries the 9 stock vaults in parallel with automatic fallback keyword rewriting.
-3. Downloads media streams concurrently with multi-worker threading.
-4. Trims each clip to exact 3.0s duration via local FFmpeg.
-5. Concatenates the clips into a **Full Master Video MP4**.
-6. Generates timeline projects for **Premiere Pro**, **DaVinci Resolve**, and **CapCut**.
+- **Anthropic Claude** (`claude-3-5-sonnet`, `claude-3-5-haiku`)
+- **Cohere** (`command-r`, `command-r-plus`)
+- **Ollama Local** (`llama3.2`, `mistral`, `deepseek-r1:7b`)
+- **Custom Endpoints** (vLLM, LM Studio, Together AI, Exo)
 
 ---
 
@@ -187,22 +170,22 @@ Watch the real-time event stream as RotoDraft Suite:
 
 ### 1. Adobe Premiere Pro
 1. Open Adobe Premiere Pro.
-2. Go to **File** &rarr; **Import...** (or `Ctrl+I` / `Cmd+I`).
+2. Go to **File** &rarr; **Import...** (`Ctrl+I` / `Cmd+I`).
 3. Select the generated `..._premiere_davinci.xml` from your project folder.
-4. Premiere Pro will instantly recreate your multi-clip sequence with exact cuts, in-points, and out-points on the timeline!
+4. Premiere Pro recreates your multi-clip sequence with exact cuts on the timeline.
 
 ### 2. DaVinci Resolve
 1. Open DaVinci Resolve & Create a New Project.
-2. Go to **File** &rarr; **Import** &rarr; **Timeline...** (or `Ctrl+Shift+I`).
+2. Go to **File** &rarr; **Import** &rarr; **Timeline...** (`Ctrl+Shift+I`).
 3. Select `..._davinci.edl` or `..._premiere_davinci.xml`.
-4. Point the source media directory to the `clips/` folder. All 1080p clips align automatically on Video Track 1.
+4. Point source media to the `clips/` folder. All 1080p clips align on Video Track 1.
 
 ### 3. CapCut Desktop
 1. Open CapCut Desktop.
-2. Copy the generated `..._capcut_draft.json` into your local CapCut Projects folder:
+2. Copy `..._capcut_draft.json` into your local CapCut Projects folder:
    - **Windows**: `C:\Users\YOUR_USER\AppData\Local\CapCut\User Data\Projects\com.lveditor.draft\`
    - **macOS**: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/`
-3. Launch CapCut — your project opens with all clips cut and placed on the timeline.
+3. Launch CapCut — your timeline opens with all clips cut and placed.
 
 ---
 
@@ -217,13 +200,10 @@ python cli.py --script "Robotic automation in high tech laboratory." --duration 
 # Full Master Video Concatenation + 9 Stock Providers
 python cli.py --script "Inside data centers, AI servers process petabytes." --duration 45 --quality 1080p --aspect-ratio 16:9 --providers pexels,pixabay,coverr,mixkit --full-video
 
-# Headless Batch Run using a script file
-python cli.py --script path/to/voiceover.txt --duration 90 --quality 4K --aspect-ratio 9:16
-
 # Launch Interactive Terminal Wizard
 python cli.py --interactive
 
-# Print Agent Integration Code
+# Print Agent Integration Guide
 python cli.py --agent-help
 ```
 
@@ -242,17 +222,6 @@ def collect_broll(script: str, duration: int = 60, quality: str = "1080p") -> di
     cmd = ["python", str(tool_dir / "cli.py"), "--script", script, "--duration", str(duration), "--quality", quality, "--full-video"]
     proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(tool_dir))
     return {"status": "success" if proc.returncode == 0 else "error", "output": proc.stdout}
-```
-
-### OpenClaw Plugin Manifest (`tool_plugin.json`)
-```json
-{
-  "plugin_name": "rotodraft-suite",
-  "version": "2.0.0",
-  "author": "Ali Rasheed",
-  "entrypoint": "cli.py",
-  "capabilities": ["script_analysis", "stock_search", "ffmpeg_rendering", "nle_export"]
-}
 ```
 
 ---

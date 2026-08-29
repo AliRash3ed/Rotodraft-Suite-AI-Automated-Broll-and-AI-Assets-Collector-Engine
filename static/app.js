@@ -472,6 +472,25 @@ function renderClipsTable(clips) {
       statusText = '✕ Fail';
     }
 
+    let actionButtons = '';
+    let clipUrl = '';
+    if (activeProjectData && activeProjectData.folder_name && c.output_filename) {
+      clipUrl = `/downloads/${activeProjectData.folder_name}/clips/${c.output_filename}`;
+    } else if (c.video_url) {
+      clipUrl = c.video_url;
+    }
+
+    if (clipUrl) {
+      actionButtons = `
+        <div style="display: flex; gap: 4px;">
+          <button class="btn btn-secondary btn-xs" onclick="previewClip(${c.index})" title="Preview clip">▶</button>
+          <a href="${clipUrl}" download="${c.output_filename || 'clip_' + c.index + '.mp4'}" class="btn btn-primary btn-xs" title="Download MP4" style="text-decoration:none; padding: 2px 6px;">⬇ MP4</a>
+        </div>
+      `;
+    } else {
+      actionButtons = `<span style="color: var(--text-muted); font-size: 0.75rem;">—</span>`;
+    }
+
     tr.innerHTML = `
       <td><strong>#${c.index}</strong></td>
       <td>${thumbHtml}</td>
@@ -480,6 +499,7 @@ function renderClipsTable(clips) {
       <td>${c.resolution || c.quality || '1080p'}</td>
       <td>${c.final_duration ? c.final_duration + 's' : '3.0s'}</td>
       <td><span class="clip-status-tag ${statusClass}">${statusText}</span></td>
+      <td>${actionButtons}</td>
     `;
     tbody.appendChild(tr);
   });
@@ -493,6 +513,7 @@ function previewClip(index) {
   const player = document.getElementById('modal-video-player');
   const title = document.getElementById('modal-video-title');
   const meta = document.getElementById('modal-video-meta');
+  const dlBtn = document.getElementById('modal-video-download-btn');
 
   title.innerText = `Clip #${clip.index}: ${clip.keyword}`;
 
@@ -507,7 +528,11 @@ function previewClip(index) {
     player.src = srcUrl;
     player.play().catch(() => {});
     modal.classList.add('active');
-    meta.innerText = `Provider: ${clip.provider || 'Unknown'} | Resolution: ${clip.resolution || '1080p'} | Duration: ${clip.final_duration || 3.0}s`;
+    meta.innerText = `Provider: ${(clip.provider || 'auto').toUpperCase()} | Resolution: ${clip.resolution || '1080p'} | Duration: ${clip.final_duration || 3.0}s`;
+    if (dlBtn) {
+      dlBtn.href = srcUrl;
+      dlBtn.download = clip.output_filename || `clip_${clip.index}.mp4`;
+    }
   }
 }
 
