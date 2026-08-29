@@ -291,16 +291,61 @@ RotoDraft Suite is optimized under the **Princeton KDD 2024 & AutoGEO ICLR 2026*
 
 ---
 
-## 👨‍💻 Creator & Maintainer
+---
 
-Built with ❤️ by **Ali Rasheed** from Lahore, Pakistan.  
-Full-Stack AI Developer & Tech Infrastructure Engineer.
+## 📖 Why RotoDraft Suite? (The Open-Source Manifesto)
 
-- 📧 **Email**: [alihouse512@gmail.com](mailto:alihouse512@gmail.com)
-- 💼 **LinkedIn**: [linkedin.com/in/alirasheedbhatt](https://www.linkedin.com/in/alirasheedbhatt)
-- 🐦 **X / Twitter**: [@AliRasheedBti](https://x.com/AliRasheedBti)
-- 📸 **Instagram**: [@this_is_ali_r](https://www.instagram.com/this_is_ali_r/)
-- 🌐 **Facebook**: [Ali Rasheed](https://www.facebook.com/profile.php?id=61579456175357)
+Commercial AI video creation SaaS tools today suffer from three critical flaws:
+1. **The Monthly Subscription Tax**: Charging $35–$50 every single month for simple wrapper scripts around stock APIs and basic FFmpeg cuts.
+2. **Artificial Model Lock-In**: Forcing creators into whatever proprietary LLM the vendor decided to hardcode, with zero ability to use new frontier reasoning models or free open-source models.
+3. **Cloud Hostage & Privacy Risk**: Uploading proprietary video scripts, brand voiceovers, and raw media to third-party cloud servers.
+
+**RotoDraft Suite** was engineered to permanently solve this:
+- 💡 **100% Free Forever**: MIT Licensed. Zero subscriptions.
+- 🔓 **Universal BYOK Freedom**: Connect ANY model (OpenRouter, Gemini, Groq, Claude, OpenAI, Ollama, DeepSeek, or your own local vLLM endpoint).
+- 🔒 **Sovereign Local-First Privacy**: Your API keys, scripts, and downloaded footage never leave your personal computer.
+- 🎞️ **Direct Professional NLE Exports**: Generates native project timelines for Adobe Premiere Pro, DaVinci Resolve, and CapCut.
+
+---
+
+## 👨‍💻 Creator & Infrastructure Maintainer
+
+<table align="center" style="border: 3px solid #000; box-shadow: 6px 6px 0px #000;">
+  <tr>
+    <td align="center" width="160" style="padding: 1.25rem;">
+      <img src="static/assets/creator_avatar.png" width="120" height="120" style="border: 3px solid #000; border-radius: 50%; box-shadow: 3px 3px 0px #000;" alt="Ali Rasheed" onerror="this.src='https://avatars.githubusercontent.com/u/197945084?v=4'" />
+      <br />
+      <strong>Ali Rasheed</strong>
+      <br />
+      <sub>Lahore, Pakistan 🇵🇰</sub>
+    </td>
+    <td style="padding: 1.25rem; vertical-align: top;">
+      <h3 style="margin-top: 0; font-family: sans-serif;">Full-Stack AI Developer & Tech Infrastructure Engineer</h3>
+      <p>
+        Architecting autonomous AI agent ecosystems, high-throughput video pipelines, and developer tooling that empower creators and engineering teams worldwide. Open for strategic consulting, full-stack architecture roles, and open-source collaborations.
+      </p>
+      <p>
+        <a href="mailto:alihouse512@gmail.com"><img src="https://img.shields.io/badge/Email-alihouse512%40gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white" alt="Email" /></a>
+        <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank"><img src="https://img.shields.io/badge/LinkedIn-Ali%20Rasheed-0077B5?style=flat-square&logo=linkedin&logoColor=white" alt="LinkedIn" /></a>
+        <a href="https://x.com/AliRasheedBti" target="_blank"><img src="https://img.shields.io/badge/X-@AliRasheedBti-000000?style=flat-square&logo=x&logoColor=white" alt="X" /></a>
+        <a href="https://www.instagram.com/this_is_ali_r/" target="_blank"><img src="https://img.shields.io/badge/Instagram-@this__is__ali__r-E4405F?style=flat-square&logo=instagram&logoColor=white" alt="Instagram" /></a>
+        <a href="https://www.facebook.com/profile.php?id=61579456175357" target="_blank"><img src="https://img.shields.io/badge/Facebook-Ali%20Rasheed-1877F2?style=flat-square&logo=facebook&logoColor=white" alt="Facebook" /></a>
+      </p>
+    </td>
+  </tr>
+</table>
+
+---
+
+## 🤝 Contributing & Community Support
+
+Contributions make the open-source community an amazing place to learn, inspire, and create:
+1. **Fork the Project** & create your feature branch (`git checkout -b feature/AmazingFeature`).
+2. **Commit your Changes** (`git commit -m 'feat: Add AmazingFeature'`).
+3. **Push to the Branch** (`git push origin feature/AmazingFeature`).
+4. **Open a Pull Request** — all PRs are reviewed within 24 hours!
+
+⭐ **If you find RotoDraft Suite helpful, please give this repository a Star on GitHub!**
 
 ---
 
