@@ -1,0 +1,18 @@
+{
+  "name": "stock_media_collector",
+  "version": "1.0.0",
+  "description": "Autonomous AI Stock Media & B-Roll Collector for video scripts.",
+  "author": "Antigravity Multi-Agent Suite",
+  "entrypoint": "cli.py",
+  "web_entrypoint": "app.py",
+  "launcher": "START_TOOL.bat",
+  "parameters": {
+    "script": { "type": "string", "description": "Full voiceover script text", "required": true },
+    "duration": { "type": "number", "description": "Total duration in seconds (or MM:SS)", "default": 90 },
+    "clip_duration": { "type": "number", "description": "Duration per clip in seconds", "default": 3.0 },
+    "quality": { "type": "string", "enum": ["720p", "1080p", "4K"], "default": "1080p" },
+    "aspect_ratio": { "type": "string", "enum": ["16:9", "9:16", "1:1"], "default": "16:9" },
+    "media_type": { "type": "string", "enum": ["videos", "photos", "both"], "default": "videos" },
+    "providers": { "type": "array", "items": { "type": "string" }, "default": ["pexels", "pixabay"] }
+  }
+}

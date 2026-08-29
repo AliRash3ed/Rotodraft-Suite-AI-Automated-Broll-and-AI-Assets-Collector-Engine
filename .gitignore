@@ -1,46 +1,26 @@
-# Python
+# Python bytecode & virtual environments
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
 venv/
+env/
 .venv/
-ENV/
 
-# Secrets & Environment
+# Environment Variables & Secret API Keys (CRITICAL: NEVER COMMIT)
 .env
-*.pem
-*.key
+.env.local
+.env.*.local
 
-# Output media & Downloads
+# Saved Settings & Local User Data
+data/saved_settings.json
+
+# User Downloads & Rendered Media Files (CRITICAL: NEVER COMMIT USER CLIPS)
 downloads/
-temp/
-_raw/
-*.mp4
-*.mp3
-*.wav
-*.zip
+!downloads/.gitkeep
 
-# Private Leads & SQLite Storage (Never committed to GitHub)
-data/
-*.db
-*.sqlite
-*.sqlite3
-leads.db
-leads.json
-leads.csv
-
-# Reference Architectures
-_reference_architectures/
-
-# IDE & OS
-.vscode/
-.idea/
+# Operating System & IDE Artifacts
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Logs
+.vscode/
+.idea/
 *.log

@@ -1,163 +1,300 @@
+<div align="center">
+
+# 🎬 RotoDraft Suite
+### Automatic Script to B-Roll and Asset Collector Engine
+**The #1 Free, Local-First, Open-Source Alternative to Pictory AI, InVideo AI & MoneyPrinter Turbo**
+
 <p align="center">
-  <img src="assets/banner.svg" alt="RotoDraft Suite Banner" width="100%">
+  <img src="https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge" alt="License" />
+  <img src="https://img.shields.io/badge/Python-3.10%2B-6366f1.svg?style=for-the-badge" alt="Python" />
+  <img src="https://img.shields.io/badge/Cost-%240%20Free%20Forever-10b981.svg?style=for-the-badge" alt="Cost" />
+  <img src="https://img.shields.io/badge/Design-Neo--Brutalist%202026-ff006e.svg?style=for-the-badge" alt="Design" />
+  <img src="https://img.shields.io/badge/Export-Premiere%20|%20DaVinci%20|%20CapCut-f59e0b.svg?style=for-the-badge" alt="Export" />
+  <img src="https://img.shields.io/badge/Agent%20Skill-Hermes%20|%20OpenClaw%20|%20Claude%20Code-00d9ff.svg?style=for-the-badge" alt="Agents" />
+  <img src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge" alt="PRs Welcome" />
 </p>
 
 <p align="center">
-  <strong>The Ultimate Open-Source AI B-Roll Collector & Video Production Studio for Creators, Video Editors & Indie Hackers.</strong>
+  <strong>Transform raw voiceover scripts and narrative text into timeline-ready, exact 3.0-second 1080p/4K stock b-roll video clips in seconds. Features DeepSeek-R1 reasoning monologue parsing, 9 parallel stock media vaults, local FFmpeg hardware acceleration, and 1-click NLE project exports for Premiere Pro, DaVinci Resolve, and CapCut.</strong>
 </p>
 
 <p align="center">
-  <a href="#-quick-start-in-30-seconds"><img src="https://img.shields.io/badge/Quick_Start-30s_Setup-0066FF?style=for-the-badge&logo=rocket&logoColor=white" alt="Quick Start"></a>
-  <a href="https://github.com/AliRash3ed/rotodraft-suite/blob/main/LICENSE"><img src="https://img.shields.io/badge/License-MIT-00F0FF?style=for-the-badge&logo=opensourceinitiative&logoColor=black" alt="License MIT"></a>
-  <a href="https://python.org"><img src="https://img.shields.io/badge/Python-3.10%2B-00FF88?style=for-the-badge&logo=python&logoColor=black" alt="Python Version"></a>
-  <a href="https://fastapi.tiangolo.com"><img src="https://img.shields.io/badge/FastAPI-Production_Grade-FF3366?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"></a>
-  <a href="https://playwright.dev"><img src="https://img.shields.io/badge/Playwright-Stealth_Scraper-45BA4B?style=for-the-badge&logo=playwright&logoColor=white" alt="Playwright"></a>
-  <a href="https://ffmpeg.org"><img src="https://img.shields.io/badge/FFmpeg-NVENC_GPU_Accel-8B5CF6?style=for-the-badge&logo=ffmpeg&logoColor=white" alt="FFmpeg"></a>
+  <a href="#-quick-start-in-60-seconds">Quick Start</a> •
+  <a href="#-why-rotodraft-suite-comparison-matrix">Comparison Matrix</a> •
+  <a href="#-key-features">Key Features</a> •
+  <a href="#-step-by-step-visual-tutorial">Tutorial</a> •
+  <a href="#-nle-video-editor-export-guides">NLE Guides</a> •
+  <a href="#-agent--cli-integrations">Agent Skills</a> •
+  <a href="#-privacy--security-guarantee">Privacy</a> •
+  <a href="#-creator--maintainer">Author</a>
 </p>
 
 ---
 
-## 📸 Studio Interface Preview
+![RotoDraft Suite Dashboard](assets/dashboard_main.png)
 
-<p align="center">
-  <img src="assets/app_screenshot.png" alt="RotoDraft Suite Live Studio Interface" width="100%" style="border-radius: 8px; border: 3px solid #0066FF; box-shadow: 6px 6px 0px #000000;">
-</p>
+</div>
 
 ---
 
-## 💡 What is RotoDraft Suite?
+## ⚡ Why RotoDraft Suite? (Comparison Matrix)
 
-Creating high-retention video content requires finding and timing dozens of B-Roll stock footage clips for every few seconds of voiceover. Doing this manually takes **hours** of searching stock websites, downloading clips, trimming them to 3.0s retention intervals, and arranging them on an NLE timeline.
-
-**RotoDraft Suite solves this in 1 click.**
-
-Simply paste your script or batch topics, click **Generate**, and watch the engine:
-1. 🎙️ **320+ Neural Voices & Subtitles** across 50+ languages using Microsoft Edge-TTS with language auto-detection and voice preview.
-2. ⚡ **1-Click Creator Workflow**: Transform rough bullet points into viral scripts (MrBeast / Hormozi / Vox style).
-3. 🧠 **Decompose your script** into sequential 3.0s visual scenes using 100% Free AI models (`llama-3.3-70b`, `openrouter/free`).
-4. 🔍 **Multi-Tier Media Sourcing**: Playwright Stealth Pinterest Scraper, Pexels 4K, Pixabay HD, and Pollinations Flux AI 4K image fallback with 60fps Ken Burns pan & zoom.
-5. 🎵 **Royalty-Free BGM Library + FFmpeg Auto-Ducking**: Balances mood-matched music at `-16dB` beneath the speech track.
-6. 🎨 **Cinematic Color Grading Filters**: Hollywood *Teal & Orange*, *Cyberpunk Neon*, *Moody Noir*, and *Vintage Film*.
-7. 🔥 **High-Retention Captions (.ASS)**: Hormozi-style bold yellow active highlight subtitles.
-8. ⚡ **Autonomous Batch Channel Factory**: Queue 3 to 10 video topics to generate an entire YouTube Shorts or TikTok library automatically in the background!
-9. ✂️ **Export Pro NLE Timelines** directly to **CapCut Desktop (`draft_info.json`)** and **Premiere Pro / DaVinci Resolve (`timeline.xml`)**.
-10. 🚀 **Viral Distribution Engine**: 5 High-CTR Click-worthy titles, SEO descriptions with timestamps, hashtags, and Midjourney/Flux thumbnail prompts.
+| Feature | 🚫 Pictory AI ($49/mo) | 🚫 InVideo AI ($35/mo) | ⚠️ MoneyPrinter Turbo | 🚀 **RotoDraft Suite ($0 Free)** |
+| :--- | :--- | :--- | :--- | :--- |
+| **Monthly Cost** | $49 / month | $35 / month | Free | **$0.00 (100% Free & Open Source)** |
+| **AI Reasoning Models** | ❌ Locked GPT-3.5 | ❌ Proprietary | Basic OpenAI | **✅ Full DeepSeek-R1, OpenRouter, Groq, Claude 3.5, Gemini 1.5, Ollama** |
+| **Thinking Monologue** | ❌ None | ❌ None | ❌ None | **✅ Auto-Strips `<think>` Tags & Reasoning Tokens cleanly** |
+| **Stock Media Vaults** | 1 (Storyblocks only) | 1 (Shutterstock only) | 2 (Pexels, Pixabay) | **✅ 9 Vaults: Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, Wikimedia** |
+| **NLE Timeline Exports** | ❌ None | ❌ None | ❌ None | **✅ Adobe Premiere Pro XML, DaVinci Resolve EDL, CapCut Draft JSON, CSV** |
+| **Ken Burns Photo Engine**| Basic Zoom | Basic Zoom | Static | **✅ Mathematical 2.5D Ken Burns Dynamic Pan & Zoom on Photos** |
+| **Custom AI Builder** | ❌ None | ❌ None | ❌ None | **✅ Any OpenAI-Compatible Endpoint (vLLM, LM Studio, Together, Ollama)** |
+| **Data Privacy** | ❌ Cloud Server Upload | ❌ Cloud Server Upload | Local | **✅ 100% Local-First (Keys & Videos NEVER leave your PC)** |
+| **AI Error Doctor** | ❌ Generic Error | ❌ Generic Error | Terminal Crash | **✅ Built-in AI Medical Diagnosis for FFmpeg, Network, & Quotas** |
+| **Agent Ecosystem** | ❌ None | ❌ None | ❌ None | **✅ Hermes Agent, OpenClaw, Claude Code & Codex Native Skills** |
 
 ---
 
-## 🖥️ Studio Architecture & Pipeline
+## 🏗️ System Architecture & Workflow
 
-```mermaid
-flowchart LR
-    A["📝 Script / Batch Topics"] --> B["🧠 1-Shot AI Scene Decomposition\n(Duration / 3.0s = N Scenes)"]
-    A --> C["🎙️ Microsoft Edge-TTS\n(320+ Voices + Hormozi .ASS)"]
-    
-    B --> D["🔍 Multi-Source Media Engine\n(Playwright Pinterest + Pexels + Pixabay + Pollinations Flux AI)"]
-    
-    D --> E["⚙️ GPU FFmpeg Processing\n(3.0s Trimmer, 16:9 / 9:16, Color Grading, NVENC)"]
-    
-    E --> F["🎞️ Numbered B-Roll Asset Folder\n(01_clip.mp4, 02_clip.mp4 ...)"]
-    E --> G["🎬 Concat & Mix Demuxer\n(Full_Video_Master.mp4 + BGM Auto-Ducking + Subtitles)"]
-    E --> H["✂️ NLE Exporters\n(CapCut Desktop Draft + Premiere XML)"]
+```
+                       ┌─────────────────────────────────┐
+                       │    VOICEOVER SCRIPT INPUT       │
+                       │ (60s -> 20 scenes @ 3.0s each)  │
+                       └────────────────┬────────────────┘
+                                        │
+                                        ▼
+                    ┌────────────────────────────────────────┐
+                    │           AI BRAIN ENGINE              │
+                    │ • DeepSeek-R1 (Thinking Monologue)     │
+                    │ • OpenRouter / Groq / Claude / Gemini  │
+                    │ • Custom Endpoint / Ollama Local       │
+                    │ • Auto-Strips <think> Tags -> JSON     │
+                    └───────────────────┬────────────────────┘
+                                        │
+                                        ▼
+                    ┌────────────────────────────────────────┐
+                    │       9 PARALLEL STOCK VAULTS          │
+                    │ • Pexels API (200 req/hr free)         │
+                    │ • Pixabay API (5,000 req/hr free)      │
+                    │ • Coverr.co (Free HD/4K Video CDN)     │
+                    │ • Mixkit.co (Envato Free B-Roll)       │
+                    │ • Storyblocks API (Enterprise Stock)   │
+                    │ • Videvo.net & Wikimedia Commons       │
+                    │ • Pinterest 9:16 & 1080p Video Scraper │
+                    └───────────────────┬────────────────────┘
+                                        │
+                                        ▼
+                    ┌────────────────────────────────────────┐
+                    │     LOCAL FFMPEG HARDWARE ENGINE       │
+                    │ • Exact 3.0s duration trimming         │
+                    │ • Smart aspect ratio cropping (16:9)   │
+                    │ • 2.5D Ken Burns Photo Animation       │
+                    │ • Color grading LUTs & Transitions     │
+                    │ • Full Master Video Concatenation      │
+                    └───────────────────┬────────────────────┘
+                                        │
+                                        ▼
+                    ┌────────────────────────────────────────┐
+                    │       1-CLICK NLE EXPORT SUITE         │
+                    │ • Adobe Premiere Pro (XML Timeline)    │
+                    │ • DaVinci Resolve (CMX 3600 EDL)       │
+                    │ • CapCut Desktop (Draft Project JSON)  │
+                    │ • CSV Timecode Sequence Sheet          │
+                    └────────────────────────────────────────┘
 ```
 
 ---
 
-## ✨ Core Enterprise Features
+## 🚀 Quick Start in 60 Seconds
 
-### 🎙️ Complete Voiceover Engine (320+ Voices)
-* **All Microsoft Neural Voices**: Full catalog across 50+ languages (English, Urdu, Hindi, Spanish, Arabic, French, German, Japanese, etc.).
-* **⭐ Recommended Badges**: Highlights top high-retention voices.
-* **🌐 Language Auto-Detect**: 1-click scans your script text and selects the optimal neural voice.
-* **🔊 Audio Preview**: Listen to any voice before rendering.
-
-### 🔥 Hormozi-Style High-Retention Subtitles (.ASS)
-* Converts timing into **Advanced SubStation Alpha (`.ass`)** subtitles.
-* Styles include: *🔥 Hormozi Viral Yellow (Bold Black Outline)*, *💎 Cyber Neon Cyan*, *⚪ Clean Minimal White*.
-
-### 🎨 Cinematic Color Grading
-* 1-Click visual film styles: *🎬 Hollywood Teal & Orange*, *⚡ Cyberpunk Neon*, *🖤 Moody Noir*, *🌿 Vintage Film Grain*.
-
-### ⚡ Batch Channel Video Factory
-* Enter 3 to 10 video ideas in the **BATCH FACTORY** modal.
-* Autonomously writes scripts, downloads footage, mixes audio, and exports master videos in the background queue.
-
-### 🔒 Privacy-First Lead Capture & Owner Analytics
-* End-user emails are stored in a **local encrypted SQLite vault (`data/leads.db`)** that is strictly `.gitignore`'d and never committed to GitHub.
-* Protected **Owner Analytics Dashboard** with total generation counts, conversion metrics, and CSV lead export.
-
----
-
-## ⚡ Quick Start in 30 Seconds
-
-### Windows (1-Click Launch)
-1. Clone or download this repository:
-   ```bash
-   git clone https://github.com/AliRash3ed/rotodraft-suite.git
-   cd rotodraft-suite
-   ```
-2. Double-click **`START_TOOL.bat`**.
-3. Your browser will automatically open to **`http://127.0.0.1:8000`**!
-
-### Linux / macOS
+### Step 1: Clone Repository
 ```bash
-# 1. Clone repository
 git clone https://github.com/AliRash3ed/rotodraft-suite.git
 cd rotodraft-suite
+```
 
-# 2. Install dependencies
+### Step 2: Install Dependencies
+```bash
 pip install -r requirements.txt
-playwright install chromium
+```
 
-# 3. Launch Studio
+### Step 3: Run the Web Studio
+```bash
+# Windows 1-Click Launch:
+START_TOOL.bat
+
+# Or via Python terminal:
 python app.py
 ```
+Open **`http://localhost:8001`** in your browser.
 
 ---
 
-## 🧪 Testing & Verification
+## 🖥️ User Interface Tour
 
-Run the full automated test suite:
+<div align="center">
+
+### AI Brains Configuration & Model Selection
+![AI Brains Configuration](assets/settings_ai_brains.png)
+
+### Stock Media Vaults & Live Quota Monitoring
+![Stock Media APIs Configuration](assets/stock_apis_config.png)
+
+### Custom OpenAI-Compatible LLM Builder
+![Custom AI Builder](assets/custom_api_builder.png)
+
+### Agent Hub & Automation Guide
+![Agent Hub](assets/agent_hub.png)
+
+</div>
+
+---
+
+## 🎬 Step-by-Step Visual Tutorial
+
+### 1. Paste Your Voiceover Script
+Type or paste your narrative script into the Script text area. Choose your target video duration (e.g. 60 seconds) and clip pacing (e.g. 3.0s per clip = 20 visual scenes).
+
+### 2. Configure Your AI Brain
+Select your preferred AI provider:
+- **OpenRouter** (Models like `minimax/minimax-m3:free`, `deepseek/deepseek-r1`, `anthropic/claude-3.5-sonnet`)
+- **DeepSeek** (`deepseek-chat`, `deepseek-reasoner`)
+- **Groq** (`llama-3.3-70b-versatile`)
+- **Google Gemini** (`gemini-1.5-flash`, `gemini-1.5-pro`)
+- **OpenAI** (`gpt-4o`, `gpt-4o-mini`, `o1`, `o3-mini`)
+- **Ollama Local** (`llama3.2`, `mistral`, `qwen2.5`)
+
+### 3. Select Stock Media Providers
+Toggle on your desired stock footage sources:
+- `Pexels` (Free 1080p/4K footage)
+- `Pixabay` (Free nature, technology & motion graphics)
+- `Coverr.co` (Free CDN high-speed stock)
+- `Mixkit.co` (Envato free b-roll library)
+- `Pinterest` (Aesthetic vertical & horizontal reels)
+
+### 4. Click 'Start B-Roll Collection'
+Watch the real-time event stream as RotoDraft Suite:
+1. Breaks the script into chronological visual scenes.
+2. Queries the 9 stock vaults in parallel with automatic fallback keyword rewriting.
+3. Downloads media streams concurrently with multi-worker threading.
+4. Trims each clip to exact 3.0s duration via local FFmpeg.
+5. Concatenates the clips into a **Full Master Video MP4**.
+6. Generates timeline projects for **Premiere Pro**, **DaVinci Resolve**, and **CapCut**.
+
+---
+
+## 🎞️ NLE Video Editor Export Guides
+
+### 1. Adobe Premiere Pro
+1. Open Adobe Premiere Pro.
+2. Go to **File** &rarr; **Import...** (or `Ctrl+I` / `Cmd+I`).
+3. Select the generated `..._premiere_davinci.xml` from your project folder.
+4. Premiere Pro will instantly recreate your multi-clip sequence with exact cuts, in-points, and out-points on the timeline!
+
+### 2. DaVinci Resolve
+1. Open DaVinci Resolve & Create a New Project.
+2. Go to **File** &rarr; **Import** &rarr; **Timeline...** (or `Ctrl+Shift+I`).
+3. Select `..._davinci.edl` or `..._premiere_davinci.xml`.
+4. Point the source media directory to the `clips/` folder. All 1080p clips align automatically on Video Track 1.
+
+### 3. CapCut Desktop
+1. Open CapCut Desktop.
+2. Copy the generated `..._capcut_draft.json` into your local CapCut Projects folder:
+   - **Windows**: `C:\Users\YOUR_USER\AppData\Local\CapCut\User Data\Projects\com.lveditor.draft\`
+   - **macOS**: `~/Movies/CapCut/User Data/Projects/com.lveditor.draft/`
+3. Launch CapCut — your project opens with all clips cut and placed on the timeline.
+
+---
+
+## 💻 CLI Terminal Wizard
+
+For headless servers, automation scripts, and Docker containers:
+
 ```bash
-python -m unittest tests/test_full_suite.py
-```
+# Basic Run (30s Video)
+python cli.py --script "Robotic automation in high tech laboratory." --duration 30
 
-Output:
-```text
-[PASS] Voice Catalog: Loaded 322 voices (23 recommended) + Auto-detect verified
-[PASS] Lead Manager: SQLite DB operational, Stats calculated, CSV exported
-[PASS] TTS Engine & ASS Subtitles: Generated audio + Hormozi ASS subtitle
-[PASS] AI Engine: Decomposed 2 scenes, Rewrote script, Generated 5 Viral Titles & SEO Metadata
-[PASS] Stock Searcher: Sourced via provider 'pollinations_ai_flux_kenburns' -> URL resolved
-[PASS] Video Processor & Merger: Rendered Master Video with Teal & Orange color grade (82.9 KB)
-----------------------------------------------------------------------
-Ran 6 tests in 13.8s - OK (100% SUCCESS)
+# Full Master Video Concatenation + 9 Stock Providers
+python cli.py --script "Inside data centers, AI servers process petabytes." --duration 45 --quality 1080p --aspect-ratio 16:9 --providers pexels,pixabay,coverr,mixkit --full-video
+
+# Headless Batch Run using a script file
+python cli.py --script path/to/voiceover.txt --duration 90 --quality 4K --aspect-ratio 9:16
+
+# Launch Interactive Terminal Wizard
+python cli.py --interactive
+
+# Print Agent Integration Code
+python cli.py --agent-help
 ```
 
 ---
 
-## 👨‍💻 Author & Creator
+## 🤖 Agent & CLI Integrations
 
-<table style="border: 3px solid #000; box-shadow: 4px 4px 0px #0066FF; background: #101626; color: #fff; padding: 16px; border-radius: 8px;">
-  <tr>
-    <td width="90" align="center">
-      <img src="assets/creator_avatar.png" width="76" height="76" style="border-radius: 50%; border: 3px solid #0066FF; box-shadow: 2px 2px 0px #000;" alt="Ali Rasheed Bhatti">
-    </td>
-    <td>
-      <h3 style="margin: 0; color: #00F0FF; font-family: sans-serif;">Ali Rasheed Bhatti</h3>
-      <p style="margin: 4px 0; color: #D0DBF5; font-family: monospace;">Full Stack &amp; AI Systems Engineer • Lahore, Pakistan</p>
-      <p style="margin: 8px 0 0 0;">
-        <a href="https://github.com/AliRash3ed"><img src="https://img.shields.io/badge/GitHub-AliRash3ed-181717?style=flat&logo=github" alt="GitHub"></a>
-        <a href="https://www.linkedin.com/in/alirasheedbhatt"><img src="https://img.shields.io/badge/LinkedIn-Ali_Rasheed-0077B5?style=flat&logo=linkedin" alt="LinkedIn"></a>
-        <a href="https://www.instagram.com/this_is_ali_r/"><img src="https://img.shields.io/badge/Instagram-@this_is_ali_r-E4405F?style=flat&logo=instagram" alt="Instagram"></a>
-        <a href="mailto:alihouse512@gmail.com"><img src="https://img.shields.io/badge/Email-alihouse512@gmail.com-D14836?style=flat&logo=gmail" alt="Email"></a>
-      </p>
-    </td>
-  </tr>
-</table>
+### Hermes Agent Integration
+```python
+import subprocess
+from pathlib import Path
+
+def collect_broll(script: str, duration: int = 60, quality: str = "1080p") -> dict:
+    """Invokes RotoDraft Suite autonomous pipeline from Hermes Agent."""
+    tool_dir = Path(__file__).resolve().parent
+    cmd = ["python", str(tool_dir / "cli.py"), "--script", script, "--duration", str(duration), "--quality", quality, "--full-video"]
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(tool_dir))
+    return {"status": "success" if proc.returncode == 0 else "error", "output": proc.stdout}
+```
+
+### OpenClaw Plugin Manifest (`tool_plugin.json`)
+```json
+{
+  "plugin_name": "rotodraft-suite",
+  "version": "2.0.0",
+  "author": "Ali Rasheed",
+  "entrypoint": "cli.py",
+  "capabilities": ["script_analysis", "stock_search", "ffmpeg_rendering", "nle_export"]
+}
+```
+
+---
+
+## 🔒 Privacy & Security Guarantee
+
+- **Zero Cloud Tracking**: All API keys, narration scripts, and downloaded footage stay strictly on your local computer.
+- **`.gitignore` Protection**: Your `.env`, `data/saved_settings.json`, and `downloads/` directory are completely ignored by git.
+- **Self-Healing AI Error Doctor**: If FFmpeg is missing or rate limits occur, the built-in Error Doctor diagnoses the exact OS fix and provides 1-click retry.
+
+---
+
+## 🧪 Running Automated Tests
+
+Run the full unit and integration test suite:
+```bash
+python tests/test_suite.py
+```
+```
+.........
+----------------------------------------------------------------------
+Ran 9 tests in 0.281s
+
+OK
+```
+
+---
+
+## 👨‍💻 Creator & Maintainer
+
+Built with ❤️ by **Ali Rasheed** from Lahore, Pakistan.  
+Full-Stack AI Developer & Tech Infrastructure Engineer.
+
+- 📧 **Email**: [alihouse512@gmail.com](mailto:alihouse512@gmail.com)
+- 💼 **LinkedIn**: [linkedin.com/in/alirasheedbhatt](https://www.linkedin.com/in/alirasheedbhatt)
+- 🐦 **X / Twitter**: [@AliRasheedBti](https://x.com/AliRasheedBti)
+- 📸 **Instagram**: [@this_is_ali_r](https://www.instagram.com/this_is_ali_r/)
+- 🌐 **Facebook**: [Ali Rasheed](https://www.facebook.com/profile.php?id=61579456175357)
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License** — free for personal and commercial video production.
+Distributed under the **MIT License**. Free for commercial and personal use forever.
+See [LICENSE](LICENSE) for details.

@@ -1,46 +1,51 @@
 @echo off
-setlocal enabledelayedexpansion
-title RotoDraft Suite - AI Stock Media & B-Roll Collector
+TITLE AI B-Roll & Stock Media Collector Pro - Commercial Edition 2026
+COLOR 0A
 
+echo =======================================================================
+echo    AI B-ROLL & STOCK MEDIA COLLECTOR PRO (2026 COMMERCIAL EDITION)
+echo    Built by Ali Rasheed from Lahore, Pakistan
+echo    Open Source & Free Forever (Alternative to Pictory & InVideo AI)
+echo =======================================================================
 echo.
-echo  ==============================================================================
-echo  [#] ROTODRAFT SUITE v2.0 PRO -- AI Stock Media & B-Roll Collector Studio
-echo  [#] Open-Source Video Asset Creation Pipeline by Ali Rasheed Bhatti
-echo  ==============================================================================
+echo Select an option:
+echo [1] Launch Web Dashboard (Studio, Showcase, NLE Exporter & Settings)
+echo [2] Launch Interactive Terminal CLI Wizard
+echo [3] View Hermes Agent, OpenClaw & Claude Code Integration Guide
+echo [4] View About & Open Source Manifesto
+echo [5] View Contact & Hire Ali Rasheed
+echo [6] Run Comprehensive Test Suite (9 Unit Tests)
+echo [7] Exit
 echo.
 
-:: 1. Check Python
-py --version >nul 2>&1
-if %errorlevel% neq 0 (
-    python --version >nul 2>&1
-    if %errorlevel% neq 0 (
-        echo [ERROR] Python is not installed!
-        echo Please install Python 3.10 or higher from https://python.org
-        pause
-        exit /b 1
-    ) else (
-        set PY_CMD=python
-    )
+set /p choice="Enter choice [1-7]: "
+
+if "%choice%"=="1" (
+    echo.
+    echo [*] Starting Web Studio on http://localhost:8001 ...
+    py app.py
+) else if "%choice%"=="2" (
+    echo.
+    echo [*] Launching Interactive Terminal Wizard...
+    py cli.py --interactive
+    pause
+) else if "%choice%"=="3" (
+    echo.
+    py cli.py --agent-help
+    pause
+) else if "%choice%"=="4" (
+    echo.
+    py cli.py --about
+    pause
+) else if "%choice%"=="5" (
+    echo.
+    py cli.py --contact
+    pause
+) else if "%choice%"=="6" (
+    echo.
+    echo [*] Running Test Suite...
+    py tests/test_suite.py
+    pause
 ) else (
-    set PY_CMD=py
+    exit
 )
-
-echo [OK] Detected Python Environment: %PY_CMD%
-
-:: 2. Verify requirements silently
-echo [INFO] Checking dependencies (FastAPI, Edge-TTS, FFmpeg, Httpx)...
-%PY_CMD% -m pip install -q -r requirements.txt
-if %errorlevel% neq 0 (
-    echo [WARN] Automatic pip install encountered warnings. Continuing standard startup...
-)
-
-:: 3. Launch application and open browser
-echo.
-echo [LAUNCH] Starting RotoDraft Suite Web Server on http://127.0.0.1:8000 ...
-echo [LAUNCH] Opening your default browser...
-echo.
-
-start "" "http://127.0.0.1:8000"
-%PY_CMD% app.py
-
-pause

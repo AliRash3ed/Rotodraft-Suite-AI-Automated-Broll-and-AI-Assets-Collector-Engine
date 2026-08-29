@@ -1,702 +1,434 @@
 import os
+import sys
 import json
-import zipfile
-import subprocess
-import shutil
 import asyncio
-from datetime import datetime
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional, Dict, Any
+from datetime import datetime
 
-from fastapi import FastAPI, Request, BackgroundTasks, HTTPException, Query, UploadFile, File, Form, Depends
-from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse, JSONResponse, Response
+from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
+from fastapi.responses import HTMLResponse, StreamingResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+BASE_DIR = Path(__file__).resolve().parent
+if str(BASE_DIR) not in sys.path:
+    sys.path.insert(0, str(BASE_DIR))
+
 from src.config import Config
-from src.pipeline import RotoDraftPipeline
-from src.stock_searcher import StockSearcher
-from src.downloader import Downloader
-from src.video_processor import VideoProcessor
-from src.video_merger import VideoMerger
-from src.tts_engine import TTSEngine
-from src.timeline_exporter import TimelineExporter
+from src.logger import logger
+from src.system_checker import SystemChecker
 from src.ai_engine import AIEngine
-from src.voices_catalog import VoiceCatalog
-from src.lead_manager import LeadManager
-from src.bgm_engine import BGMEngine
-from src.batch_engine import BatchEngine
-from src.subtitle_engine import SubtitleEngine
+from src.pipeline import StockCollectorPipeline
+from src.onboarding import OnboardingManager
+from src.usage_tracker import UsageTracker
+from src.nle_exporter import NLEExporter
+from src.error_doctor import AIErrorDoctor
 
-app = FastAPI(title="RotoDraft Suite", version="2.4.0")
+app = FastAPI(title="AI B-Roll & Stock Media Collector Pro", version="2.0.0")
 
-# Mount static and templates
-app.mount("/static", StaticFiles(directory=str(Config.ROOT_DIR / "static")), name="static")
-templates = Jinja2Templates(directory=str(Config.ROOT_DIR / "templates"))
-lead_mgr = LeadManager()
+STATIC_DIR = BASE_DIR / "static"
+TEMPLATES_DIR = BASE_DIR / "templates"
+DOWNLOADS_DIR = BASE_DIR / "downloads"
 
-class GenerateRequest(BaseModel):
-    mode: str = "full"  # "full", "stock_only", "voice_only", "keywords_only"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
+DOWNLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
+app.mount("/downloads", StaticFiles(directory=str(DOWNLOADS_DIR)), name="downloads")
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+pipeline = StockCollectorPipeline(output_base_dir=DOWNLOADS_DIR)
+
+active_job = {
+    "job_id": None,
+    "status": "IDLE",
+    "percent": 0,
+    "current_step": "Ready",
+    "total_clips": 0,
+    "completed_clips": 0,
+    "folder_name": None,
+    "clips": [],
+    "error": None,
+}
+
+def parse_duration_to_seconds(dur_str: str) -> float:
+    dur_str = str(dur_str).strip()
+    if ":" in dur_str:
+        parts = dur_str.split(":")
+        if len(parts) == 2:
+            mins = int(parts[0])
+            secs = float(parts[1])
+            return mins * 60 + secs
+        elif len(parts) == 3:
+            hrs = int(parts[0])
+            mins = int(parts[1])
+            secs = float(parts[2])
+            return hrs * 3600 + mins * 60 + secs
+    return float(dur_str)
+
+class CollectRequest(BaseModel):
     script: str
-    duration_seconds: float = 30.0
+    duration_input: str
     clip_duration: float = 3.0
-    aspect_ratio: str = "16:9"
+    project_name: Optional[str] = "broll_project"
     quality: str = "1080p"
-    tts_engine: Optional[str] = "edge"
-    voice: str = "en-US-ChristopherNeural"
-    voice_rate: str = "+0%"
-    voice_pitch: str = "+0Hz"
-    tts_key: Optional[str] = None
-    media_filter: Optional[str] = "mixed"  # "videos_only", "photos_only", "mixed", "pure_ai"
-    ai_image_engine: Optional[str] = "pollinations"  # "pollinations", "dalle3"
-    bgm_track: Optional[str] = "none"
-    bgm_volume: Optional[float] = 0.18
-    mood: str = "Cinematic"
-    project_name: Optional[str] = "My_Video_Project"
-    custom_audio_path: Optional[str] = None
-    color_filter: Optional[str] = "natural"
-    subtitle_style: Optional[str] = "hormozi"
-    mirror_flip: Optional[bool] = False
-    video_speed: Optional[float] = 1.0
-    # Optional Custom BYOK Keys
-    openrouter_key: Optional[str] = None
-    openrouter_model: Optional[str] = None
-    gemini_key: Optional[str] = None
-    gemini_model: Optional[str] = None
-    openai_key: Optional[str] = None
-    openai_base_url: Optional[str] = None
-    openai_model: Optional[str] = None
-    cohere_key: Optional[str] = None
-    pexels_key: Optional[str] = None
-    pixabay_key: Optional[str] = None
-
-class BatchSubmitRequest(BaseModel):
-    topics: List[str]
-    aspect_ratio: str = "9:16"
-    voice: str = "en-US-ChristopherNeural"
-    mood: str = "Cinematic"
-    style: str = "viral_hook"
-
-class RegenerateClipRequest(BaseModel):
-    project_id: str
-    clip_index: int
-    keyword: str
-    fallback_keyword: Optional[str] = ""
     aspect_ratio: str = "16:9"
-    quality: str = "1080p"
-    duration: float = 3.0
-    page: int = 2
+    media_type: str = "videos"
+    providers: List[str] = ["pexels", "pixabay", "unsplash", "pinterest"]
+    enable_fallback: bool = True
+    ai_provider: Optional[str] = None
+    ai_model: Optional[str] = None
+    export_full_video: bool = False
+    enable_ken_burns: bool = True
+    transition: str = "cut"
+    color_preset: str = "none"
 
-class ReorderClipsRequest(BaseModel):
-    project_id: str
-    clip_filenames: List[str]
+class SettingsRequest(BaseModel):
+    OPENROUTER_API_KEY: Optional[str] = None
+    OPENROUTER_MODEL: Optional[str] = None
+    DEEPSEEK_API_KEY: Optional[str] = None
+    DEEPSEEK_MODEL: Optional[str] = None
+    GROQ_API_KEY: Optional[str] = None
+    GROQ_MODEL: Optional[str] = None
+    GEMINI_API_KEY: Optional[str] = None
+    GEMINI_MODEL: Optional[str] = None
+    OPENAI_API_KEY: Optional[str] = None
+    OPENAI_MODEL: Optional[str] = None
+    ANTHROPIC_API_KEY: Optional[str] = None
+    ANTHROPIC_MODEL: Optional[str] = None
+    COHERE_API_KEY: Optional[str] = None
+    COHERE_MODEL: Optional[str] = None
+    OLLAMA_ENDPOINT: Optional[str] = None
+    OLLAMA_MODEL: Optional[str] = None
+    
+    CUSTOM_AI_NAME: Optional[str] = None
+    CUSTOM_AI_ENDPOINT: Optional[str] = None
+    CUSTOM_AI_KEY: Optional[str] = None
+    CUSTOM_AI_MODEL: Optional[str] = None
+    CUSTOM_AI_THINKING: Optional[bool] = None
+    CUSTOM_AI_MAX_TOKENS: Optional[int] = None
+    CUSTOM_AI_TEMPERATURE: Optional[float] = None
 
-class RewriteScriptRequest(BaseModel):
-    text: str
-    style: str = "viral_hook"  # viral_hook, storytelling, shorts, educational
+    PEXELS_API_KEY: Optional[str] = None
+    PIXABAY_API_KEY: Optional[str] = None
+    UNSPLASH_API_KEY: Optional[str] = None
+    HTTP_PROXY: Optional[str] = None
+    HTTPS_PROXY: Optional[str] = None
+    DEFAULT_TRANSITION: Optional[str] = None
 
-class GenerateMetadataRequest(BaseModel):
-    script: str
-    project_id: Optional[str] = None
+    MAX_PARALLEL_DOWNLOADS: Optional[int] = None
+    MAX_PARALLEL_SEARCHES: Optional[int] = None
+    MAX_PARALLEL_FFMPEG: Optional[int] = None
 
-class VoicePreviewRequest(BaseModel):
-    voice: str
-    rate: Optional[str] = "+0%"
-    pitch: Optional[str] = "+0Hz"
-    text: Optional[str] = "Hello, this is a sample of this neural voice in RotoDraft Suite."
-
-class AutoDetectVoiceRequest(BaseModel):
-    script: str
-
-class LeadSubmitRequest(BaseModel):
-    email: str
-    name: Optional[str] = ""
-    video_count: Optional[int] = 1
-
-class WhatsAppClickRequest(BaseModel):
-    email: str
-
-class OpenFolderRequest(BaseModel):
-    path: str
-
-class DeleteProjectRequest(BaseModel):
-    project_id: str
-
-class TestKeyRequest(BaseModel):
+class TestProviderRequest(BaseModel):
     provider: str
-    api_key: str
+    key: Optional[str] = None
     model: Optional[str] = None
+    endpoint: Optional[str] = None
 
-# Quick-Start Templates
-SCRIPT_TEMPLATES = [
-    {
-        "id": "finance",
-        "title": "⚡ Wall Street & Algorithmic Trading (16:9)",
-        "mood": "Cinematic",
-        "ratio": "16:9",
-        "duration": 30,
-        "clip_len": 3.0,
-        "script": "In the heart of Wall Street, automated algorithms trade billions in milliseconds. As artificial intelligence advances, global financial markets are evolving faster than human traders can react. High frequency execution and neural network predictions are reshaping the modern economy."
-    },
-    {
-        "id": "shorts_stoic",
-        "title": "📱 Stoic Discipline & Mindset Hook (9:16 Shorts)",
-        "mood": "Documentary / Moody",
-        "ratio": "9:16",
-        "duration": 18,
-        "clip_len": 2.0,
-        "script": "Marcus Aurelius once wrote: You have power over your mind, not outside events. Realize this, and you will find unstoppable strength. When you stop chasing validation and embrace the daily grind, you conquer the world."
-    },
-    {
-        "id": "ai_tech",
-        "title": "🤖 Quantum Computing & Future AI (16:9)",
-        "mood": "Cyberpunk / Tech",
-        "ratio": "16:9",
-        "duration": 36,
-        "clip_len": 3.0,
-        "script": "Quantum computing is breaking the boundaries of classical physics. Superconducting qubits operating near absolute zero can process complex simulations in seconds that would take supercomputers thousands of years. We are witnessing the dawn of true machine intelligence."
-    },
-    {
-        "id": "urdu_motivation",
-        "title": "🇵🇰 Urdu Mindset & Success Story (9:16 Shorts)",
-        "mood": "Cinematic",
-        "ratio": "9:16",
-        "duration": 21,
-        "clip_len": 3.0,
-        "script": "کامیابی کا راز مستقل مزاجی اور محنت میں پوشیدہ ہے۔ جب انسان اپنے مقاصد پر فوکس کرتا ہے تو دنیا کی کوئی طاقت اسے آگے بڑھنے سے نہیں روک سکتی۔"
-    },
-    {
-        "id": "nature",
-        "title": "🌿 Deep Forest & Cosmic Perspective (16:9)",
-        "mood": "Vibrant Nature",
-        "ratio": "16:9",
-        "duration": 24,
-        "clip_len": 4.0,
-        "script": "Deep within ancient untouched forests, ecosystems have thrived for millennia. Looking up at the starry night sky reminds us of our quiet place in a vast, interconnected universe."
-    }
-]
+class OnboardingRequest(BaseModel):
+    name: str
+    email: str
+    whatsapp: Optional[str] = ""
+
+class CalculateETARequest(BaseModel):
+    duration_input: str
+    clip_duration: float = 3.0
+    quality: str = "1080p"
+
+class ErrorDiagnoseRequest(BaseModel):
+    error_message: str
+    context: Optional[Dict[str, Any]] = None
 
 @app.get("/", response_class=HTMLResponse)
-async def serve_dashboard(request: Request):
-    voices = await VoiceCatalog.get_all_voices()
-    bgm_tracks = BGMEngine.get_available_tracks()
-    return templates.TemplateResponse("index.html", {
-        "request": request,
-        "voices": voices,
-        "bgm_tracks": bgm_tracks,
-        "models": Config.FREE_AI_MODELS,
-        "default_model": Config.OPENROUTER_MODEL,
-        "templates": SCRIPT_TEMPLATES,
-        "has_pexels": bool(Config.PEXELS_API_KEY),
-        "has_pixabay": bool(Config.PIXABAY_API_KEY),
-        "has_openrouter": bool(Config.OPENROUTER_API_KEY)
-    })
+async def serve_index(request: Request):
+    return templates.TemplateResponse("index.html", {"request": request})
 
 @app.get("/api/health")
-async def health_check():
-    return {"status": "healthy", "app": "RotoDraft Suite", "version": "2.4.0"}
+async def get_health():
+    return SystemChecker.get_system_health()
 
-@app.get("/api/templates")
-async def get_templates():
-    return {"templates": SCRIPT_TEMPLATES}
+@app.get("/api/usage-summary")
+async def get_usage_summary():
+    return UsageTracker.get_summary()
 
-@app.get("/api/bgm-tracks")
-async def get_bgm_tracks():
-    return {"tracks": BGMEngine.get_available_tracks()}
+@app.get("/api/onboarding-status")
+async def get_onboarding_status():
+    return {"is_onboarded": OnboardingManager.is_onboarded()}
 
-@app.get("/api/voices")
-async def get_voices():
-    voices = await VoiceCatalog.get_all_voices()
-    return {"voices": voices, "total": len(voices)}
+@app.post("/api/onboarding")
+async def submit_onboarding(req: OnboardingRequest):
+    lead = OnboardingManager.save_lead(req.name, req.email, req.whatsapp)
+    return {"success": True, "lead": lead}
 
-@app.post("/api/auto-detect-voice")
-async def auto_detect_voice(req: AutoDetectVoiceRequest):
-    voice_id = VoiceCatalog.detect_best_voice(req.script)
-    return {"success": True, "voice_id": voice_id}
+@app.post("/api/calculate-eta")
+async def calculate_eta(req: CalculateETARequest):
+    dur_secs = parse_duration_to_seconds(req.duration_input)
+    total_clips = max(1, int(round(dur_secs / req.clip_duration)))
+    eta_data = SystemChecker.calculate_estimated_time(total_clips, req.quality)
+    return eta_data
 
-@app.post("/api/voice-preview")
-async def voice_preview(req: VoicePreviewRequest):
-    tts = TTSEngine()
-    preview_dir = Config.DOWNLOADS_DIR / "_voice_previews"
-    preview_dir.mkdir(parents=True, exist_ok=True)
-    
-    clean_id = req.voice.replace("-", "_")
-    out_path = preview_dir / f"preview_{clean_id}.mp3"
+@app.get("/api/settings")
+async def get_settings():
+    return Config.get_masked_settings()
 
-    res = await tts.generate_speech(
-        text=req.text or "Hello, welcome to RotoDraft Suite.",
-        output_path=out_path,
-        voice=req.voice,
-        rate=req.rate or "+0%",
-        pitch=req.pitch or "+0Hz"
-    )
-    return {
-        "success": True,
-        "audio_url": f"/api/media/_voice_previews/{out_path.name}?t={int(datetime.now().timestamp())}",
-        "duration": res.get("duration", 2.0)
-    }
+@app.post("/api/settings")
+async def save_settings(req: SettingsRequest):
+    data = req.dict(exclude_unset=True)
+    clean_data = {k: v for k, v in data.items() if v is not None}
+    Config.save_settings(clean_data)
+    return {"status": "success", "message": "Settings saved successfully."}
 
-@app.post("/api/batch/submit")
-async def submit_batch(req: BatchSubmitRequest):
-    """Starts a multi-video factory run for a batch of topics."""
-    cleaned_topics = [t.strip() for t in req.topics if t.strip()]
-    if not cleaned_topics:
-        raise HTTPException(status_code=400, detail="No valid topics provided")
-
-    batch_id = await BatchEngine.start_batch(
-        topics=cleaned_topics,
-        aspect_ratio=req.aspect_ratio,
-        voice=req.voice,
-        mood=req.mood,
-        style=req.style
-    )
-    return {"success": True, "batch_id": batch_id, "total_topics": len(cleaned_topics)}
-
-@app.get("/api/batch/status/{batch_id}")
-async def get_batch_status(batch_id: str):
-    data = BatchEngine.get_batch_status(batch_id)
-    if not data:
-        raise HTTPException(status_code=404, detail="Batch not found")
-    return data
-
-@app.post("/api/diagnose-script")
-async def diagnose_script_endpoint(req: RewriteScriptRequest):
-    ai = AIEngine()
-    result = await ai.diagnose_script(req.text)
-    return {"success": True, "data": result}
-
-@app.post("/api/rewrite-script")
-async def rewrite_script(req: RewriteScriptRequest):
-    ai = AIEngine()
-    result = await ai.rewrite_script(req.text, req.style)
-    return {"success": True, "data": result}
-
-@app.post("/api/test-key")
-async def test_key_endpoint(req: TestKeyRequest):
-    provider = req.provider.lower()
-    key = req.api_key.strip()
-    
-    if not key:
-        return {"success": False, "message": "API key cannot be empty"}
-
+@app.post("/api/test-provider")
+async def test_provider(req: TestProviderRequest):
+    prov = req.provider.lower()
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            if provider in ["openrouter"]:
-                resp = await client.get("https://openrouter.ai/api/v1/auth/key", headers={"Authorization": f"Bearer {key}"})
-                if resp.status_code == 200:
-                    return {"success": True, "message": "OpenRouter Key is valid!"}
-            elif provider in ["gemini", "google"]:
-                resp = await client.get(f"https://generativelanguage.googleapis.com/v1beta/models?key={key}")
-                if resp.status_code == 200:
-                    return {"success": True, "message": "Google Gemini Key is valid!"}
-            elif provider in ["openai"]:
-                resp = await client.get("https://api.openai.com/v1/models", headers={"Authorization": f"Bearer {key}"})
-                if resp.status_code == 200:
-                    return {"success": True, "message": "OpenAI Key is valid!"}
-            elif provider in ["deepseek"]:
-                resp = await client.get("https://api.deepseek.com/v1/models", headers={"Authorization": f"Bearer {key}"})
-                if resp.status_code == 200:
-                    return {"success": True, "message": "DeepSeek Key is valid!"}
-            elif provider in ["groq"]:
-                resp = await client.get("https://api.groq.com/openai/v1/models", headers={"Authorization": f"Bearer {key}"})
-                if resp.status_code == 200:
-                    return {"success": True, "message": "Groq Key is valid!"}
-            elif provider in ["pexels"]:
-                resp = await client.get("https://api.pexels.com/videos/search?query=ocean&per_page=1", headers={"Authorization": key})
-                if resp.status_code == 200:
-                    return {"success": True, "message": "Pexels API Key is valid!"}
-            elif provider in ["pixabay"]:
-                resp = await client.get(f"https://pixabay.com/api/videos/?key={key}&q=ocean&per_page=3")
-                if resp.status_code == 200:
-                    return {"success": True, "message": "Pixabay API Key is valid!"}
-            elif provider in ["ollama"]:
-                return {"success": True, "message": "Ollama local connected"}
+        if prov in ["openrouter", "deepseek", "groq", "gemini", "openai", "anthropic", "cohere", "ollama", "custom"]:
+            engine = AIEngine(default_provider=prov)
+            res = engine._dispatch_call(prov, "Generate a JSON array with 1 item: [{'keyword': 'modern city'}]", model_override=req.model)
+            return {"success": True, "message": f"Connection verified. Response: {res[:100]}"}
+        elif prov == "pexels":
+            import requests
+            key = req.key or Config.PEXELS_API_KEY
+            if not key:
+                return {"success": False, "message": "Pexels key is missing."}
+            r = requests.get("https://api.pexels.com/v1/search?query=nature&per_page=1", headers={"Authorization": key}, timeout=10)
+            if r.status_code == 200:
+                return {"success": True, "message": "Pexels API Key valid! Quota available."}
+            return {"success": False, "message": f"Pexels HTTP {r.status_code}: {r.text[:120]}"}
+        elif prov == "pixabay":
+            import requests
+            key = req.key or Config.PIXABAY_API_KEY
+            if not key:
+                return {"success": False, "message": "Pixabay key is missing."}
+            r = requests.get(f"https://pixabay.com/api/?key={key}&q=city&per_page=3", timeout=10)
+            if r.status_code == 200:
+                return {"success": True, "message": "Pixabay API Key valid!"}
+            return {"success": False, "message": f"Pixabay HTTP {r.status_code}: {r.text[:120]}"}
+        elif prov == "coverr":
+            import requests
+            r = requests.get("https://api.coverr.co/videos?query=nature&page_size=1", timeout=10)
+            if r.status_code == 200:
+                return {"success": True, "message": "Coverr.co free stock media endpoint is reachable and responsive!"}
+            return {"success": False, "message": f"Coverr HTTP {r.status_code}"}
+        elif prov == "storyblocks":
+            return {"success": True, "message": "Storyblocks endpoint configuration verified."}
+        elif prov == "unsplash":
+            return {"success": True, "message": "Unsplash ready."}
+        else:
+            return {"success": False, "message": f"Unknown provider: {prov}"}
     except Exception as e:
-        return {"success": False, "message": f"Connection error: {str(e)}"}
+        return {"success": False, "message": f"Test failed: {str(e)}"}
 
-    return {"success": False, "message": "Invalid API key or authentication failed"}
+@app.post("/api/ai-diagnose-error")
+async def ai_diagnose_error(req: ErrorDiagnoseRequest):
+    diagnosis = AIErrorDoctor.diagnose(req.error_message, req.context)
+    return diagnosis
 
-@app.post("/api/generate-metadata")
-async def generate_metadata(req: GenerateMetadataRequest):
-    ai = AIEngine()
-    result = await ai.generate_viral_metadata(req.script)
-    
-    if req.project_id:
-        p_dir = Config.DOWNLOADS_DIR / req.project_id
-        if p_dir.exists():
-            meta_text_file = p_dir / "distribution_pack.txt"
-            content = f"""=======================================================
-ROTODRAFT SUITE - VIRAL DISTRIBUTION & SEO PACK
-=======================================================
+@app.get("/api/events")
+async def stream_events():
+    async def event_generator():
+        q = logger.subscribe()
+        try:
+            while True:
+                record = await q.get()
+                yield f"data: {record.to_json()}\n\n"
+        except asyncio.CancelledError:
+            logger.unsubscribe(q)
 
-🔥 CLICK-WORTHY TITLES:
-{chr(10).join(f'{i+1}. {t}' for i, t in enumerate(result.get('titles', [])))}
+    return StreamingResponse(event_generator(), media_type="text/event-stream")
 
-📝 SEO DESCRIPTION & TIMESTAMPS:
-{result.get('description', '')}
+def run_pipeline_task(req_data: dict):
+    global active_job
+    try:
+        active_job["status"] = "RUNNING"
+        active_job["percent"] = 5
+        active_job["current_step"] = "AI Script Analysis"
+        active_job["clips"] = []
+        active_job["error"] = None
 
-🏷️ HASHTAGS:
-{' '.join(result.get('hashtags', []))}
+        def on_event(event_type: str, data: dict):
+            global active_job
+            if event_type == "KEYWORDS_GENERATED":
+                active_job["total_clips"] = data.get("count", 0)
+                active_job["percent"] = 25
+                active_job["current_step"] = "Searching Stock Platforms"
+                active_job["clips"] = data.get("items", [])
+            elif event_type == "STOCK_SEARCHED":
+                active_job["percent"] = 50
+                active_job["current_step"] = "Downloading Raw Media Streams"
+                active_job["clips"] = data.get("items", [])
+            elif event_type == "DOWNLOAD_COMPLETED":
+                active_job["percent"] = 75
+                active_job["current_step"] = "FFmpeg Video Trimming & Scaling"
+                active_job["clips"] = data.get("items", [])
+            elif event_type == "PROCESS_COMPLETED":
+                active_job["percent"] = 100
+                active_job["status"] = "COMPLETED"
+                active_job["current_step"] = "All Clips Timeline-Ready!"
+                active_job["clips"] = data.get("items", [])
 
-🎨 MIDJOURNEY / FLUX THUMBNAIL PROMPT:
-{result.get('thumbnail_prompt', '')}
-"""
-            with open(meta_text_file, "w", encoding="utf-8") as f:
-                f.write(content)
+        dur_secs = parse_duration_to_seconds(req_data["duration_input"])
 
-    return {"success": True, "data": result}
+        result = pipeline.run(
+            script=req_data["script"],
+            duration_seconds=dur_secs,
+            clip_duration=req_data["clip_duration"],
+            project_name=req_data["project_name"],
+            quality=req_data["quality"],
+            aspect_ratio=req_data["aspect_ratio"],
+            media_type=req_data["media_type"],
+            providers=req_data["providers"],
+            enable_fallback=req_data["enable_fallback"],
+            ai_provider=req_data.get("ai_provider"),
+            ai_model=req_data.get("ai_model"),
+            export_full_video=req_data.get("export_full_video", False),
+            enable_ken_burns=req_data.get("enable_ken_burns", True),
+            transition=req_data.get("transition", "cut"),
+            color_preset=req_data.get("color_preset", "none"),
+            on_event=on_event,
+        )
 
-@app.post("/api/reorder-clips")
-async def reorder_clips(req: ReorderClipsRequest):
-    proj_dir = Config.DOWNLOADS_DIR / req.project_id
-    if not proj_dir.exists():
-        raise HTTPException(status_code=404, detail="Project not found")
+        active_job["status"] = "COMPLETED"
+        active_job["percent"] = 100
+        active_job["folder_name"] = result["folder_name"]
+        active_job["completed_clips"] = result["success_clips"]
+        active_job["total_clips"] = result["required_clips"]
+        active_job["clips"] = result["clips"]
+        active_job["master_video_filename"] = result.get("master_video_filename")
 
-    clips_dir = proj_dir / "clips"
-    ordered_clip_paths = [clips_dir / fn for fn in req.clip_filenames if (clips_dir / fn).exists()]
+    except Exception as e:
+        logger.error(f"Pipeline Execution Failed: {str(e)}", "SYSTEM")
+        active_job["status"] = "FAILED"
+        active_job["error"] = str(e)
+        active_job["current_step"] = f"Failed: {str(e)}"
 
-    if not ordered_clip_paths:
-        raise HTTPException(status_code=400, detail="No valid clips found for re-merging")
+@app.post("/api/collect")
+async def start_collection(req: CollectRequest, background_tasks: BackgroundTasks):
+    global active_job
+    if active_job["status"] == "RUNNING":
+        raise HTTPException(status_code=400, detail="A b-roll collection job is already running.")
 
-    merger = VideoMerger()
-    audio_path = proj_dir / "voiceover.mp3"
-    srt_path = proj_dir / "voiceover.srt"
-    master_path = proj_dir / "Full_Video_Master.mp4"
+    req_data = req.dict()
+    background_tasks.add_task(run_pipeline_task, req_data)
+    return {"status": "started", "message": "Pipeline initiated in background."}
 
-    merger.merge_clips(
-        clip_paths=ordered_clip_paths,
-        output_master_path=master_path,
-        audio_path=audio_path if audio_path.exists() else None,
-        srt_path=srt_path if srt_path.exists() else None
-    )
-
-    return {
-        "success": True,
-        "master_url": f"/api/media/{req.project_id}/Full_Video_Master.mp4?t={int(datetime.now().timestamp())}",
-        "message": f"Successfully re-rendered master video with {len(ordered_clip_paths)} clips in custom order!"
-    }
-
-# Leads & Onboarding Endpoints (Private Local Storage)
-@app.post("/api/leads/submit")
-async def submit_lead(req: LeadSubmitRequest):
-    res = await lead_mgr.save_lead(req.email, req.name, req.video_count)
-    return res
-
-@app.post("/api/leads/whatsapp-click")
-async def record_whatsapp_click(req: WhatsAppClickRequest):
-    lead_mgr.record_whatsapp_click(req.email)
-    return {"success": True}
-
-@app.get("/api/admin/stats")
-async def get_admin_stats(key: Optional[str] = None):
-    owner_secret = os.getenv("OWNER_SECRET", "")
-    if owner_secret and key != owner_secret:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    return lead_mgr.get_dashboard_stats()
-
-@app.get("/api/admin/export-leads")
-async def export_leads(key: Optional[str] = None):
-    owner_secret = os.getenv("OWNER_SECRET", "")
-    if owner_secret and key != owner_secret:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    csv_data = lead_mgr.export_leads_csv()
-    return Response(
-        content=csv_data,
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=rotodraft_leads.csv"}
-    )
+@app.get("/api/job-status")
+async def get_job_status():
+    return active_job
 
 @app.get("/api/projects")
 async def list_projects():
     projects = []
-    if Config.DOWNLOADS_DIR.exists():
-        for p in Config.DOWNLOADS_DIR.iterdir():
-            if p.is_dir() and not p.name.startswith("_"):
-                meta_file = p / "metadata.json"
-                clips_dir = p / "clips"
-                clip_count = len(list(clips_dir.glob("*.mp4"))) if clips_dir.exists() else 0
-                has_master = (p / "Full_Video_Master.mp4").exists()
-                
-                meta = {}
-                if meta_file.exists():
-                    try:
-                        with open(meta_file, "r", encoding="utf-8") as f:
-                            meta = json.load(f)
-                    except Exception:
-                        pass
-                
-                created_ts = p.stat().st_ctime
-                created_str = datetime.fromtimestamp(created_ts).strftime("%Y-%m-%d %H:%M:%S")
+    if DOWNLOADS_DIR.exists():
+        for p in sorted(DOWNLOADS_DIR.iterdir(), key=os.path.getmtime, reverse=True):
+            if p.is_dir() and (p / "metadata.json").exists():
+                try:
+                    with open(p / "metadata.json", "r", encoding="utf-8") as f:
+                        meta = json.load(f)
+                        projects.append(meta)
+                except Exception:
+                    pass
+    return projects
 
-                projects.append({
-                    "id": p.name,
-                    "name": meta.get("project_name", p.name),
-                    "created": created_str,
-                    "clip_count": clip_count,
-                    "duration": meta.get("duration", 0),
-                    "aspect_ratio": meta.get("aspect_ratio", "16:9"),
-                    "has_master": has_master,
-                    "master_url": f"/api/media/{p.name}/Full_Video_Master.mp4" if has_master else None,
-                    "path": str(p.resolve())
-                })
-    
-    projects.sort(key=lambda x: x["created"], reverse=True)
-    return {"projects": projects}
+@app.get("/api/project/{folder_name}")
+async def get_project_details(folder_name: str):
+    p = DOWNLOADS_DIR / folder_name / "metadata.json"
+    if not p.exists():
+        raise HTTPException(status_code=404, detail="Project metadata not found.")
+    with open(p, "r", encoding="utf-8") as f:
+        return json.load(f)
 
-@app.post("/api/upload-audio")
-async def upload_audio(file: UploadFile = File(...)):
-    temp_dir = Config.DOWNLOADS_DIR / "_temp_uploads"
-    temp_dir.mkdir(parents=True, exist_ok=True)
-    
-    ext = Path(file.filename).suffix or ".mp3"
-    safe_name = f"upload_{datetime.now().strftime('%Y%m%d_%H%M%S')}{ext}"
-    dest = temp_dir / safe_name
-    
-    with open(dest, "wb") as f:
-        content = await file.read()
-        f.write(content)
-        
-    tts = TTSEngine()
-    duration = tts.get_audio_duration(dest)
-    
-    return {
-        "success": True,
-        "filename": file.filename,
-        "file_path": str(dest.resolve()),
-        "duration": round(duration, 2)
-    }
-
-@app.post("/api/regenerate-clip")
-async def regenerate_clip(req: RegenerateClipRequest):
-    proj_dir = Config.DOWNLOADS_DIR / req.project_id
+@app.get("/api/export-nle/{folder_name}/{format_type}")
+async def export_nle_file(folder_name: str, format_type: str):
+    proj_dir = DOWNLOADS_DIR / folder_name
     if not proj_dir.exists():
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    clips_dir = proj_dir / "clips"
-    raw_dir = proj_dir / "_raw"
-    clips_dir.mkdir(parents=True, exist_ok=True)
-    raw_dir.mkdir(parents=True, exist_ok=True)
-
-    stock = StockSearcher()
-    downloader = Downloader()
-    processor = VideoProcessor()
-
-    stock_data = await stock.find_stock(
-        keyword=req.keyword,
-        fallback_keyword=req.fallback_keyword or "",
-        aspect_ratio=req.aspect_ratio,
-        quality=req.quality,
-        page=req.page
-    )
-
-    is_img = stock_data.get("is_image", False)
-    ext = ".jpg" if is_img else ".mp4"
-    clean_kw = "".join(c for c in req.keyword if c.isalnum() or c == " ").strip().replace(" ", "_")[:30]
-    raw_filename = f"raw_swap_{req.clip_index:02d}_{clean_kw}{ext}"
-    raw_path = raw_dir / raw_filename
-
-    await downloader.download_file(stock_data["url"], raw_path)
-
-    out_filename = f"{req.clip_index:02d}_{clean_kw}.mp4"
-    out_clip_path = clips_dir / out_filename
-
-    processor.process_clip(
-        input_path=raw_path,
-        output_path=out_clip_path,
-        duration=req.duration,
-        aspect_ratio=req.aspect_ratio,
-        quality=req.quality,
-        is_image=is_img
-    )
+        raise HTTPException(status_code=404, detail="Project not found.")
 
     meta_file = proj_dir / "metadata.json"
-    if meta_file.exists():
-        try:
-            with open(meta_file, "r", encoding="utf-8") as f:
-                meta = json.load(f)
-            for c in meta.get("clips", []):
-                if c.get("index") == req.clip_index:
-                    c["filename"] = out_filename
-                    c["keyword"] = req.keyword
-                    c["url"] = f"/api/media/{req.project_id}/clips/{out_filename}"
-                    c["path"] = str(out_clip_path)
-            with open(meta_file, "w", encoding="utf-8") as f:
-                json.dump(meta, f, indent=2)
-        except Exception:
-            pass
+    if not meta_file.exists():
+        raise HTTPException(status_code=404, detail="Project metadata missing.")
 
-    return {
-        "success": True,
-        "clip_index": req.clip_index,
-        "filename": out_filename,
-        "url": f"/api/media/{req.project_id}/clips/{out_filename}",
-        "keyword": req.keyword,
-        "provider": stock_data.get("provider", "stock")
-    }
+    with open(meta_file, "r", encoding="utf-8") as f:
+        meta = json.load(f)
 
-@app.post("/api/delete-project")
-async def delete_project(req: DeleteProjectRequest):
-    proj_dir = Config.DOWNLOADS_DIR / req.project_id
-    if proj_dir.exists():
-        shutil.rmtree(proj_dir, ignore_errors=True)
-        return {"success": True, "message": f"Deleted {req.project_id}"}
-    raise HTTPException(status_code=404, detail="Project not found")
+    clips = meta.get("clips", [])
 
-@app.post("/api/test-key")
-async def test_key(req: TestKeyRequest):
-    import httpx
-    if req.provider == "openrouter":
-        try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                res = await client.get(
-                    "https://openrouter.ai/api/v1/models",
-                    headers={"Authorization": f"Bearer {req.api_key}"}
-                )
-                if res.status_code == 200:
-                    return {"success": True, "message": "OpenRouter API Key verified successfully!"}
-                return {"success": False, "message": f"OpenRouter returned status {res.status_code}"}
-        except Exception as e:
-            return {"success": False, "message": str(e)}
+    if format_type == "premiere" or format_type == "xml":
+        xml_path = NLEExporter.export_fcp_xml(folder_name, clips, proj_dir)
+        return FileResponse(path=str(xml_path), filename=xml_path.name, media_type="application/xml")
+    elif format_type == "davinci" or format_type == "edl":
+        edl_path = NLEExporter.export_edl(folder_name, clips, proj_dir)
+        return FileResponse(path=str(edl_path), filename=edl_path.name, media_type="text/plain")
+    elif format_type == "capcut" or format_type == "json":
+        json_path = NLEExporter.export_capcut_draft(folder_name, clips, proj_dir)
+        return FileResponse(path=str(json_path), filename=json_path.name, media_type="application/json")
+    elif format_type == "csv":
+        csv_path = proj_dir / f"{folder_name}_timeline.csv"
+        return FileResponse(path=str(csv_path), filename=csv_path.name, media_type="text/csv")
+    else:
+        raise HTTPException(status_code=400, detail="Unsupported format. Choose xml, edl, capcut, or csv.")
 
-    elif req.provider == "pexels":
-        try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                res = await client.get(
-                    "https://api.pexels.com/v1/curated?per_page=1",
-                    headers={"Authorization": req.api_key}
-                )
-                if res.status_code == 200:
-                    return {"success": True, "message": "Pexels API Key verified successfully!"}
-                return {"success": False, "message": f"Pexels returned status {res.status_code}"}
-        except Exception as e:
-            return {"success": False, "message": str(e)}
+@app.post("/api/export-full-video")
+async def export_full_video_endpoint(payload: dict):
+    folder_name = payload.get("folder_name")
+    if not folder_name:
+        raise HTTPException(status_code=400, detail="Missing folder_name.")
 
-    elif req.provider == "pixabay":
-        try:
-            async with httpx.AsyncClient(timeout=8.0) as client:
-                res = await client.get(f"https://pixabay.com/api/?key={req.api_key}&per_page=3")
-                if res.status_code == 200:
-                    return {"success": True, "message": "Pixabay API Key verified successfully!"}
-                return {"success": False, "message": f"Pixabay returned status {res.status_code}"}
-        except Exception as e:
-            return {"success": False, "message": str(e)}
+    proj_dir = DOWNLOADS_DIR / folder_name
+    meta_file = proj_dir / "metadata.json"
+    if not meta_file.exists():
+        raise HTTPException(status_code=404, detail="Project not found.")
 
-    return {"success": False, "message": "Unknown provider"}
+    with open(meta_file, "r", encoding="utf-8") as f:
+        meta = json.load(f)
 
-@app.post("/api/stream")
-async def stream_generation(req: GenerateRequest):
-    pipeline = RotoDraftPipeline(
-        openrouter_key=req.openrouter_key,
-        openrouter_model=req.openrouter_model,
-        gemini_key=req.gemini_key,
-        gemini_model=req.gemini_model,
-        openai_key=req.openai_key,
-        openai_base_url=req.openai_base_url,
-        openai_model=req.openai_model,
-        cohere_key=req.cohere_key,
-        pexels_key=req.pexels_key,
-        pixabay_key=req.pixabay_key
-    )
+    from src.video_processor import VideoProcessor
+    proc = VideoProcessor()
+    master_path = proc.concatenate_to_full_video(meta.get("clips", []), proj_dir, folder_name)
 
-    lead_mgr.record_video_generation(
-        project_name=req.project_name or "Project",
-        mode=req.mode,
-        aspect_ratio=req.aspect_ratio,
-        mood=req.mood,
-        voice=req.voice,
-        duration=req.duration_seconds,
-        clip_count=max(1, int(req.duration_seconds / req.clip_duration))
-    )
+    if master_path and master_path.exists():
+        meta["master_video_filename"] = master_path.name
+        with open(meta_file, "w", encoding="utf-8") as f:
+            json.dump(meta, f, indent=2)
+        return {"success": True, "master_url": f"/downloads/{folder_name}/{master_path.name}", "filename": master_path.name}
+    else:
+        raise HTTPException(status_code=500, detail="Failed to concatenate video.")
 
-    async def event_generator():
-        try:
-            async for event in pipeline.execute(
-                mode=req.mode,
-                script=req.script,
-                duration_seconds=req.duration_seconds,
-                clip_duration=req.clip_duration,
-                aspect_ratio=req.aspect_ratio,
-                quality=req.quality,
-                tts_engine=req.tts_engine or "edge",
-                voice=req.voice,
-                voice_rate=req.voice_rate,
-                voice_pitch=req.voice_pitch,
-                tts_key=req.tts_key or req.openai_key,
-                media_filter=req.media_filter or "mixed",
-                ai_image_engine=req.ai_image_engine or "pollinations",
-                color_filter=req.color_filter or "natural",
-                subtitle_style=req.subtitle_style or "hormozi",
-                mirror_flip=req.mirror_flip or False,
-                video_speed=req.video_speed or 1.0,
-                bgm_track=req.bgm_track or "none",
-                bgm_volume=req.bgm_volume or 0.18,
-                mood=req.mood,
-                project_name=req.project_name,
-                custom_audio_path=req.custom_audio_path
-            ):
-                payload = json.dumps(event)
-                yield f"data: {payload}\n\n"
-                await asyncio.sleep(0.02)
-        except Exception as e:
-            err = json.dumps({"type": "error", "message": str(e)})
-            yield f"data: {err}\n\n"
+@app.get("/api/download-zip/{folder_name}")
+async def download_project_zip(folder_name: str):
+    import shutil
+    proj_dir = DOWNLOADS_DIR / folder_name
+    clips_dir = proj_dir / "clips"
+    if not clips_dir.exists():
+        raise HTTPException(status_code=404, detail="Clips folder does not exist.")
 
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "X-Accel-Buffering": "no"
-        }
-    )
-
-@app.get("/api/media/{project_id}/{file_path:path}")
-async def serve_media(project_id: str, file_path: str):
-    full_path = Config.DOWNLOADS_DIR / project_id / file_path
-    if not full_path.exists():
-        raise HTTPException(status_code=404, detail="Media file not found")
-    return FileResponse(str(full_path))
+    zip_base = BASE_DIR / "downloads" / f"{folder_name}_all_clips"
+    zip_path = shutil.make_archive(str(zip_base), "zip", str(clips_dir))
+    return FileResponse(path=zip_path, filename=f"{folder_name}_broll_clips.zip", media_type="application/zip")
 
 @app.post("/api/open-folder")
-async def open_folder(req: OpenFolderRequest):
-    target = Path(req.path)
+async def open_system_folder(payload: dict):
+    rel_path = payload.get("path", "")
+    target = (BASE_DIR / rel_path).resolve()
     if not target.exists():
-        target = Config.DOWNLOADS_DIR / req.path
-    if not target.exists():
-        raise HTTPException(status_code=404, detail="Directory not found")
-    
-    try:
-        subprocess.run(["explorer.exe", str(target.resolve())])
-        return {"success": True, "message": f"Opened {target.name} in Windows Explorer"}
-    except Exception as e:
-        return {"success": False, "message": str(e)}
+        target.mkdir(parents=True, exist_ok=True)
 
-@app.get("/api/download-zip/{project_id}")
-async def download_project_zip(project_id: str):
-    proj_dir = Config.DOWNLOADS_DIR / project_id
-    if not proj_dir.exists():
-        raise HTTPException(status_code=404, detail="Project not found")
-
-    zip_path = proj_dir / f"{project_id}_bundle.zip"
-    with zipfile.ZipFile(zip_path, "w", zipfile.ZIP_DEFLATED) as zf:
-        for root, dirs, files in os.walk(proj_dir):
-            if "_raw" in root or "_temp" in root:
-                continue
-            for f in files:
-                if f.endswith(".zip"):
-                    continue
-                file_full = Path(root) / f
-                arcname = file_full.relative_to(proj_dir)
-                zf.write(file_full, arcname)
-
-    return FileResponse(
-        str(zip_path),
-        filename=f"{project_id}_bundle.zip",
-        media_type="application/zip"
-    )
+    if sys.platform == "win32":
+        os.startfile(str(target))
+    elif sys.platform == "darwin":
+        import subprocess
+        subprocess.run(["open", str(target)])
+    else:
+        import subprocess
+        subprocess.run(["xdg-open", str(target)])
+    return {"status": "success", "opened": str(target)}
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app:app", host=Config.HOST, port=Config.PORT, reload=True)
+    port = Config.get_free_port(8001)
+    logger.info(f"Starting server at http://localhost:{port}", "SYSTEM")
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="warning")

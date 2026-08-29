@@ -1,0 +1,39 @@
+{
+  "name": "ai-stock-collector-pro",
+  "display_name": "AI B-Roll & Stock Media Collector Pro",
+  "version": "2.0.0",
+  "repository": "https://github.com/rotodraft/ai-stock-collector-pro",
+  "license": "MIT",
+  "author": "Antigravity Multi-Agent Content Suite",
+  "description": "Autonomous AI tool that converts scripts into timeline-ready 3.0s stock video clips using OpenRouter, Claude, OpenAI, Gemini, Groq, Pexels, Pixabay, Pinterest, and Unsplash.",
+  "logo_svg": "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='#6366f1' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polygon points='23 7 16 12 23 17 23 7'></polygon><rect x='1' y='5' width='15' height='14' rx='2' ry='2'></rect></svg>",
+  "entrypoints": {
+    "web_ui": "app.py",
+    "cli": "cli.py",
+    "launcher": "START_TOOL.bat"
+  },
+  "supported_ai_providers": [
+    "openrouter",
+    "anthropic",
+    "openai",
+    "gemini",
+    "groq",
+    "ollama",
+    "cohere",
+    "custom_9router"
+  ],
+  "supported_stock_providers": [
+    "pexels",
+    "pixabay",
+    "pinterest",
+    "unsplash"
+  ],
+  "integrations": {
+    "hermes_agent": "SKILL.md",
+    "openclaw": "tool_plugin.json",
+    "claude_code": "SKILL.md",
+    "codex": "SKILL.md",
+    "antigravity": "SKILL.md",
+    "python_package": "pyproject.toml"
+  }
+}

@@ -1,1063 +1,1140 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
+  <!-- SEO & Metadata -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RotoDraft Suite - Enterprise AI Video Factory &amp; NLE Studio</title>
-  <link rel="stylesheet" href="/static/css/neobrutalism.css">
-  <link rel="icon" type="image/png" href="/static/assets/logo.png">
+  <title>AI B-Roll & Stock Media Collector Pro — Neo-Brutalist Video Engine</title>
+  <meta name="description" content="Autonomous open-source AI video creation engine converting voiceover scripts into timeline-ready 3.0s stock b-roll video clips with DeepSeek-R1, Storyblocks, Coverr, Mixkit, Videvo, Pexels, Pixabay, Premiere Pro XML, DaVinci Resolve EDL, and CapCut export.">
+  <meta name="keywords" content="AI video creator, storyblocks scraper, coverr api, mixkit video, videvo, wikimedia commons, pexels video api, pixabay api, premiere pro xml export, davinci resolve edl, capcut draft, neo-brutalist ui">
+  <meta name="author" content="Ali Rasheed">
+  <link rel="canonical" href="http://localhost:8001">
+
+  <!-- Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&family=JetBrains+Mono:wght@500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/app.css?v=2026.5">
 </head>
 <body>
 
-<!-- Hidden SVG Icon Sprite System -->
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <defs>
-    <g id="icon-home"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="9 22 9 12 15 12 15 22" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-film"><rect width="18" height="18" x="3" y="3" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M7 3v18M17 3v18M3 8h18M3 16h18" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-sparkles"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M5 3v4M3 5h4M19 17v4M17 19h4" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-mic"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-folder"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-chart"><line x1="18" y1="20" x2="18" y2="10" stroke="currentColor" stroke-width="2"/><line x1="12" y1="20" x2="12" y2="4" stroke="currentColor" stroke-width="2"/><line x1="6" y1="20" x2="6" y2="14" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-settings"><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="2" fill="none"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-scissors"><circle cx="6" cy="6" r="3" stroke="currentColor" stroke-width="2" fill="none"/><circle cx="6" cy="18" r="3" stroke="currentColor" stroke-width="2" fill="none"/><line x1="20" y1="4" x2="8.12" y2="15.88" stroke="currentColor" stroke-width="2"/><line x1="14.47" y1="14.48" x2="20" y2="20" stroke="currentColor" stroke-width="2"/><line x1="8.12" y1="8.12" x2="12" y2="12" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-volume"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" stroke="currentColor" stroke-width="2" fill="none"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07M19.07 4.93a10 10 0 0 1 0 14.14" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-download"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-refresh"><path d="M21 2v6h-6M3 12a9 9 0 0 1 15-6.7L21 8M3 22v-6h6M21 12a9 9 0 0 1-15 6.7L3 16" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-play"><polygon points="6 3 20 12 6 21 6 3" fill="currentColor"/></g>
-    <g id="icon-clock"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" fill="none"/><polyline points="12 6 12 12 16 14" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-monitor"><rect width="20" height="14" x="2" y="3" rx="2" stroke="currentColor" stroke-width="2" fill="none"/><line x1="8" y1="21" x2="16" y2="21" stroke="currentColor" stroke-width="2"/><line x1="12" y1="17" x2="12" y2="21" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-smartphone"><rect width="14" height="20" x="5" y="2" rx="2" ry="2" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 18h.01" stroke="currentColor" stroke-width="2.5"/></g>
-    <g id="icon-sun"><circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="2" fill="none"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" stroke-width="2"/></g>
-    <g id="icon-moon"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z" stroke="currentColor" stroke-width="2" fill="none"/></g>
-    <g id="icon-activity"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12" stroke="currentColor" stroke-width="2" fill="none"/></g>
-  </defs>
-</svg>
-
-<div class="app-layout">
-  
-  <!-- Left Navigation Sidebar -->
-  <aside class="sidebar">
-    <div class="sidebar-header">
-      <a href="#" class="sidebar-brand">
-        <div class="sidebar-brand-icon">
-          <img src="/static/assets/logo.png" alt="RotoDraft">
-        </div>
-        <div>
-          <div class="sidebar-brand-text">ROTODRAFT</div>
-          <span class="sidebar-brand-tag">ENTERPRISE v2.5</span>
-        </div>
-      </a>
-    </div>
-
-    <div class="sidebar-menu">
-      <div class="sidebar-category">Core Workflows</div>
-      
-      <button type="button" class="nav-item active" data-target="viewOverview" data-tooltip="Overview dashboard, live system metrics and fast launchpad">
-        <svg class="icon"><use href="#icon-home"/></svg>
-        <span>Dashboard</span>
-      </button>
-
-      <button type="button" class="nav-item" data-target="viewStudio" data-tooltip="Single video studio canvas: Script, Neural Voice, Stock &amp; AI Image sourcing">
-        <svg class="icon"><use href="#icon-film"/></svg>
-        <span>AI Studio Generator</span>
-      </button>
-
-      <button type="button" class="nav-item" data-target="viewBatch" data-tooltip="Autonomous multi-video channel factory: submit 5-10 video topics at once">
-        <svg class="icon"><use href="#icon-zap"/></svg>
-        <span>Batch Factory</span>
-        <span class="nav-item-badge">AUTONOMOUS</span>
-      </button>
-
-      <button type="button" class="nav-item" data-target="viewDoctor" data-tooltip="Clinical script retention audit, WPM speed checker and viral rewrites">
-        <svg class="icon"><use href="#icon-activity"/></svg>
-        <span>Script Doctor &amp; Hooks</span>
-      </button>
-
-      <div class="sidebar-category">Asset Management</div>
-
-      <button type="button" class="nav-item" data-target="viewVault" data-tooltip="Browse all generated projects, timeline exports (CapCut, Premiere), and video clips">
-        <svg class="icon"><use href="#icon-folder"/></svg>
-        <span>Project Vault</span>
-      </button>
-
-      <button type="button" class="nav-item" data-target="viewAnalytics" data-tooltip="Lead CRM, video production stats, WhatsApp conversions and CSV export">
-        <svg class="icon"><use href="#icon-chart"/></svg>
-        <span>Owner Analytics</span>
-      </button>
-
-      <div class="sidebar-category">System</div>
-
-      <button type="button" class="nav-item" data-target="viewSettings" data-tooltip="50+ granular settings: LLMs, BYOK keys, TTS engines, video codecs, and subtitles">
-        <svg class="icon"><use href="#icon-settings"/></svg>
-        <span>Command Center</span>
-      </button>
-    </div>
-
-    <div class="sidebar-footer">
-      <img src="https://avatars.githubusercontent.com/u/153164998?v=4" alt="Ali Rasheed" class="sidebar-creator-avatar">
-      <div class="sidebar-creator-info">
-        <div class="sidebar-creator-name">Ali Rasheed Bhatti</div>
-        <div class="sidebar-creator-role">Lead Architect (Lahore, PK)</div>
+  <!-- ═══════════════════════════════════════════════════════════════
+       TOP MARQUEE STRIP 1: OPEN-SOURCE & CONTRIBUTION (HOVER TO PAUSE)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="top-marquee-strip marquee-contribution" data-tooltip="Hover to pause. This project is 100% open-source to empower video creators worldwide.">
+    <div class="marquee-track">
+      <div class="marquee-item">
+        <span>🤝 PLEASE CONTRIBUTE TO THIS REPOSITORY IF YOU CAN MAKE ANY IMPROVEMENT — THIS PROJECT IS OPEN-SOURCE TO EMPOWER CREATORS GLOBALLY. IF YOU FACE ANY ISSUE, SOLVE IT OR OPEN AN ISSUE ON GITHUB!</span>
+      </div>
+      <div class="marquee-item">
+        <span>🤝 PLEASE CONTRIBUTE TO THIS REPOSITORY IF YOU CAN MAKE ANY IMPROVEMENT — THIS PROJECT IS OPEN-SOURCE TO EMPOWER CREATORS GLOBALLY. IF YOU FACE ANY ISSUE, SOLVE IT OR OPEN AN ISSUE ON GITHUB!</span>
       </div>
     </div>
-  </aside>
+  </div>
 
-  <!-- Main Content Area -->
-  <div class="main-wrapper">
-    
-    <!-- Top Header -->
-    <header class="top-header">
-      <div class="header-left">
-        <h1 class="page-title" id="pageTitleDisplay">
-          <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-home"/></svg>
-          <span id="pageTitleText">Dashboard &amp; Launchpad</span>
-        </h1>
-        <div class="system-status-pill" data-tooltip="FastAPI Backend is running on 127.0.0.1:8000 with NVENC hardware acceleration">
-          <span class="status-dot"></span>
-          <span>SYSTEM ONLINE</span>
+  <!-- ═══════════════════════════════════════════════════════════════
+       TOP MARQUEE STRIP 2: CREATOR ATTRIBUTION & SOCIAL LINKS (HOVER TO PAUSE)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="top-marquee-strip marquee-creator" data-tooltip="Hover to pause marquee and connect with Ali Rasheed.">
+    <div class="marquee-track">
+      <div class="marquee-item">
+        <img src="/static/assets/creator_avatar.png" alt="Ali Rasheed Avatar" class="creator-avatar-mini" onerror="this.style.display='none'" />
+        <span>BUILT BY <strong>ALI RASHEED</strong> FROM LAHORE, PAKISTAN &bull; FULL-STACK AI & TECH INFRASTRUCTURE &bull; OPEN TO HIRE &bull;</span>
+        <a href="mailto:alihouse512@gmail.com" class="social-badge-link">📧 alihouse512@gmail.com</a>
+        <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="social-badge-link">LinkedIn</a>
+        <a href="https://x.com/AliRasheedBti" target="_blank" class="social-badge-link">X / Twitter</a>
+        <a href="https://www.instagram.com/this_is_ali_r/" target="_blank" class="social-badge-link">Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61579456175357" target="_blank" class="social-badge-link">Facebook</a>
+      </div>
+      <div class="marquee-item">
+        <img src="/static/assets/creator_avatar.png" alt="Ali Rasheed Avatar" class="creator-avatar-mini" onerror="this.style.display='none'" />
+        <span>BUILT BY <strong>ALI RASHEED</strong> FROM LAHORE, PAKISTAN &bull; FULL-STACK AI & TECH INFRASTRUCTURE &bull; OPEN TO HIRE &bull;</span>
+        <a href="mailto:alihouse512@gmail.com" class="social-badge-link">📧 alihouse512@gmail.com</a>
+        <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="social-badge-link">LinkedIn</a>
+        <a href="https://x.com/AliRasheedBti" target="_blank" class="social-badge-link">X / Twitter</a>
+        <a href="https://www.instagram.com/this_is_ali_r/" target="_blank" class="social-badge-link">Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61579456175357" target="_blank" class="social-badge-link">Facebook</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       MAIN NAVBAR & MULTI-PAGE NAVIGATION
+       ═══════════════════════════════════════════════════════════════ -->
+  <header class="app-navbar">
+    <div class="nav-left">
+      <div class="brand-box" onclick="switchPageView('page-studio')">
+        <div class="brand-logo-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="square" stroke-linejoin="miter">
+            <polygon points="23 7 16 12 23 17 23 7"></polygon>
+            <rect x="1" y="5" width="15" height="14"></rect>
+          </svg>
+        </div>
+        <div class="brand-titles">
+          <h1>Stock Media Collector <span class="badge-pro">PRO</span></h1>
+          <p class="tagline">NEO-BRUTALIST SCRIPT-TO-VIDEO AUTOMATION</p>
         </div>
       </div>
 
-      <div class="header-actions">
-        <button type="button" class="btn btn-secondary btn-sm" id="headerNewProjectBtn" data-tooltip="Start a fresh video generation project">
-          <svg class="icon icon-sm"><use href="#icon-film"/></svg> NEW STUDIO PROJECT
+      <!-- Navigation Pages Tabs -->
+      <nav class="nav-page-tabs">
+        <button class="nav-tab-link active" id="nav-btn-studio" onclick="switchPageView('page-studio')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+          Studio
         </button>
-        <button type="button" class="btn btn-yellow btn-sm" id="headerBatchBtn" data-tooltip="Open autonomous batch video channel generator">
-          <svg class="icon icon-sm"><use href="#icon-zap"/></svg> ⚡ BATCH FACTORY
+        <button class="nav-tab-link" id="nav-btn-features" onclick="switchPageView('page-features')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+          Showcase
         </button>
-        <button type="button" class="btn btn-secondary btn-sm" id="themeToggleBtn" data-tooltip="Toggle Dark / Light visual mode">
-          <svg class="icon icon-sm"><use href="#icon-moon"/></svg>
+        <button class="nav-tab-link" id="nav-btn-about" onclick="switchPageView('page-about')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          About
         </button>
-      </div>
-    </header>
+        <button class="nav-tab-link" id="nav-btn-contact" onclick="switchPageView('page-contact')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          Contact / Hire
+        </button>
+      </nav>
+    </div>
 
-    <!-- =========================================================================
-         VIEW 1: DASHBOARD & OVERVIEW LAUNCHPAD
-         ========================================================================= -->
-    <main class="app-view active" id="viewOverview">
-      <div class="hero-banner">
-        <div>
-          <h2 class="hero-title">Automate High-Retention Videos at Scale</h2>
-          <p class="hero-subtitle">
-            Enterprise multi-engine video creator equipped with 300+ Edge Neural voices, real-time Pexels/Pixabay stock sourcing, 4K Flux AI image fallbacks, Hormozi karaoke subtitles, and CapCut desktop NLE draft exports.
-          </p>
-          <div style="display: flex; gap: 12px; margin-top: 20px;">
-            <button type="button" class="btn btn-primary btn-lg" onclick="switchAppView('viewStudio')">
-              <svg class="icon"><use href="#icon-film"/></svg> OPEN AI STUDIO GENERATOR
-            </button>
-            <button type="button" class="btn btn-secondary btn-lg" onclick="switchAppView('viewDoctor')">
-              <svg class="icon"><use href="#icon-activity"/></svg> 🩺 AUDIT SCRIPT RETENTION
-            </button>
-          </div>
-        </div>
+    <div class="nav-right">
+      <!-- Live API Quota Meter -->
+      <div class="quota-pill" id="nav-quota-pill" data-tooltip="Live API remaining limits. Click to configure keys & quotas." onclick="openSettingsModal('tab-stock')">
+        <span id="nav-quota-text">Quota: Pexels 200/hr &bull; Pixabay 5k/hr &bull; Storyblocks & Coverr Ready</span>
       </div>
 
-      <!-- Quick Metrics -->
-      <div class="grid-12">
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-cyan);">
-              <svg class="icon icon-lg"><use href="#icon-film"/></svg>
-            </div>
-            <div>
-              <div class="metric-val" id="dashTotalVideos">0</div>
-              <div class="metric-label">Total Videos Produced</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-lime);">
-              <svg class="icon icon-lg"><use href="#icon-mic"/></svg>
-            </div>
-            <div>
-              <div class="metric-val">322</div>
-              <div class="metric-label">Neural TTS Voices</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-yellow);">
-              <svg class="icon icon-lg"><use href="#icon-zap"/></svg>
-            </div>
-            <div>
-              <div class="metric-val">60 FPS</div>
-              <div class="metric-label">GPU Ken Burns Engine</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-magenta);">
-              <svg class="icon icon-lg"><use href="#icon-folder"/></svg>
-            </div>
-            <div>
-              <div class="metric-val">CapCut</div>
-              <div class="metric-label">NLE Timeline Sync</div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Agent Integrations Button -->
+      <button class="btn btn-secondary btn-sm" onclick="openSettingsModal('tab-agents')" data-tooltip="Connect with Hermes Agent, OpenClaw, Claude Code, or Codex.">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        Agent Hub
+      </button>
 
-      <!-- Quick-Start Templates Carousel -->
-      <div class="card">
-        <div class="card-header">
-          <h3 class="card-title">
-            <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-sparkles"/></svg> 1-Click Viral Production Presets
-          </h3>
-          <span class="card-badge">CLICK TO LOAD</span>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;">
-          <div class="card" style="background: var(--bg-secondary); cursor: pointer;" onclick="loadTemplatePreset('finance')">
-            <h4 style="color: var(--accent-cyan); font-size: 14px; margin-bottom: 6px;">⚡ Wall Street Algorithmic Trading</h4>
-            <p style="font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); line-height: 1.4;">
-              16:9 YouTube Widescreen breakdown of AI trading robots and high-frequency market mechanics.
-            </p>
-          </div>
-          <div class="card" style="background: var(--bg-secondary); cursor: pointer;" onclick="loadTemplatePreset('shorts_stoic')">
-            <h4 style="color: var(--accent-magenta); font-size: 14px; margin-bottom: 6px;">📱 Stoic Discipline &amp; Mindset Hook</h4>
-            <p style="font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); line-height: 1.4;">
-              9:16 Viral Shorts script based on Marcus Aurelius with high-retention 3.0s visual cuts.
-            </p>
-          </div>
-          <div class="card" style="background: var(--bg-secondary); cursor: pointer;" onclick="loadTemplatePreset('ai_tech')">
-            <h4 style="color: var(--accent-yellow); font-size: 14px; margin-bottom: 6px;">🤖 The Next Wave of Autonomous AI</h4>
-            <p style="font-size: 12px; color: var(--text-secondary); font-family: var(--font-mono); line-height: 1.4;">
-              Futuristic tech explainer with cyberpunk neon aesthetic and Hormozi karaoke subtitles.
-            </p>
-          </div>
-        </div>
-      </div>
-    </main>
+      <!-- Theme Switcher Toggle -->
+      <button class="btn-theme-toggle" onclick="toggleTheme()" data-tooltip="Toggle Neo-Brutalist Light/Dark mode.">
+        <span id="theme-btn-icon">☀️</span> <span id="theme-btn-label">Light</span>
+      </button>
 
-    <!-- =========================================================================
-         VIEW 2: AI STUDIO GENERATOR
-         ========================================================================= -->
-    <main class="app-view" id="viewStudio">
-      <form id="studioGenerateForm" class="grid-12">
-        
-        <!-- Script & Narrative Input (Col-8) -->
-        <div class="card col-8">
-          <div class="card-header">
-            <h2 class="card-title">
-              <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-film"/></svg> 1. SCRIPT &amp; TIMELINE PACING
-            </h2>
-            <div style="display: flex; gap: 8px; align-items: center;">
-              <button type="button" id="openScriptDoctorBtnStudio" class="chip-btn" style="background: var(--accent-magenta); color: #fff;" data-tooltip="Run clinical audit on speaking rate, WPM, and hook retention">
-                🩺 SCRIPT DOCTOR
-              </button>
-              <button type="button" id="autoDetectVoiceBtn" class="chip-btn" data-tooltip="Automatically detects language from script and selects best neural voice">
-                🌐 AUTO-DETECT VOICE
-              </button>
-              <span class="card-badge" id="wordCountBadge">0 WORDS</span>
-            </div>
+      <!-- Projects History Drawer Button -->
+      <button class="btn btn-secondary btn-sm" onclick="openProjectsDrawer()" data-tooltip="Browse previous b-roll collection batches and download archives.">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+        History
+      </button>
+
+      <!-- Settings Button -->
+      <button class="btn btn-primary btn-sm" onclick="openSettingsModal()" data-tooltip="Configure AI Brains, Storyblocks, Coverr, Mixkit, Pexels, and Custom APIs.">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        Settings & APIs
+      </button>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PAGE 1: STUDIO DASHBOARD (MAIN WORKSPACE)
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="page-view active" id="page-studio">
+    <main class="main-container">
+
+      <!-- Left Column: Controls & Inputs -->
+      <section class="panel-left">
+
+        <!-- Duolingo-Style Mascot Engine ("Felix the AI Director") -->
+        <div class="mascot-widget" id="mascot-widget" data-tooltip="Felix is your AI Video Director. He guides your pipeline and diagnoses errors.">
+          <div class="mascot-avatar-container">
+            <svg viewBox="0 0 100 100" class="mascot-svg" id="mascot-icon">
+              <!-- Body -->
+              <rect x="18" y="22" width="64" height="56" fill="#ccff00" stroke="#000000" stroke-width="4" />
+              <!-- Screen Face -->
+              <rect x="26" y="30" width="48" height="38" fill="#000000" stroke="#000000" stroke-width="3" />
+              <!-- Cute Eyes -->
+              <rect x="36" y="42" width="10" height="10" fill="#00d9ff" />
+              <rect x="54" y="42" width="10" height="10" fill="#00d9ff" />
+              <!-- Mouth -->
+              <rect x="42" y="56" width="16" height="4" fill="#ff006e" />
+              <!-- Antenna -->
+              <line x1="50" y1="22" x2="50" y2="8" stroke="#000000" stroke-width="4" />
+              <rect x="44" y="4" width="12" height="8" fill="#ff006e" stroke="#000000" stroke-width="3" />
+              <!-- Clapperboard -->
+              <rect x="68" y="52" width="26" height="24" fill="#ff9500" stroke="#000000" stroke-width="3" />
+            </svg>
           </div>
-
-          <!-- Workflow Mode Switcher -->
-          <div class="form-group" style="background: var(--bg-secondary); border: 1px solid var(--border); padding: 12px; border-radius: 8px;">
-            <label class="label" for="modeSelect" style="color: var(--accent-cyan);">
-              <span>WORKFLOW MODE</span>
-              <span id="modeDescriptionBadge" style="color: var(--text-muted); font-size: 11px;">Full Video Creation</span>
-            </label>
-            <select id="modeSelect" class="select mono">
-              <option value="full" selected>🎬 Full Auto Video (Voiceover + Stock/AI Media + Music + Master MP4)</option>
-              <option value="stock_only">🎥 Stock &amp; AI Media Sourcing Only (Skip Voiceover)</option>
-              <option value="voice_only">🗣️ Voiceover &amp; Subtitle Generator Only (MP3 + SRT)</option>
-              <option value="keywords_only">📋 Direct Keywords List (Search specific footage)</option>
-            </select>
-          </div>
-
-          <!-- Script Textarea -->
-          <div class="form-group" style="margin-top: 10px;">
-            <label class="label" for="scriptInput">
-              <span>Voiceover Narration Script</span>
-              <span style="color: var(--accent-yellow); font-size: 11px;">Paste rough notes or full script</span>
-            </label>
-            <textarea 
-              id="scriptInput" 
-              class="textarea mono" 
-              placeholder="Paste your script here... (e.g. In the heart of Wall Street, automated algorithms trade billions in fractions of a second...)"
-              required
-            ></textarea>
-          </div>
-
-          <!-- Timing & Duration Bar with Time Converter Button -->
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px;">
-            <div class="form-group">
-              <label class="label" for="durationInput">
-                <span>Target Video Duration</span>
-                <button type="button" id="openTimeCalcBtn" class="chip-btn" style="padding: 2px 8px; font-size: 10px; background: var(--accent-cyan); color: #000;" data-tooltip="Calculate exact duration from word count and speaking velocity">
-                  <svg class="icon icon-sm"><use href="#icon-clock"/></svg> TIME CALCULATOR
-                </button>
-              </label>
-              <input type="text" id="durationInput" class="input mono" placeholder="e.g. 30 or 1:30" value="30">
-            </div>
-
-            <div class="form-group">
-              <label class="label" for="clipDurationInput">
-                <span>Retention Cut Interval</span>
-                <span style="color: var(--text-muted); font-size: 11px;">Standard: 3.0s</span>
-              </label>
-              <select id="clipDurationInput" class="select mono">
-                <option value="2.0">2.0s (Fast Paced / TikTok Shorts)</option>
-                <option value="3.0" selected>3.0s (Recommended Standard)</option>
-                <option value="4.0">4.0s (Documentary Narrative)</option>
-                <option value="5.0">5.0s (Cinematic Slow)</option>
-              </select>
-            </div>
-          </div>
-
-          <!-- Dynamic Calculation Bar -->
-          <div style="background: var(--bg-secondary); border: 1px dashed var(--border); padding: 12px 16px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; margin-top: 12px;">
-            <span style="font-family: var(--font-mono); font-size: 12px; font-weight: 700; display: flex; align-items: center; gap: 6px;">
-              <svg class="icon icon-sm"><use href="#icon-scissors"/></svg> TIMELINE CUTS:
-            </span>
-            <span class="mono" id="clipCalcBadge" style="color: var(--accent-cyan); font-weight: 800; font-size: 13px;">30s TOTAL &rarr; ~10 CLIPS (3.0s EACH)</span>
+          <div class="mascot-speech-bubble">
+            <div class="mascot-speech-title" id="mascot-title">Felix &bull; AI B-Roll Director</div>
+            <div id="mascot-msg">Paste your narration script below! I will analyze the storyline and collect exact 3.0s b-roll scenes.</div>
           </div>
         </div>
 
-        <!-- Engine, Voice & Sourcing Sidebar (Col-4) -->
-        <div class="card col-4">
-          <div class="card-header">
-            <h2 class="card-title">
-              <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-sliders"/></svg> 2. ENGINE &amp; SOURCING
-            </h2>
-            <span class="card-badge" data-tooltip="Edge-TTS (Free), OpenAI TTS &amp; ElevenLabs supported">MULTI-ENGINE</span>
+        <!-- Self-Healing AI Error Doctor Card -->
+        <div class="error-doctor-card" id="error-doctor-card">
+          <div class="error-doctor-header">
+            <span class="error-doctor-badge">AI Error Doctor</span>
+            <div class="error-doctor-title" id="err-doc-title">Pipeline Diagnostics</div>
           </div>
-
-          <div style="display: flex; flex-direction: column; gap: 12px;">
-            
-            <!-- TTS Engine Selector -->
-            <div class="form-group" data-tooltip="Choose your text-to-speech voice synthesizer. Edge-TTS is 100% free with 300+ neural voices.">
-              <label class="label">
-                <span>Voice Engine (TTS)</span>
-                <span style="color: var(--accent-lime); font-size: 10px;">NEURAL</span>
-              </label>
-              <select id="ttsEngineSelect" class="select mono" style="font-size: 12px;">
-                <option value="edge" selected>⚡ Microsoft Edge-TTS (100% Free / 300+ Voices)</option>
-                <option value="openai">🤖 OpenAI TTS (tts-1 / Alloy, Nova, Onyx)</option>
-                <option value="elevenlabs">💎 ElevenLabs (Ultra-Realistic / Voice Clones)</option>
-              </select>
-            </div>
-
-            <!-- Narrator Voice -->
-            <div class="form-group" id="voiceGroup" data-tooltip="Select specific narrator identity and dialect.">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <label class="label" for="voiceSelect" style="margin: 0;">Narrator Identity</label>
-                <button type="button" id="previewVoiceBtn" class="chip-btn" style="padding: 2px 8px; font-size: 10px; background: var(--accent-cyan); color: #000;" data-tooltip="Listen to a 2-second audio preview">
-                  <svg class="icon icon-sm"><use href="#icon-volume"/></svg> PREVIEW
-                </button>
-              </div>
-              <select id="voiceSelect" class="select mono" style="font-size: 12px;">
-                {% for v in voices %}
-                  <option value="{{ v.id }}" {% if v.id == 'en-US-ChristopherNeural' %}selected{% endif %}>
-                    {{ v.name }} [{{ v.language }}]
-                  </option>
-                {% endfor %}
-              </select>
-            </div>
-
-            <!-- Speed & Pitch -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div class="form-group" data-tooltip="Adjust voiceover speaking rate">
-                <label class="label" for="voiceRateSelect">Speed Rate</label>
-                <select id="voiceRateSelect" class="select mono">
-                  <option value="-20%">-20% (Slow)</option>
-                  <option value="-10%">-10%</option>
-                  <option value="+0%" selected>Normal (1.0x)</option>
-                  <option value="+10%">+10% (Fast)</option>
-                  <option value="+20%">+20% (Shorts)</option>
-                  <option value="+30%">+30% (Speedrun)</option>
-                </select>
-              </div>
-
-              <div class="form-group" data-tooltip="Adjust voice pitch frequency">
-                <label class="label" for="voicePitchSelect">Voice Pitch</label>
-                <select id="voicePitchSelect" class="select mono">
-                  <option value="-5Hz">-5Hz (Deeper)</option>
-                  <option value="+0Hz" selected>Default (0Hz)</option>
-                  <option value="+5Hz">+5Hz (Higher)</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Sourcing Mode Selector -->
-            <div class="form-group" data-tooltip="Choose between real 4K stock footage, high-res photography, or 100% pure AI visuals.">
-              <label class="label">
-                <span>Visual Sourcing Mode</span>
-                <span style="color: var(--accent-cyan); font-size: 10px;">STOCK / AI</span>
-              </label>
-              <select id="mediaFilterSelect" class="select mono" style="font-size: 12px;">
-                <option value="mixed" selected>🔀 Mixed (Stock Videos + Photos + AI Fallback)</option>
-                <option value="videos_only">🎥 Stock Videos Only (Pexels / Pixabay / Pinterest)</option>
-                <option value="photos_only">📸 Stock Photos Only (Ken Burns Motion)</option>
-                <option value="pure_ai">🤖 100% Pure AI Generated (Zero Stock Footage)</option>
-              </select>
-            </div>
-
-            <!-- AI Image Engine Selector -->
-            <div class="form-group" data-tooltip="Engine used when generating AI images (or during pure AI generation mode).">
-              <label class="label">
-                <span>AI Image Engine</span>
-                <span style="color: var(--accent-yellow); font-size: 10px;">4K FLUX</span>
-              </label>
-              <select id="aiImageEngineSelect" class="select mono" style="font-size: 12px;">
-                <option value="pollinations" selected>⚡ Pollinations Flux Pro (Free / 4K / No Key)</option>
-                <option value="dalle3">🎨 OpenAI DALL-E 3 (High-Fidelity BYOK)</option>
-              </select>
-            </div>
-
-            <!-- Background Music (BGM) -->
-            <div class="form-group" data-tooltip="Curated royalty-free background music track mixed beneath voiceover with automatic speech ducking.">
-              <label class="label" for="bgmSelect">
-                <span>🎵 Background Music (BGM)</span>
-                <span style="color: var(--accent-lime); font-size: 10px;">AUTO-DUCKING</span>
-              </label>
-              <select id="bgmSelect" class="select mono" style="font-size: 12px;">
-                <option value="none" selected>None (Voiceover Audio Only)</option>
-                <option value="lofi">🌿 Lo-Fi Chill (Storytelling &amp; Relaxing)</option>
-                <option value="cyberpunk">⚡ Cyberpunk Pulse (High Energy &amp; Tech)</option>
-                <option value="cinematic">🎬 Cinematic Documentary (Dramatic &amp; Epic)</option>
-                <option value="stoic">🧘 Stoic Ambient (Deep Reflection)</option>
-                <option value="corporate">💼 Corporate Inspiring (Clean &amp; Upbeat)</option>
-              </select>
-            </div>
-
-            <!-- Aspect Ratio & Specs -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div class="form-group" data-tooltip="Video aspect ratio: 16:9 for YouTube, 9:16 for Shorts/TikTok, 1:1 for Instagram.">
-                <label class="label">Aspect Ratio</label>
-                <select id="studioRatioSelect" class="select mono">
-                  <option value="16:9" selected>16:9 Widescreen</option>
-                  <option value="9:16">9:16 Vertical</option>
-                  <option value="1:1">1:1 Square</option>
-                </select>
-              </div>
-
-              <div class="form-group" data-tooltip="Cinematic FFmpeg color grading filter applied to all clips.">
-                <label class="label" for="colorFilterSelect">Color Grade</label>
-                <select id="colorFilterSelect" class="select mono">
-                  <option value="natural" selected>✨ Natural</option>
-                  <option value="teal_orange">🎬 Teal &amp; Orange</option>
-                  <option value="cyberpunk">⚡ Cyberpunk Neon</option>
-                  <option value="noir">🖤 Moody Noir</option>
-                  <option value="vintage">🌿 Vintage Film</option>
-                </select>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-              <div class="form-group" data-tooltip="Advanced SubStation Alpha (.ass) animated karaoke subtitles with outline and highlights.">
-                <label class="label" for="subtitleStyleSelect">
-                  <span>Subtitles</span>
-                  <span style="color: var(--accent-yellow); font-size: 10px;">KARAOKE</span>
-                </label>
-                <select id="subtitleStyleSelect" class="select mono">
-                  <option value="hormozi" selected>🔥 Hormozi Yellow</option>
-                  <option value="cyber_cyan">💎 Cyber Cyan</option>
-                  <option value="clean_white">⚪ Clean White</option>
-                  <option value="none">None (SRT Only)</option>
-                </select>
-              </div>
-
-              <div class="form-group" data-tooltip="Directs stock search and camera tone toward a specific aesthetic.">
-                <label class="label" for="moodSelect">Visual Mood</label>
-                <select id="moodSelect" class="select">
-                  <option value="Cinematic" selected>Cinematic</option>
-                  <option value="Cyberpunk / Tech">Cyberpunk</option>
-                  <option value="Corporate / Clean">Corporate</option>
-                  <option value="Documentary / Moody">Documentary</option>
-                  <option value="Vibrant / Nature">Vibrant</option>
-                </select>
-              </div>
-            </div>
-
-            <div class="form-group">
-              <label class="label" for="projectNameInput">Project Folder Name</label>
-              <input type="text" id="projectNameInput" class="input mono" placeholder="e.g. AI_Trading_Short" value="RotoDraft_Test">
-            </div>
+          <div class="error-doctor-expl" id="err-doc-expl">Analyzing error root cause...</div>
+          <div class="error-doctor-steps" id="err-doc-steps">
+            <ol id="err-doc-steps-list">
+              <li>Check your network connection or API key.</li>
+            </ol>
+          </div>
+          <div class="error-doctor-actions">
+            <button class="btn btn-primary btn-sm" onclick="retryActiveJob()">⚡ Retry Pipeline</button>
+            <button class="btn btn-secondary btn-sm" onclick="openSettingsModal()">⚙️ Open Settings</button>
+            <button class="btn btn-secondary btn-sm" onclick="dismissErrorDoctor()">Dismiss</button>
           </div>
         </div>
 
-        <!-- Action Bar (Col-12) -->
-        <div class="card col-12" style="background: var(--bg-card); display: flex; justify-content: space-between; align-items: center; padding: 16px 24px;">
-          <div>
-            <div style="font-weight: 800; font-size: 14px; color: var(--text-primary);">Ready to produce your video assets?</div>
-            <div style="font-size: 12px; color: var(--text-muted); font-family: var(--font-mono);">
-              All generated footage, voiceover, and CapCut / Premiere NLE timelines will be saved to your local folder.
-            </div>
-          </div>
-          <button type="submit" id="submitBtn" class="btn btn-primary btn-lg" data-tooltip="Start end-to-end video synthesis pipeline">
-            <svg class="icon icon-lg"><use href="#icon-sparkles"/></svg> GENERATE &amp; COLLECT ASSETS
-          </button>
-        </div>
-      </form>
-
-      <!-- Terminal Output & Timeline Section -->
-      <div id="resultsSection" style="display: none; flex-direction: column; gap: 20px; width: 100%;">
-        <!-- Progress Bar -->
-        <div class="card" style="padding: 14px 20px;">
-          <div style="display: flex; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; margin-bottom: 6px;">
-            <span style="font-weight: 800; color: var(--accent-cyan);" id="progressStatusText">INITIALIZING PIPELINE...</span>
-            <span style="font-weight: 800;" id="progressPctText">0%</span>
-          </div>
-          <div style="background: var(--bg-secondary); height: 8px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border);">
-            <div id="progressBarFill" style="background: linear-gradient(90deg, #00E5FF, #2563EB); height: 100%; width: 0%; transition: width 0.3s ease;"></div>
-          </div>
-        </div>
-
-        <!-- Live Terminal Logs -->
-        <div class="card" style="padding: 16px;">
-          <div class="card-header" style="margin-bottom: 8px; padding-bottom: 8px;">
-            <span class="card-title" style="font-size: 13px;">
-              <svg class="icon icon-sm"><use href="#icon-activity"/></svg> REAL-TIME PRODUCTION TERMINAL
-            </span>
-            <span class="card-badge">LIVE LOGS</span>
-          </div>
-          <div id="terminalBox" style="background: var(--bg-secondary); border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 11px; max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 4px; color: var(--text-secondary);"></div>
-        </div>
-
-        <!-- Interactive NLE Timeline Track -->
         <div class="card">
           <div class="card-header">
-            <h3 class="card-title">
-              <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-scissors"/></svg> Interactive Clip Timeline &amp; Re-Ordering
-            </h3>
-            <span class="card-badge">DRAG TO REORDER</span>
-          </div>
-          <div class="timeline-track" id="studioTimelineTrack"></div>
-        </div>
-
-        <!-- Master Video Player & Export Bundles -->
-        <div class="card" id="masterVideoCard" style="display: none;">
-          <div class="card-header">
-            <h3 class="card-title" style="color: var(--accent-lime);">
-              <svg class="icon"><use href="#icon-play"/></svg> Full Master Video Preview &amp; NLE Bundles
-            </h3>
-            <div style="display: flex; gap: 8px;">
-              <button type="button" class="btn btn-secondary btn-sm" id="openMasterFolderBtn">
-                <svg class="icon icon-sm"><use href="#icon-folder"/></svg> OPEN FOLDER
-              </button>
-              <a href="#" class="btn btn-cyan btn-sm" id="downloadMasterZipBtn">
-                <svg class="icon icon-sm"><use href="#icon-download"/></svg> DOWNLOAD ZIP BUNDLE
-              </a>
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+              <h2>Voiceover Script & Pipeline Controls</h2>
             </div>
+            <button class="btn btn-link btn-xs" onclick="loadSampleScript()" data-tooltip="Populate script input with a sample narrative script.">Load Sample Script</button>
           </div>
 
-          <div class="grid-12">
-            <div class="col-7">
-              <video id="masterVideoPlayer" controls style="width: 100%; border-radius: 8px; border: 1px solid var(--border); background: #000; max-height: 420px;"></video>
+          <form id="collector-form" onsubmit="handleStartCollection(event)">
+            <!-- Project Title -->
+            <div class="form-group">
+              <label for="project_name" data-tooltip="Folder name where all clips and metadata will be saved locally.">Project Title</label>
+              <input type="text" id="project_name" placeholder="e.g. AI_Future_Documentary" value="AI_Future_Video" class="form-control" />
             </div>
-            <div class="col-5" style="display: flex; flex-direction: column; gap: 12px;">
-              <div style="background: var(--bg-secondary); border: 1px solid var(--border); padding: 14px; border-radius: 8px;">
-                <h4 style="font-size: 13px; font-weight: 800; color: var(--accent-cyan); margin-bottom: 6px;">🎬 NLE Project Files Created:</h4>
-                <ul style="font-size: 12px; font-family: var(--font-mono); color: var(--text-secondary); line-height: 1.6; list-style: none;">
-                  <li>✅ <strong>CapCut Desktop</strong>: <code>draft_info.json</code></li>
-                  <li>✅ <strong>Adobe Premiere Pro</strong>: <code>timeline.xml (FCPXML)</code></li>
-                  <li>✅ <strong>DaVinci Resolve</strong>: <code>timeline.edl</code></li>
-                  <li>✅ <strong>Subtitles</strong>: <code>voiceover.ass &amp; voiceover.srt</code></li>
-                </ul>
+
+            <!-- Script Textarea -->
+            <div class="form-group">
+              <div class="label-row">
+                <label for="script_text" data-tooltip="Paste your full narration text. The AI analyzes the script and generates sequential b-roll concepts.">Full Video Script</label>
+                <span class="char-count" id="script-char-count">0 chars</span>
+              </div>
+              <textarea id="script_text" rows="5" class="form-control" placeholder="Paste your full voiceover script here... The AI analyzes the complete narrative and extracts matching b-roll keywords in chronological order." required oninput="updateCharCount()"></textarea>
+            </div>
+
+            <!-- Duration Row -->
+            <div class="form-row duration-row">
+              <div class="form-group flex-1">
+                <label for="duration_input" data-tooltip="Enter duration as MM:SS (e.g. 1:30, 4:30) or pure seconds (e.g. 90, 270).">Voiceover Duration</label>
+                <input type="text" id="duration_input" class="form-control" value="1:30" placeholder="e.g. 1:30 or 90" required oninput="recalculateClips()" />
               </div>
 
-              <button type="button" class="btn btn-yellow" id="generateSeoPackageBtn" style="width: 100%;">
-                <svg class="icon"><use href="#icon-sparkles"/></svg> 🚀 GENERATE VIRAL SEO &amp; THUMBNAIL PACK
+              <div class="form-group flex-1">
+                <label for="clip_duration" data-tooltip="Target duration for each individual b-roll clip on your timeline.">Clip Duration</label>
+                <select id="clip_duration" class="form-control" onchange="recalculateClips()">
+                  <option value="3.0" selected>3.0s (Standard B-Roll)</option>
+                  <option value="2.0">2.0s (Fast Paced / TikTok)</option>
+                  <option value="4.0">4.0s (Cinematic Pace)</option>
+                  <option value="5.0">5.0s (Extended Scenes)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Live Conversion Pill -->
+            <div class="calc-badge" id="calc-summary-badge" data-tooltip="Calculates exact number of sequential visual scenes required.">
+              90s (1:30) total &nbsp;|&nbsp; 30 clips @ 3.0s each
+            </div>
+
+            <!-- Dynamic Estimated Time Calculation Pill -->
+            <div class="eta-pill-badge" id="eta-badge" data-tooltip="Estimated time to complete based on your active internet speed & multi-core FFmpeg transcode engine.">
+              ⚡ Estimated Time: ~38s (Based on network latency & CPU)
+            </div>
+
+            <!-- Media Settings Grid -->
+            <div class="settings-grid">
+              <!-- Quality -->
+              <div class="form-group">
+                <label for="quality_select" data-tooltip="Output resolution: 720p (HD), 1080p (FHD), or 4K (UHD).">Output Quality</label>
+                <select id="quality_select" class="form-control" onchange="recalculateETA()">
+                  <option value="720p">720p (HD)</option>
+                  <option value="1080p" selected>1080p (Full HD)</option>
+                  <option value="4K">4K (Ultra HD)</option>
+                </select>
+              </div>
+
+              <!-- Aspect Ratio -->
+              <div class="form-group">
+                <label for="aspect_ratio_select" data-tooltip="Aspect ratio: 16:9 for YouTube, 9:16 for Reels/TikTok, 1:1 for Instagram, 4:5 for Feed.">Aspect Ratio</label>
+                <select id="aspect_ratio_select" class="form-control">
+                  <option value="16:9" selected>16:9 (Landscape / YouTube)</option>
+                  <option value="9:16">9:16 (Vertical / Reels / Shorts)</option>
+                  <option value="1:1">1:1 (Square / Instagram)</option>
+                  <option value="4:5">4:5 (Facebook Feed)</option>
+                </select>
+              </div>
+
+              <!-- Media Type -->
+              <div class="form-group">
+                <label for="media_type_select" data-tooltip="Choose between Video only, Photos (with Ken Burns motion), or Hybrid.">Media Type</label>
+                <select id="media_type_select" class="form-control">
+                  <option value="videos" selected>Videos Only</option>
+                  <option value="photos">Photos Only</option>
+                  <option value="both">Videos + Photos (Hybrid)</option>
+                </select>
+              </div>
+
+              <!-- AI Provider -->
+              <div class="form-group">
+                <label for="ai_provider_select" data-tooltip="LLM Provider used to analyze the script and generate b-roll keywords.">
+                  AI Brain Provider
+                </label>
+                <select id="ai_provider_select" class="form-control">
+                  <option value="openrouter" selected>OpenRouter (Multi-Model Hub)</option>
+                  <option value="deepseek">DeepSeek (Chat & R1 Reasoner)</option>
+                  <option value="groq">Groq (Ultra Fast Llama 3.3)</option>
+                  <option value="gemini">Google Gemini 1.5</option>
+                  <option value="openai">OpenAI GPT-4o-mini</option>
+                  <option value="anthropic">Anthropic Claude 3.5</option>
+                  <option value="cohere">Cohere Command-R</option>
+                  <option value="ollama">Ollama (Local Private Offline)</option>
+                  <option value="custom">Custom OpenAI-Compatible API</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Video Customization & Transitions Row -->
+            <div class="settings-grid" style="margin-top: 0.5rem;">
+              <!-- Transitions -->
+              <div class="form-group">
+                <label for="transition_select" data-tooltip="Transition applied between scenes.">Transition Mode</label>
+                <select id="transition_select" class="form-control">
+                  <option value="cut" selected>Cut (Instant Standard)</option>
+                  <option value="fade">Crossfade Dissolve</option>
+                  <option value="kenburns">Ken Burns Pan & Zoom</option>
+                </select>
+              </div>
+
+              <!-- Color Preset / Filter -->
+              <div class="form-group">
+                <label for="color_preset_select" data-tooltip="Color grading filter preset for cinematic mood.">Color Grading LUT</label>
+                <select id="color_preset_select" class="form-control">
+                  <option value="none" selected>None (Raw Colors)</option>
+                  <option value="cinematic_warm">Cinematic Warm Golden</option>
+                  <option value="teal_orange">Moody Teal & Orange</option>
+                  <option value="noir_bw">Film Noir B&W</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Customization Toggles -->
+            <div class="form-group">
+              <div class="checkbox-group">
+                <label class="custom-checkbox" data-tooltip="Apply smooth cinematic Pan & Zoom motion to photo stock assets.">
+                  <input type="checkbox" id="enable_ken_burns" checked />
+                  <span>Ken Burns Motion on Photos</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Automatically concatenate all individual 3.0s clips into ONE continuous full master video file (full_video.mp4).">
+                  <input type="checkbox" id="export_full_video_toggle" />
+                  <span>Stitch Full Master Video (MP4)</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Stock Providers Checkboxes (Expanded with Storyblocks, Coverr, Mixkit, Videvo, Wikimedia) -->
+            <div class="form-group">
+              <label data-tooltip="Select which platforms to search in parallel.">Parallel Stock Media Vaults (9 Sources)</label>
+              <div class="checkbox-group">
+                <label class="custom-checkbox" data-tooltip="Search millions of free 1080p/4K stock videos & photos on Pexels.">
+                  <input type="checkbox" id="provider_pexels" checked />
+                  <span>Pexels</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Search free royalty-free b-roll clips and footage on Pixabay.">
+                  <input type="checkbox" id="provider_pixabay" checked />
+                  <span>Pixabay</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Search Coverr.co free 1080p/4K footage library.">
+                  <input type="checkbox" id="provider_coverr" checked />
+                  <span>Coverr.co</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Search Mixkit free stock video clips library by Envato.">
+                  <input type="checkbox" id="provider_mixkit" checked />
+                  <span>Mixkit</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Search Storyblocks footage and b-roll.">
+                  <input type="checkbox" id="provider_storyblocks" checked />
+                  <span>Storyblocks</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Search Videvo free stock footage & motion graphics.">
+                  <input type="checkbox" id="provider_videvo" checked />
+                  <span>Videvo</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Search aesthetic 9:16 and 1080p video pins from Pinterest.">
+                  <input type="checkbox" id="provider_pinterest" checked />
+                  <span>Pinterest</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="High-resolution photography from Unsplash.">
+                  <input type="checkbox" id="provider_unsplash" checked />
+                  <span>Unsplash</span>
+                </label>
+                <label class="custom-checkbox" data-tooltip="Public domain historical archives from Wikimedia Commons.">
+                  <input type="checkbox" id="provider_wikimedia" checked />
+                  <span>Wikimedia</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label class="custom-checkbox" data-tooltip="If a specific keyword yields 0 stock results, the AI automatically rewrites the search query to a generic visual equivalent.">
+                <input type="checkbox" id="enable_fallback" checked />
+                <span>Enable Smart Query Fallback & Auto-Repair</span>
+              </label>
+            </div>
+
+            <!-- Submit Button (Hard Physical Crushing) -->
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary btn-block btn-lg" id="btn-submit" data-tooltip="Execute full pipeline: AI script analysis, parallel search, download, and FFmpeg trimming.">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                Start B-Roll Collection
+              </button>
+            </div>
+          </form>
+        </div>
+      </section>
+
+      <!-- Right Column: Progress, Timeline, NLE Exporter & Event Console -->
+      <section class="panel-right">
+        
+        <!-- Progress Monitor Card -->
+        <div class="card progress-card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+              <h2>Pipeline Execution Monitor</h2>
+            </div>
+            <span class="status-badge" id="job-status-badge">IDLE</span>
+          </div>
+
+          <div class="progress-container">
+            <div class="progress-bar-bg">
+              <div class="progress-bar-fill" id="main-progress-bar" style="width: 0%;"></div>
+            </div>
+            <div class="progress-meta">
+              <span id="progress-step-text">Ready to launch</span>
+              <span class="progress-pct" id="progress-pct-text">0%</span>
+            </div>
+          </div>
+
+          <!-- 4 Milestone Chips -->
+          <div class="milestones-row">
+            <div class="milestone-chip" id="ms-ai" data-tooltip="Number of visual keywords generated by AI Brain.">
+              <div class="ms-val" id="ms-ai-val">0</div>
+              <div class="ms-label">Keywords</div>
+            </div>
+            <div class="milestone-chip" id="ms-search" data-tooltip="Stock assets found across 9 stock media sources.">
+              <div class="ms-val" id="ms-search-val">0</div>
+              <div class="ms-label">Searched</div>
+            </div>
+            <div class="milestone-chip" id="ms-dl" data-tooltip="Raw media streams successfully downloaded.">
+              <div class="ms-val" id="ms-dl-val">0</div>
+              <div class="ms-label">Downloaded</div>
+            </div>
+            <div class="milestone-chip" id="ms-proc" data-tooltip="Clips trimmed with FFmpeg and verified with FFprobe.">
+              <div class="ms-val" id="ms-proc-val">0</div>
+              <div class="ms-label">Rendered</div>
+            </div>
+          </div>
+
+          <!-- Result Action Bar & NLE Export Suite -->
+          <div class="result-actions" id="result-actions" style="display: none;">
+            <div class="result-summary" id="result-summary-text">🎉 All clips processed successfully!</div>
+            
+            <div class="result-buttons">
+              <button class="btn btn-success btn-sm" onclick="openActiveClipsFolder()" data-tooltip="Open physical folder in Windows Explorer containing your rendered MP4 clips.">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
+                Open Explorer
+              </button>
+              <button class="btn btn-primary btn-sm" onclick="triggerStitchFullVideo()" data-tooltip="Stitch all 3.0s clips into one continuous full master video (MP4).">
+                🎬 Stitch Full Video (MP4)
+              </button>
+              <button class="btn btn-secondary btn-sm" onclick="downloadZip()" data-tooltip="Download a single ZIP archive containing all rendered video clips.">
+                📦 Download ZIP
+              </button>
+            </div>
+
+            <!-- NLE Export Group -->
+            <div class="nle-export-group">
+              <div class="nle-title-label">Professional Video Editor Exporters:</div>
+              <button class="btn btn-secondary btn-xs" onclick="downloadNLE('premiere')" data-tooltip="Download Final Cut Pro 7 XML timeline for Adobe Premiere Pro.">
+                🎞️ Premiere Pro (XML)
+              </button>
+              <button class="btn btn-secondary btn-xs" onclick="downloadNLE('davinci')" data-tooltip="Download CMX 3600 Edit Decision List for DaVinci Resolve.">
+                🎥 DaVinci Resolve (EDL)
+              </button>
+              <button class="btn btn-secondary btn-xs" onclick="downloadNLE('capcut')" data-tooltip="Download CapCut JSON draft project schema.">
+                ✂️ CapCut (Draft JSON)
+              </button>
+              <button class="btn btn-secondary btn-xs" onclick="downloadNLE('csv')" data-tooltip="Download CSV sequence list with timecodes and script segments.">
+                📊 CSV Timecodes
               </button>
             </div>
           </div>
         </div>
-      </div>
-    </main>
 
-    <!-- =========================================================================
-         VIEW 3: BATCH CHANNEL FACTORY
-         ========================================================================= -->
-    <main class="app-view" id="viewBatch">
-      <div class="hero-banner" style="margin-bottom: 20px;">
-        <div>
-          <h2 class="hero-title" style="color: var(--accent-yellow);">⚡ Autonomous Batch Channel Factory</h2>
-          <p class="hero-subtitle">
-            Input up to 10 video ideas. Our autonomous worker writes viral scripts, synthesizes neural voiceover, sources 4K media, merges master videos, and exports CapCut project packages sequentially in the background.
+        <!-- Generated Clips Grid / Table -->
+        <div class="card clips-card">
+          <div class="card-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="2" width="20" height="20"></rect><line x1="7" y1="2" x2="7" y2="22"></line><line x1="17" y1="2" x2="17" y2="22"></line><line x1="2" y1="12" x2="22" y2="12"></line><line x1="2" y1="7" x2="7" y2="7"></line><line x1="2" y1="17" x2="7" y2="17"></line><line x1="17" y1="17" x2="22" y2="17"></line><line x1="17" y1="7" x2="22" y2="7"></line></svg>
+              <h2>Sequential B-Roll Timeline</h2>
+            </div>
+            <span class="clip-count-label" id="clips-summary-label">0 Clips</span>
+          </div>
+
+          <div class="clips-table-container">
+            <table class="clips-table">
+              <thead>
+                <tr>
+                  <th width="45">#</th>
+                  <th width="65">Thumb</th>
+                  <th>Visual Keyword</th>
+                  <th width="110">Provider</th>
+                  <th width="90">Quality</th>
+                  <th width="75">Duration</th>
+                  <th width="110">Status</th>
+                </tr>
+              </thead>
+              <tbody id="clips-table-body">
+                <tr class="empty-row">
+                  <td colspan="7">No clips yet. Enter your script on the left and click Start.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Live Event Console / Log Terminal -->
+        <div class="card terminal-card">
+          <div class="card-header terminal-header">
+            <div class="card-title">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></svg>
+              <h2>Live Event Stream</h2>
+            </div>
+            <div class="terminal-controls">
+              <div class="log-filter-chips">
+                <button class="chip active" onclick="setLogFilter('ALL')">All</button>
+                <button class="chip" onclick="setLogFilter('AI')">AI</button>
+                <button class="chip" onclick="setLogFilter('STOCK')">Stock</button>
+                <button class="chip" onclick="setLogFilter('DOWNLOAD')">DL</button>
+                <button class="chip" onclick="setLogFilter('FFMPEG')">FFmpeg</button>
+                <button class="chip" onclick="setLogFilter('ERROR')">Errors</button>
+              </div>
+              <button class="btn btn-link btn-xs" onclick="copyTerminalLogs()" data-tooltip="Copy console log to clipboard.">Copy</button>
+              <button class="btn btn-link btn-xs" onclick="clearTerminalLogs()" data-tooltip="Clear event log.">Clear</button>
+            </div>
+          </div>
+
+          <div class="terminal-body" id="terminal-body">
+            <div class="log-line log-system">[SYSTEM] Dashboard initialized and ready.</div>
+          </div>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PAGE 2: FEATURES & LANDING SHOWCASE
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="page-view" id="page-features">
+    <div class="landing-container">
+      <div class="hero-section">
+        <div class="hero-pill">✨ The $0 Open-Source Video Revolution</div>
+        <h1 class="hero-title">Automate High-Converting B-Roll in Seconds</h1>
+        <p class="hero-subtitle">
+          Turn dry voiceover scripts into timeline-ready, exact 3.0s visual b-roll clips. Direct exports to Premiere Pro, DaVinci Resolve, and CapCut. 100% free forever.
+        </p>
+        <button class="btn btn-secondary btn-lg" onclick="switchPageView('page-studio')">
+          Launch Studio &rarr;
+        </button>
+      </div>
+
+      <!-- Feature Grid -->
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          </div>
+          <h3>DeepSeek-R1 Thinking Mode</h3>
+          <p>Full support for reasoning models with auto-sanitization of internal thoughts into structured timeline schemas.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14"></rect></svg>
+          </div>
+          <h3>9 Parallel Stock Media Vaults</h3>
+          <p>Pexels, Pixabay, Storyblocks, Coverr.co, Mixkit, Videvo, Unsplash, Pinterest, and Wikimedia Commons.</p>
+        </div>
+
+        <div class="feature-card">
+          <div class="feature-icon-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <h3>1-Click NLE Export Suite</h3>
+          <p>Export timelines directly to Adobe Premiere Pro (XML), DaVinci Resolve (EDL), and CapCut (Draft JSON).</p>
+        </div>
+      </div>
+
+      <!-- Comparison Matrix -->
+      <div class="comparison-section">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 900; margin-bottom: 1.25rem; text-transform: uppercase;">Why Creators Are Switching</h2>
+        <table class="comparison-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Pictory AI ($49/mo)</th>
+              <th>InVideo AI ($35/mo)</th>
+              <th>Stock Collector Pro ($0 Free)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Monthly Cost</strong></td>
+              <td>$49 / month</td>
+              <td>$35 / month</td>
+              <td><span class="status-badge COMPLETED">$0.00 Free Forever</span></td>
+            </tr>
+            <tr>
+              <td><strong>AI Models</strong></td>
+              <td>Proprietary Locked</td>
+              <td>GPT-3.5 Locked</td>
+              <td><strong>DeepSeek (Chat & R1), Groq, Claude 3.5, Gemini 1.5, Ollama</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Stock Platforms</strong></td>
+              <td>Storyblocks only</td>
+              <td>Shutterstock only</td>
+              <td><strong>9 Vaults: Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, etc.</strong></td>
+            </tr>
+            <tr>
+              <td><strong>NLE Timeline Export</strong></td>
+              <td>❌ No XML / EDL</td>
+              <td>❌ No XML / EDL</td>
+              <td><strong>✅ Premiere Pro XML, DaVinci EDL, CapCut Draft</strong></td>
+            </tr>
+            <tr>
+              <td><strong>Agent Integration</strong></td>
+              <td>❌ None</td>
+              <td>❌ None</td>
+              <td><strong>✅ Hermes Agent, OpenClaw, Claude Code & Codex</strong></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       PAGE 3: ABOUT & MANIFESTO
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="page-view" id="page-about">
+    <div class="about-container">
+      <div class="creator-bio-card">
+        <img src="/static/assets/creator_avatar.png" alt="Ali Rasheed" class="creator-large-avatar" onerror="this.style.display='none'" />
+        <div class="creator-bio-details">
+          <h2>Ali Rasheed</h2>
+          <div class="creator-role">Full-Stack AI Developer & Infrastructure Engineer &bull; Lahore, Pakistan</div>
+          <p>
+            I build high-performance developer tools, autonomous AI agents, and content creation infrastructure that empower solo creators and tech teams globally.
+            This project was born out of frustration with expensive SaaS wrappers charging $50/month for basic stock scraping.
           </p>
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            <a href="mailto:alihouse512@gmail.com" class="btn btn-primary btn-sm">Email Ali</a>
+            <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="btn btn-secondary btn-sm">LinkedIn</a>
+            <a href="https://x.com/AliRasheedBti" target="_blank" class="btn btn-secondary btn-sm">X / Twitter</a>
+          </div>
         </div>
       </div>
 
-      <div class="grid-12">
-        <div class="card col-7">
-          <div class="card-header">
-            <h3 class="card-title">
-              <svg class="icon" style="color: var(--accent-yellow);"><use href="#icon-zap"/></svg> Batch Topics Queue
-            </h3>
-            <span class="card-badge">1 TOPIC PER LINE</span>
-          </div>
+      <div class="card" style="margin-bottom: 2rem;">
+        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.3rem; font-weight: 900; margin-bottom: 0.85rem; text-transform: uppercase;">The Open Source Manifesto</h3>
+        <p style="font-weight: 700; line-height: 1.6; margin-bottom: 1rem;">
+          We believe content automation should be accessible to every creator on earth regardless of budget. By leveraging open AI models, public stock media APIs, and local FFmpeg hardware acceleration, this tool eliminates all cloud subscriptions and data privacy concerns.
+        </p>
+      </div>
+    </div>
+  </div>
 
+  <!-- ═══════════════════════════════════════════════════════════════
+       PAGE 4: CONTACT & HIRE ME
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="page-view" id="page-contact">
+    <div class="contact-container">
+      <div class="card" style="max-width: 680px; margin: 0 auto;">
+        <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.5rem; font-weight: 900; margin-bottom: 0.65rem; text-transform: uppercase;">Get in Touch / Hire Ali</h2>
+        <p style="font-weight: 700; font-size: 0.88rem; margin-bottom: 1.5rem;">
+          Have a custom AI project, SaaS MVP, or need full-stack infrastructure engineering? Reach out directly:
+        </p>
+
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
           <div class="form-group">
-            <label class="label">Video Topics List (3 to 10 Topics)</label>
-            <textarea id="batchTopicsTextarea" class="textarea mono" style="min-height: 180px;" placeholder="1. Why Algorithmic Trading Dominates Wall Street
-2. The Shocking Origin of Quantum Computing
-3. The Daily Morning Routine of Marcus Aurelius
-4. How High Frequency Trading Algorithms Execute Orders in Milliseconds"></textarea>
+            <label>Direct Email</label>
+            <input type="text" readonly value="alihouse512@gmail.com" class="form-control" />
           </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px;">
-            <div class="form-group">
-              <label class="label">Platform Preset</label>
-              <select id="batchRatioSelect" class="select mono">
-                <option value="9:16" selected>9:16 Vertical (TikTok / Shorts)</option>
-                <option value="16:9">16:9 Widescreen (YouTube Standard)</option>
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label class="label">Script Style</label>
-              <select id="batchStyleSelect" class="select mono">
-                <option value="viral_hook" selected>⚡ Viral Hook (MrBeast / Hormozi)</option>
-                <option value="storytelling">🎬 Cinematic Storytelling</option>
-                <option value="educational">💼 Explainer Breakdown</option>
-              </select>
-            </div>
-          </div>
-
-          <button type="button" id="startBatchRunnerBtn" class="btn btn-yellow btn-lg" style="width: 100%; margin-top: 16px;">
-            <svg class="icon"><use href="#icon-sparkles"/></svg> 🚀 LAUNCH AUTONOMOUS BATCH GENERATION
-          </button>
-        </div>
-
-        <div class="card col-5">
-          <div class="card-header">
-            <h3 class="card-title">
-              <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-activity"/></svg> Live Batch Queue Status
-            </h3>
-            <span class="card-badge" id="batchProgressBadge">0 / 0</span>
-          </div>
-
-          <div id="batchQueueItemsContainer" style="display: flex; flex-direction: column; gap: 8px; font-family: var(--font-mono); font-size: 12px;">
-            <div style="color: var(--text-muted); text-align: center; padding: 40px 0;">
-              No batch currently active. Submit topics on the left to start autonomous production.
-            </div>
-          </div>
-        </div>
-      </div>
-    </main>
-
-    <!-- =========================================================================
-         VIEW 4: AI SCRIPT DOCTOR & VIRAL HOOKS
-         ========================================================================= -->
-    <main class="app-view" id="viewDoctor">
-      <div class="grid-12">
-        <div class="card col-7">
-          <div class="card-header">
-            <h3 class="card-title" style="color: var(--accent-magenta);">
-              <svg class="icon"><use href="#icon-activity"/></svg> 🩺 AI Script Doctor &amp; Clinical Retention Audit
-            </h3>
-            <span class="card-badge">JJYB RETENTION ENGINE</span>
-          </div>
-
           <div class="form-group">
-            <label class="label">Input Script or Draft Narrative</label>
-            <textarea id="doctorScriptInput" class="textarea mono" style="min-height: 160px;" placeholder="Paste your script to audit speaking velocity, pacing, and retention drop-offs..."></textarea>
+            <label>Location</label>
+            <input type="text" readonly value="Lahore, Pakistan (Available for Global Remote)" class="form-control" />
           </div>
-
-          <div style="display: flex; gap: 12px; margin-top: 12px;">
-            <button type="button" id="runDoctorAuditBtn" class="btn btn-cyan btn-lg" style="flex: 1;">
-              <svg class="icon"><use href="#icon-activity"/></svg> RUN RETENTION AUDIT
-            </button>
-            <button type="button" id="openRewriteModalBtnDoctor" class="btn btn-primary btn-lg" style="flex: 1;">
-              <svg class="icon"><use href="#icon-sparkles"/></svg> 1-CLICK VIRAL REWRITE
-            </button>
-          </div>
-        </div>
-
-        <div class="card col-5">
-          <div class="card-header">
-            <h3 class="card-title">
-              <svg class="icon" style="color: var(--accent-lime);"><use href="#icon-chart"/></svg> Clinical Retention Scorecard
-            </h3>
-            <span class="card-badge" id="doctorScoreBadge">88/100</span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
-            <div style="background: var(--bg-secondary); border: 1px solid var(--border); padding: 10px; border-radius: 8px; text-align: center;">
-              <div style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">SPEED (WPM)</div>
-              <div id="doctorWpmVal" style="font-size: 20px; font-weight: 900; color: var(--accent-cyan);">150</div>
-            </div>
-            <div style="background: var(--bg-secondary); border: 1px solid var(--border); padding: 10px; border-radius: 8px; text-align: center;">
-              <div style="font-size: 10px; font-family: var(--font-mono); color: var(--text-muted);">EST. DURATION</div>
-              <div id="doctorDurationVal" style="font-size: 20px; font-weight: 900; color: var(--accent-yellow);">24s</div>
-            </div>
-          </div>
-
           <div class="form-group">
-            <label class="label" style="color: var(--accent-magenta);">Clinical Diagnostics</label>
-            <div id="doctorDiagList" style="background: var(--bg-secondary); border: 1px dashed var(--border); border-radius: 8px; padding: 12px; font-family: var(--font-mono); font-size: 11px; display: flex; flex-direction: column; gap: 6px;">
-              <div>Click 'Run Retention Audit' to analyze script.</div>
+            <label>Social Profiles</label>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.35rem;">
+              <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="btn btn-secondary btn-sm">LinkedIn</a>
+              <a href="https://x.com/AliRasheedBti" target="_blank" class="btn btn-secondary btn-sm">X / Twitter</a>
+              <a href="https://www.instagram.com/this_is_ali_r/" target="_blank" class="btn btn-secondary btn-sm">Instagram</a>
+              <a href="https://www.facebook.com/profile.php?id=61579456175357" target="_blank" class="btn btn-secondary btn-sm">Facebook</a>
             </div>
           </div>
         </div>
       </div>
-    </main>
+    </div>
+  </div>
 
-    <!-- =========================================================================
-         VIEW 5: PROJECT VAULT
-         ========================================================================= -->
-    <main class="app-view" id="viewVault">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">
-            <svg class="icon" style="color: var(--accent-cyan);"><use href="#icon-folder"/></svg> Project Asset Vault
-          </h2>
-          <button type="button" class="btn btn-secondary btn-sm" id="refreshVaultBtn">
-            <svg class="icon icon-sm"><use href="#icon-refresh"/></svg> REFRESH
-          </button>
-        </div>
-
-        <div id="vaultProjectsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 16px;"></div>
-      </div>
-    </main>
-
-    <!-- =========================================================================
-         VIEW 6: OWNER ANALYTICS & LEAD CRM
-         ========================================================================= -->
-    <main class="app-view" id="viewAnalytics">
-      <div class="grid-12">
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-cyan);"><svg class="icon icon-lg"><use href="#icon-film"/></svg></div>
-            <div>
-              <div class="metric-val" id="crmTotalVideos">0</div>
-              <div class="metric-label">Total Videos Produced</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-lime);"><svg class="icon icon-lg"><use href="#icon-sparkles"/></svg></div>
-            <div>
-              <div class="metric-val" id="crmTotalLeads">0</div>
-              <div class="metric-label">Captured Leads</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-yellow);"><svg class="icon icon-lg"><use href="#icon-activity"/></svg></div>
-            <div>
-              <div class="metric-val" id="crmWhatsappClicks">0</div>
-              <div class="metric-label">WhatsApp Clicks</div>
-            </div>
-          </div>
-        </div>
-        <div class="col-3">
-          <div class="metric-card">
-            <div class="metric-icon-box" style="color: var(--accent-magenta);"><svg class="icon icon-lg"><use href="#icon-chart"/></svg></div>
-            <div>
-              <div class="metric-val" id="crmConversionRate">0%</div>
-              <div class="metric-label">Lead Conversion</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="card col-12">
-          <div class="card-header">
-            <h3 class="card-title">Recent User Leads</h3>
-            <button type="button" class="btn btn-secondary btn-sm" id="exportLeadsCsvBtn">
-              <svg class="icon icon-sm"><use href="#icon-download"/></svg> EXPORT CSV
-            </button>
-          </div>
-          <table style="width: 100%; border-collapse: collapse; font-size: 12px; font-family: var(--font-mono);">
-            <thead>
-              <tr style="border-bottom: 1px solid var(--border); text-align: left; color: var(--text-muted);">
-                <th style="padding: 8px;">NAME</th>
-                <th style="padding: 8px;">EMAIL</th>
-                <th style="padding: 8px;">VIDEOS MADE</th>
-                <th style="padding: 8px;">WHATSAPP CLICKED</th>
-                <th style="padding: 8px;">JOIN DATE</th>
-              </tr>
-            </thead>
-            <tbody id="crmLeadsTableBody"></tbody>
-          </table>
+  <!-- ═══════════════════════════════════════════════════════════════
+       EDITORIAL FOOTER
+       ═══════════════════════════════════════════════════════════════ -->
+  <footer class="app-footer">
+    <div class="footer-content">
+      <div class="footer-author-box">
+        <img src="/static/assets/creator_avatar.png" alt="Ali Rasheed" class="footer-author-avatar" onerror="this.style.display='none'" />
+        <div>
+          <h4>AI B-Roll & Stock Media Collector Pro</h4>
+          <p>Created by Ali Rasheed from Lahore, Pakistan &bull; Open Source under MIT License</p>
         </div>
       </div>
-    </main>
 
-    <!-- =========================================================================
-         VIEW 7: 50+ GRANULAR SETTINGS & BYOK COMMAND CENTER
-         ========================================================================= -->
-    <main class="app-view" id="viewSettings">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title" style="color: var(--accent-cyan);">
-            <svg class="icon"><use href="#icon-settings"/></svg> Enterprise Settings &amp; BYOK Command Center (50+ Customizations)
-          </h2>
-          <button type="button" class="btn btn-primary btn-sm" id="saveMasterSettingsBtn">
-            💾 SAVE &amp; APPLY ALL SETTINGS
-          </button>
+      <div class="footer-links">
+        <a href="mailto:alihouse512@gmail.com" class="footer-link">Email</a>
+        <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="footer-link">LinkedIn</a>
+        <a href="https://x.com/AliRasheedBti" target="_blank" class="footer-link">X / Twitter</a>
+        <a href="https://www.instagram.com/this_is_ali_r/" target="_blank" class="footer-link">Instagram</a>
+        <a href="https://www.facebook.com/profile.php?id=61579456175357" target="_blank" class="footer-link">Facebook</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Video Preview Modal -->
+  <div class="modal" id="video-preview-modal" onclick="closeVideoModal(event)">
+    <div class="modal-content video-modal-content">
+      <div class="modal-header">
+        <h3 id="modal-video-title">Clip Preview</h3>
+        <button class="btn-close" onclick="closeVideoModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <video id="modal-video-player" controls autoplay class="modal-video"></video>
+        <div class="modal-video-meta" id="modal-video-meta" style="margin-top: 0.75rem; font-size: 0.85rem; font-weight: 700;"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SETTINGS & MULTI-PROVIDER HUB MODAL
+       ═══════════════════════════════════════════════════════════════ -->
+  <div class="modal" id="settings-modal" onclick="closeSettingsModal(event)">
+    <div class="modal-content settings-modal-content">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+          <h3>Configuration, APIs & Agent Hub</h3>
+        </div>
+        <button class="btn-close" onclick="closeSettingsModal()">&times;</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="settings-tabs">
+          <button class="tab-btn active" onclick="switchSettingsTab('tab-ai')">🧠 AI Brains</button>
+          <button class="tab-btn" onclick="switchSettingsTab('tab-custom-ai')">🛠️ Custom API Builder</button>
+          <button class="tab-btn" onclick="switchSettingsTab('tab-stock')">🎞️ Stock Media APIs</button>
+          <button class="tab-btn" onclick="switchSettingsTab('tab-agents')">🤖 Agent Integrations</button>
+          <button class="tab-btn" onclick="switchSettingsTab('tab-concurrency')">⚙️ Performance & Proxy</button>
         </div>
 
-        <!-- 5 Settings Tabs -->
-        <div style="display: flex; gap: 8px; border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 16px;">
-          <button type="button" class="chip-btn active" id="tabSetLlm">🤖 1. LLM &amp; SCRIPT AI</button>
-          <button type="button" class="chip-btn" id="tabSetMedia">🎬 2. FOOTAGE &amp; STOCK SOURCING</button>
-          <button type="button" class="chip-btn" id="tabSetSpeech">🗣️ 3. SPEECH &amp; TTS SYNTHESIS</button>
-          <button type="button" class="chip-btn" id="tabSetRender">🎨 4. VIDEO CODECS &amp; RENDERING</button>
-          <button type="button" class="chip-btn" id="tabSetSubtitle">📝 5. SUBTITLES &amp; TYPOGRAPHY</button>
-        </div>
-
-        <!-- Tab 1: LLM & Script AI -->
-        <div id="panelSetLlm" style="display: flex; flex-direction: column; gap: 14px;">
-          <div class="grid-12">
-            <div class="form-group col-6">
-              <label class="label">Primary LLM Provider</label>
-              <select id="cfgLlmProvider" class="select mono">
-                <option value="openrouter" selected>OpenRouter (Auto-Free &amp; 100+ Models)</option>
-                <option value="gemini">Google Gemini (Gemini 2.0 Flash / Pro)</option>
-                <option value="openai">OpenAI (GPT-4o / GPT-4o-mini)</option>
-                <option value="deepseek">DeepSeek (DeepSeek V3 / R1)</option>
-                <option value="groq">Groq (Ultra-Fast Llama 3.3 70B)</option>
-                <option value="ollama">Ollama (Local Offline LLM)</option>
-                <option value="custom">Custom OpenAI-Compatible Endpoint</option>
-              </select>
+        <!-- 1. AI Providers Tab -->
+        <div class="tab-pane active" id="tab-ai">
+          <!-- OpenRouter -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>OpenRouter (Unified Multi-Model Hub)</h4>
+              <a href="https://openrouter.ai/keys" target="_blank" class="btn-get-key">🔑 Get Free Key &nearr;</a>
             </div>
-
-            <div class="form-group col-6">
-              <label class="label">Model ID / Name</label>
-              <input type="text" id="cfgLlmModel" class="input mono" placeholder="openrouter/free" value="openrouter/free">
-            </div>
-
-            <div class="form-group col-6">
-              <label class="label">API Key</label>
-              <div style="display: flex; gap: 8px;">
-                <input type="password" id="cfgLlmKey" class="input mono" placeholder="sk-...">
-                <button type="button" class="btn btn-cyan btn-sm" id="testLlmKeyBtn">TEST</button>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key</label>
+                <input type="password" id="set_openrouter_key" class="form-control" placeholder="sk-or-v1-..." />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model Slug</label>
+                <input type="text" id="set_openrouter_model" class="form-control" value="openrouter/free" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('openrouter')">Test</button>
               </div>
             </div>
+          </div>
 
-            <div class="form-group col-6">
-              <label class="label">Custom Base URL (Optional)</label>
-              <input type="text" id="cfgLlmBaseUrl" class="input mono" placeholder="https://api.openai.com/v1">
+          <!-- DeepSeek API -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>DeepSeek API (Chat & R1 Reasoner)</h4>
+              <a href="https://platform.deepseek.com/api_keys" target="_blank" class="btn-get-key">🔑 Get DeepSeek Key &nearr;</a>
             </div>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key</label>
+                <input type="password" id="set_deepseek_key" class="form-control" placeholder="sk-..." />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model Slug</label>
+                <input type="text" id="set_deepseek_model" class="form-control" value="deepseek-chat" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('deepseek')">Test</button>
+              </div>
+            </div>
+          </div>
 
-            <div class="form-group col-12">
-              <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); display: flex; gap: 12px; flex-wrap: wrap;">
-                <span>Get Keys:</span>
-                <a href="https://openrouter.ai/keys" target="_blank" style="color: var(--accent-cyan);">🔗 OpenRouter (Free)</a>
-                <a href="https://aistudio.google.com/app/apikey" target="_blank" style="color: var(--accent-cyan);">🔗 Google Gemini</a>
-                <a href="https://platform.openai.com/api-keys" target="_blank" style="color: var(--accent-cyan);">🔗 OpenAI</a>
-                <a href="https://platform.deepseek.com/api_keys" target="_blank" style="color: var(--accent-cyan);">🔗 DeepSeek</a>
-                <a href="https://console.groq.com/keys" target="_blank" style="color: var(--accent-cyan);">🔗 Groq</a>
+          <!-- Groq -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Groq Cloud (Ultra High-Speed Inference)</h4>
+              <a href="https://console.groq.com/keys" target="_blank" class="btn-get-key">🔑 Get Groq Key &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key</label>
+                <input type="password" id="set_groq_key" class="form-control" placeholder="gsk_..." />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model</label>
+                <input type="text" id="set_groq_model" class="form-control" value="llama-3.3-70b-versatile" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('groq')">Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Gemini -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Google Gemini</h4>
+              <a href="https://aistudio.google.com/app/apikey" target="_blank" class="btn-get-key">🔑 Get Gemini Key &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key</label>
+                <input type="password" id="set_gemini_key" class="form-control" placeholder="AIzaSy..." />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model</label>
+                <input type="text" id="set_gemini_model" class="form-control" value="gemini-1.5-flash" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('gemini')">Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- OpenAI -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>OpenAI (GPT-4o & GPT-4o-mini)</h4>
+              <a href="https://platform.openai.com/api-keys" target="_blank" class="btn-get-key">🔑 Get OpenAI Key &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key</label>
+                <input type="password" id="set_openai_key" class="form-control" placeholder="sk-proj-..." />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model</label>
+                <input type="text" id="set_openai_model" class="form-control" value="gpt-4o-mini" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('openai')">Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Anthropic Claude -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Anthropic Claude</h4>
+              <a href="https://console.anthropic.com/settings/keys" target="_blank" class="btn-get-key">🔑 Get Claude Key &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key</label>
+                <input type="password" id="set_anthropic_key" class="form-control" placeholder="sk-ant-..." />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model</label>
+                <input type="text" id="set_anthropic_model" class="form-control" value="claude-3-5-sonnet-20241022" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('anthropic')">Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Ollama Local -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Ollama (100% Offline Private LLM)</h4>
+              <a href="https://ollama.ai" target="_blank" class="btn-get-key">📥 Download Ollama &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-3">
+                <label>Endpoint</label>
+                <input type="text" id="set_ollama_endpoint" class="form-control" value="http://localhost:11434/v1/chat/completions" />
+              </div>
+              <div class="form-group flex-2">
+                <label>Model</label>
+                <input type="text" id="set_ollama_model" class="form-control" value="llama3.2" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('ollama')">Test</button>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Tab 2: Footage & Stock -->
-        <div id="panelSetMedia" style="display: none; flex-direction: column; gap: 14px;">
-          <div class="grid-12">
-            <div class="form-group col-6">
-              <label class="label">Pexels Video API Key</label>
-              <div style="display: flex; gap: 8px;">
-                <input type="password" id="cfgPexelsKey" class="input mono" placeholder="Pexels Key...">
-                <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pexels">TEST</button>
+        <!-- 2. Custom OpenAI-Compatible API Builder Tab -->
+        <div class="tab-pane" id="tab-custom-ai">
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Custom OpenAI-Compatible API Builder</h4>
+            </div>
+            <p class="setting-hint" style="margin-bottom: 0.85rem;">
+              Connect to any OpenAI-compatible gateway (Together AI, vLLM, LM Studio, 9router, Mistral, Anyscale, Fireworks, LocalAI).
+            </p>
+
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>Provider Name</label>
+                <input type="text" id="set_custom_name" class="form-control" placeholder="e.g. Together AI / Local vLLM" value="Custom LLM" />
               </div>
-              <small style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">
-                <a href="https://www.pexels.com/api/" target="_blank" style="color: var(--accent-cyan);">🔗 Get Free Pexels Key (200 req/hr)</a>
-              </small>
+              <div class="form-group flex-3">
+                <label>Base URL / Chat Endpoint</label>
+                <input type="text" id="set_custom_endpoint" class="form-control" placeholder="https://api.together.xyz/v1/chat/completions" />
+              </div>
             </div>
 
-            <div class="form-group col-6">
-              <label class="label">Pixabay Video API Key</label>
-              <div style="display: flex; gap: 8px;">
-                <input type="password" id="cfgPixabayKey" class="input mono" placeholder="Pixabay Key...">
-                <button type="button" class="btn btn-cyan btn-sm test-key-btn" data-provider="pixabay">TEST</button>
+            <div class="form-row">
+              <div class="form-group flex-2">
+                <label>API Key (Optional)</label>
+                <input type="password" id="set_custom_key" class="form-control" placeholder="Bearer sk-..." />
               </div>
-              <small style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted);">
-                <a href="https://pixabay.com/api/docs/" target="_blank" style="color: var(--accent-cyan);">🔗 Get Free Pixabay Key (Unlimited)</a>
-              </small>
+              <div class="form-group flex-2">
+                <label>Model Identifier</label>
+                <input type="text" id="set_custom_model" class="form-control" placeholder="e.g. meta-llama/Llama-3-70b-chat-hf" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('custom')">Test</button>
+              </div>
             </div>
 
-            <div class="form-group col-12" style="background: var(--bg-secondary); border: 1px solid var(--border); padding: 14px; border-radius: 8px;">
-              <label class="label" style="margin-bottom: 8px;">Stealth Scraper &amp; AI Image Engines</label>
-              <div style="display: flex; gap: 20px; font-family: var(--font-mono); font-size: 12px;">
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                  <input type="checkbox" id="cfgTogglePinterest" checked> Playwright Pinterest Stealth Scraper
-                </label>
-                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
-                  <input type="checkbox" id="cfgToggleFlux" checked> Pollinations 4K Flux AI Image Fallback (60fps Ken Burns)
+            <div class="form-row" style="margin-top: 0.75rem;">
+              <div class="form-group flex-1">
+                <label class="custom-checkbox" data-tooltip="Enable if using Reasoning / Thinking models (DeepSeek-R1, OpenAI o1/o3) to strip internal monologue tags.">
+                  <input type="checkbox" id="set_custom_thinking" />
+                  <span>🧠 Thinking Mode (Auto-Strip &lt;think&gt; tags)</span>
                 </label>
               </div>
+              <div class="form-group flex-1">
+                <label>Max Tokens</label>
+                <input type="number" id="set_custom_max_tokens" class="form-control" value="4096" min="256" max="16384" />
+              </div>
+              <div class="form-group flex-1">
+                <label>Temperature</label>
+                <input type="number" id="set_custom_temperature" class="form-control" value="0.2" min="0.0" max="1.0" step="0.1" />
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Tab 3: Speech & TTS -->
-        <div id="panelSetSpeech" style="display: none; flex-direction: column; gap: 14px;">
-          <div class="grid-12">
-            <div class="form-group col-6">
-              <label class="label">Default Voice Engine</label>
-              <select id="cfgDefaultTtsEngine" class="select mono">
-                <option value="edge" selected>⚡ Microsoft Edge-TTS (Free Neural)</option>
-                <option value="openai">🤖 OpenAI TTS</option>
-                <option value="elevenlabs">💎 ElevenLabs</option>
-              </select>
+        <!-- 3. Stock Media APIs & Quotas Tab (With Storyblocks, Coverr, Mixkit, Videvo, Wikimedia) -->
+        <div class="tab-pane" id="tab-stock">
+          <!-- Pexels -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Pexels API</h4>
+              <a href="https://www.pexels.com/api/new/" target="_blank" class="btn-get-key">🔑 Get Free Pexels Key &nearr;</a>
             </div>
-
-            <div class="form-group col-6">
-              <label class="label">Default Speaking Rate</label>
-              <select id="cfgDefaultRate" class="select mono">
-                <option value="+0%" selected>Normal (1.0x)</option>
-                <option value="+10%">Fast (+10%)</option>
-                <option value="+20%">Shorts (+20%)</option>
-                <option value="-10%">Slow (-10%)</option>
-              </select>
+            <div class="form-row">
+              <div class="form-group flex-3">
+                <label>API Key</label>
+                <input type="password" id="set_pexels_key" class="form-control" placeholder="Pexels API Key" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('pexels')">Test</button>
+              </div>
             </div>
+            <div class="setting-hint" id="quota-pexels-info">Quota: 200 req/hr free &bull; Used: 0 &bull; Auto-resets hourly</div>
+          </div>
 
-            <div class="form-group col-6">
-              <label class="label">BGM Mixing Volume (<span id="cfgBgmVolDisplay">18%</span>)</label>
-              <input type="range" id="cfgBgmVolMaster" min="0" max="50" value="18" class="input" style="padding: 0;">
+          <!-- Pixabay -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Pixabay API</h4>
+              <a href="https://pixabay.com/api/docs/" target="_blank" class="btn-get-key">🔑 Get Free Pixabay Key &nearr;</a>
             </div>
+            <div class="form-row">
+              <div class="form-group flex-3">
+                <label>API Key</label>
+                <input type="password" id="set_pixabay_key" class="form-control" placeholder="Pixabay API Key" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('pixabay')">Test</button>
+              </div>
+            </div>
+            <div class="setting-hint" id="quota-pixabay-info">Quota: 5,000 req/hr free &bull; Used: 0</div>
+          </div>
 
-            <div class="form-group col-6">
-              <label class="label">ElevenLabs Custom Voice ID (Optional)</label>
-              <input type="text" id="cfgElevenVoiceId" class="input mono" placeholder="e.g. 21m00Tcm4TlvDq8ikWAM">
+          <!-- Coverr.co -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Coverr.co (Free HD/4K Video Library)</h4>
+              <a href="https://coverr.co" target="_blank" class="btn-get-key">🌐 Coverr Portal &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-3">
+                <label>API Key (Optional — Free direct scraper active)</label>
+                <input type="password" id="set_coverr_key" class="form-control" placeholder="Coverr API Key (Optional)" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('coverr')">Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Storyblocks -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Storyblocks</h4>
+              <a href="https://www.storyblocks.com" target="_blank" class="btn-get-key">🔑 Storyblocks Portal &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-3">
+                <label>API Key / Project Key</label>
+                <input type="password" id="set_storyblocks_key" class="form-control" placeholder="Storyblocks API Key" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('storyblocks')">Test</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Unsplash -->
+          <div class="setting-block">
+            <div class="setting-block-header">
+              <h4>Unsplash API</h4>
+              <a href="https://unsplash.com/developers" target="_blank" class="btn-get-key">🔑 Get Unsplash Key &nearr;</a>
+            </div>
+            <div class="form-row">
+              <div class="form-group flex-3">
+                <label>Access Key (Optional — High-Res Scraper fallback active)</label>
+                <input type="password" id="set_unsplash_key" class="form-control" placeholder="Unsplash Access Key" />
+              </div>
+              <div class="form-group flex-1 test-btn-group">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="testProvider('unsplash')">Test</button>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Tab 4: Video Codecs & Rendering -->
-        <div id="panelSetRender" style="display: none; flex-direction: column; gap: 14px;">
-          <div class="grid-12">
-            <div class="form-group col-6">
-              <label class="label">Anti-Duplicate Video Mirroring</label>
-              <select id="cfgMasterMirror" class="select mono">
-                <option value="false" selected>Disabled (Original Footage)</option>
-                <option value="true">Enable Horizontal Flip (Bypass Duplicate AI)</option>
-              </select>
-            </div>
+        <!-- 4. Agent & Skill Integrations Tab -->
+        <div class="tab-pane" id="tab-agents">
+          <div class="setting-block">
+            <h4>🤖 Connect with Hermes Agent</h4>
+            <p class="setting-hint">Add this Python function into your Hermes Agent tools folder to let Hermes generate b-roll autonomously:</p>
+            <div class="code-block-wrapper">
+              <button class="btn-copy-code" onclick="copySnippet('code-hermes')">Copy Hermes Code</button>
+              <pre id="code-hermes">import subprocess
+from pathlib import Path
 
-            <div class="form-group col-6">
-              <label class="label">Video Speed Multiplier</label>
-              <select id="cfgMasterSpeed" class="select mono">
-                <option value="1.0" selected>1.0x (Normal)</option>
-                <option value="1.1">1.1x (Fast Retention)</option>
-                <option value="1.25">1.25x (Speedrun)</option>
-                <option value="0.9">0.9x (Cinematic Slow)</option>
-              </select>
+def collect_broll(script: str, duration: int = 60, quality: str = "1080p", aspect_ratio: str = "16:9") -> dict:
+    tool_dir = Path(__file__).resolve().parent
+    cmd = ["python", str(tool_dir / "cli.py"), "--script", script, "--duration", str(duration), "--quality", quality, "--aspect-ratio", aspect_ratio]
+    proc = subprocess.run(cmd, capture_output=True, text=True, cwd=str(tool_dir))
+    return {"status": "success" if proc.returncode == 0 else "error", "output": proc.stdout}</pre>
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <h4>🦅 Connect with OpenClaw</h4>
+            <p class="setting-hint">Register in OpenClaw plugin registry via <code>plugins/stock_collector/plugin.json</code>:</p>
+            <div class="code-block-wrapper">
+              <button class="btn-copy-code" onclick="copySnippet('code-openclaw')">Copy OpenClaw JSON</button>
+              <pre id="code-openclaw">{
+  "plugin_name": "ai-stock-collector-pro",
+  "version": "2.0.0",
+  "author": "Ali Rasheed",
+  "entrypoint": "cli.py",
+  "capabilities": ["script_analysis", "stock_search", "ffmpeg_rendering"],
+  "supported_ratios": ["16:9", "9:16", "1:1", "4:5"]
+}</pre>
+            </div>
+          </div>
+
+          <div class="setting-block">
+            <h4>⌨️ Claude Code & Codex CLI One-Liner</h4>
+            <div class="code-block-wrapper">
+              <button class="btn-copy-code" onclick="copySnippet('code-claude')">Copy CLI Command</button>
+              <pre id="code-claude">python cli.py --script "Your narration here" --duration 45 --quality 1080p</pre>
             </div>
           </div>
         </div>
 
-        <!-- Tab 5: Subtitles & Typography -->
-        <div id="panelSetSubtitle" style="display: none; flex-direction: column; gap: 14px;">
-          <div class="grid-12">
-            <div class="form-group col-6">
-              <label class="label">Default Subtitle Karaoke Style</label>
-              <select id="cfgDefaultSubStyle" class="select mono">
-                <option value="hormozi" selected>🔥 Hormozi Viral Yellow</option>
-                <option value="cyber_cyan">💎 Cyber Neon Cyan</option>
-                <option value="clean_white">⚪ Clean Minimal White</option>
-              </select>
+        <!-- 5. Performance, Video Transitions & Proxy Tab -->
+        <div class="tab-pane" id="tab-concurrency">
+          <div class="setting-block">
+            <h4>Network Proxy Configuration</h4>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label>HTTP Proxy</label>
+                <input type="text" id="set_http_proxy" class="form-control" placeholder="http://127.0.0.1:7890" />
+              </div>
+              <div class="form-group flex-1">
+                <label>HTTPS Proxy</label>
+                <input type="text" id="set_https_proxy" class="form-control" placeholder="http://127.0.0.1:7890" />
+              </div>
             </div>
+          </div>
 
-            <div class="form-group col-6">
-              <label class="label">Subtitle Font Outline (Stroke Width)</label>
-              <select id="cfgSubStrokeWidth" class="select mono">
-                <option value="3.5" selected>3.5px (Bold Black Outline)</option>
-                <option value="2.0">2.0px (Subtle Outline)</option>
-                <option value="5.0">5.0px (Heavy Impact)</option>
-              </select>
+          <div class="setting-block">
+            <h4>Parallel Concurrency</h4>
+            <div class="form-row">
+              <div class="form-group flex-1">
+                <label>Parallel Downloads</label>
+                <input type="number" id="set_max_downloads" class="form-control" value="5" min="1" max="12" />
+              </div>
+              <div class="form-group flex-1">
+                <label>Parallel Searches</label>
+                <input type="number" id="set_max_searches" class="form-control" value="6" min="1" max="16" />
+              </div>
+              <div class="form-group flex-1">
+                <label>FFmpeg Threads</label>
+                <input type="number" id="set_max_ffmpeg" class="form-control" value="4" min="1" max="8" />
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </main>
 
-  </div>
-</div>
-
-<!-- =========================================================================
-     MODALS
-     ========================================================================= -->
-
-<!-- Time Calculator Modal -->
-<div class="modal-overlay" id="timeCalcModal">
-  <div class="modal-box">
-    <div class="card-header">
-      <h3 class="card-title"><svg class="icon"><use href="#icon-clock"/></svg> Speaking Speed &amp; Duration Calculator</h3>
-      <button type="button" class="btn btn-secondary btn-sm" id="closeTimeCalcBtn">✕</button>
-    </div>
-    <div class="form-group">
-      <label class="label">Speaking Velocity (Words Per Minute)</label>
-      <div style="display: flex; gap: 8px;">
-        <button type="button" class="chip-btn" id="wpmSlowBtn">130 WPM (Slow)</button>
-        <button type="button" class="chip-btn active" id="wpmNormBtn">150 WPM (Standard)</button>
-        <button type="button" class="chip-btn" id="wpmFastBtn">180 WPM (Shorts)</button>
+      <div class="modal-footer">
+        <span class="save-status-msg" id="settings-status-msg"></span>
+        <button class="btn btn-secondary" onclick="closeSettingsModal()">Close</button>
+        <button class="btn btn-primary" onclick="saveSettings()">Save & Apply</button>
       </div>
     </div>
-    <div style="background: var(--bg-secondary); padding: 14px; border-radius: 8px; font-family: var(--font-mono); font-size: 13px;">
-      Current Script: <span id="calcWordCountDisplay" style="font-weight: 800; color: var(--accent-cyan);">0 words</span> &rarr; 
-      Duration: <span id="calcWpmSecDisplay" style="font-weight: 800; color: var(--accent-yellow);">0s</span>
-    </div>
-    <button type="button" id="applyTimeCalcBtn" class="btn btn-primary btn-lg">APPLY DURATION &amp; CLOSE</button>
   </div>
-</div>
 
-<!-- AI Script Rewriter Modal -->
-<div class="modal-overlay" id="rewriteModal">
-  <div class="modal-box" style="max-width: 680px;">
-    <div class="card-header">
-      <h3 class="card-title" style="color: var(--accent-cyan);"><svg class="icon"><use href="#icon-sparkles"/></svg> ⚡ AI Viral Hook &amp; Script Rewriter</h3>
-      <button type="button" class="btn btn-secondary btn-sm" id="closeRewriteBtn">✕</button>
+  <!-- Projects History Drawer -->
+  <div class="drawer" id="projects-drawer">
+    <div class="drawer-header">
+      <h3>Previous Projects</h3>
+      <button class="btn-close" onclick="closeProjectsDrawer()">&times;</button>
     </div>
-    <div class="form-group">
-      <label class="label">Viral Narrative Style</label>
-      <select id="rewriteStyleSelect" class="select mono">
-        <option value="viral_hook" selected>⚡ Scroll-Stopping Viral Hook (MrBeast / Hormozi)</option>
-        <option value="tiktok_shorts">📱 TikTok / Shorts 3-Point Listicle</option>
-        <option value="documentary">🎬 Cinematic Documentary Deep Dive (Vox Style)</option>
-        <option value="educational">💼 Explainer Breakdown</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="label">Source Notes / Rough Draft</label>
-      <textarea id="rewriteSourceInput" class="textarea mono" placeholder="Paste your rough points here..."></textarea>
-    </div>
-    <button type="button" id="executeRewriteBtn" class="btn btn-primary btn-lg">GENERATE VIRAL SCRIPT</button>
-    <div id="rewriteResultBox" style="display: none; flex-direction: column; gap: 8px; margin-top: 10px;">
-      <label class="label" style="color: var(--accent-lime);">✨ AI-Enhanced High-Retention Script</label>
-      <textarea id="rewriteOutputPreview" class="textarea mono" style="min-height: 120px;"></textarea>
-      <button type="button" id="applyRewrittenScriptBtn" class="btn btn-yellow">USE THIS SCRIPT IN STUDIO</button>
+    <div class="drawer-body" id="projects-list-container">
+      <div class="loading-spinner">Loading projects...</div>
     </div>
   </div>
-</div>
 
-<!-- Viral Distribution & SEO Metadata Modal -->
-<div class="modal-overlay" id="metadataModal">
-  <div class="modal-box" style="max-width: 680px;">
-    <div class="card-header">
-      <h3 class="card-title" style="color: var(--accent-yellow);"><svg class="icon"><use href="#icon-sparkles"/></svg> 🚀 Viral SEO &amp; Thumbnail Pack</h3>
-      <button type="button" class="btn btn-secondary btn-sm" id="closeMetadataBtn">✕</button>
-    </div>
-    <div class="form-group">
-      <label class="label" style="color: var(--accent-cyan);">🔥 5 Click-Worthy High CTR Titles</label>
-      <div id="metaTitlesList" style="display: flex; flex-direction: column; gap: 6px; font-family: var(--font-mono); font-size: 12px;"></div>
-    </div>
-    <div class="form-group">
-      <label class="label">SEO Description with Chapter Timestamps</label>
-      <textarea id="metaDescriptionInput" class="textarea mono" style="min-height: 100px;"></textarea>
-    </div>
-    <div class="form-group">
-      <label class="label">Algorithmic Pinned Comment</label>
-      <input type="text" id="metaPinnedCommentInput" class="input mono">
-    </div>
-    <div class="form-group">
-      <label class="label">Midjourney / Flux 4K Thumbnail Prompt</label>
-      <textarea id="metaThumbnailPromptInput" class="textarea mono" style="min-height: 60px;"></textarea>
-    </div>
-    <button type="button" id="copyAllMetadataBtn" class="btn btn-cyan">📋 COPY ALL METADATA</button>
-  </div>
-</div>
-
-<script src="/static/js/app.js"></script>
+  <script src="/static/app.js?v=2026.5"></script>
 </body>
 </html>
