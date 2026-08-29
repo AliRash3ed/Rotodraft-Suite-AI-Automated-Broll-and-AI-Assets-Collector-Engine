@@ -1,0 +1,94 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://github.com/AliRash3ed/rotodraft-suite#software",
+      "name": "RotoDraft Suite",
+      "alternateName": "rotodraft suite - automatic script to broll and asset collector engine",
+      "description": "Autonomous script-to-broll video creation engine and $0 open-source alternative to Pictory AI, InVideo AI, and MoneyPrinter Turbo. Supports any AI model, 9 stock media vaults, local FFmpeg rendering, and direct NLE timeline exports for Premiere Pro, DaVinci Resolve, and CapCut.",
+      "url": "https://github.com/AliRash3ed/rotodraft-suite",
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Windows, macOS, Linux, Google Colab, Docker",
+      "license": "https://opensource.org/licenses/MIT",
+      "isAccessibleForFree": true,
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD",
+        "availability": "https://schema.org/InStock"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "Ali Rasheed",
+        "url": "https://www.linkedin.com/in/alirasheedbhatt",
+        "jobTitle": "Full-Stack AI Developer & Tech Infrastructure Engineer",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Lahore",
+          "addressCountry": "Pakistan"
+        },
+        "sameAs": [
+          "https://github.com/AliRash3ed",
+          "https://x.com/AliRasheedBti",
+          "https://www.instagram.com/this_is_ali_r/",
+          "https://www.facebook.com/profile.php?id=61579456175357"
+        ]
+      },
+      "featureList": [
+        "Script-to-Video Automatic Scene Breakdown",
+        "Universal Bring Your Own Key (BYOK) AI Architecture",
+        "DeepSeek-R1 & OpenAI o1/o3 Reasoning Monologue Auto-Sanitization",
+        "9 Parallel Stock Media Vaults: Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, Wikimedia",
+        "Local FFmpeg Hardware Transcoding & Exact Duration Trimming",
+        "Mathematical 2.5D Ken Burns Photo Pan & Zoom Motion",
+        "1-Click Full Master Video Concatenation (MP4)",
+        "Direct ZIP Archive & Individual MP4 Video Downloads",
+        "Adobe Premiere Pro XML Timeline Exporter",
+        "DaVinci Resolve EDL Sequence Exporter",
+        "CapCut Desktop Project Draft JSON Exporter",
+        "1-Click Google Colab Cloud Studio",
+        "Strict Local-First Privacy Protection"
+      ],
+      "softwareRequirements": "Python 3.10+, FFmpeg"
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://github.com/AliRash3ed/rotodraft-suite#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is RotoDraft Suite?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "RotoDraft Suite is a 100% free and open-source automated script-to-b-roll video creation engine that converts voiceover scripts into timeline-ready 1080p/4K stock video clips with local FFmpeg transcoding and direct NLE project exports for Premiere Pro, DaVinci Resolve, and CapCut."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How does RotoDraft Suite compare to Pictory AI and InVideo AI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Unlike Pictory AI ($49/month) and InVideo AI ($35/month), RotoDraft Suite is 100% free and open-source forever. It allows users to bring their own API keys for any AI model (OpenRouter, Gemini, Groq, OpenAI, Claude, Ollama, DeepSeek), searches 9 stock vaults in parallel, operates locally with zero cloud privacy risks, and exports native timeline files for Adobe Premiere Pro, DaVinci Resolve, and CapCut."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I download the video clips directly without opening an editor?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. RotoDraft Suite provides a 1-Click ZIP download of all trimmed clips, individual MP4 download buttons for each clip, and an automated Full Master Video MP4 stitcher."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I run RotoDraft Suite in Google Colab?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes. RotoDraft Suite includes an official 1-Click Google Colab notebook for running the complete web studio on cloud GPU acceleration without local installation."
+          }
+        }
+      ]
+    }
+  ]
+}

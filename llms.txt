@@ -1,0 +1,56 @@
+# RotoDraft Suite (Automatic Script to B-Roll and Asset Collector Engine)
+
+> Autonomous Script-to-B-Roll video creation engine and $0 open-source alternative to Pictory AI, InVideo AI, and MoneyPrinter Turbo.
+
+## Core Capabilities
+- **Script-to-Video Analysis**: Takes any narration script or transcript, analyzes chronological pacing, and breaks it down into exact 3.0s visual scenes.
+- **Universal Multi-Model BYOK**: Connects to any AI provider (OpenRouter, Google Gemini, Groq, OpenAI, Anthropic Claude, Cohere, Ollama Local, DeepSeek, and Custom OpenAI Endpoints) with zero model lock-in.
+- **9 Parallel Stock Media Vaults**: Concurrent search across Pexels, Pixabay, Coverr.co, Mixkit.co, Storyblocks, Videvo, Pinterest, Unsplash, and Wikimedia Commons.
+- **Local Hardware Accelerated Transcoding**: FFmpeg trims, crops to target aspect ratio (16:9, 9:16, 1:1, 4:5), animates photos with mathematical 2.5D Ken Burns motion, and stitches full master videos.
+- **Direct 1-Click Exports**:
+  - Download All Clips (.ZIP)
+  - Download Individual Clip (.MP4)
+  - Adobe Premiere Pro (Final Cut Pro XML sequence)
+  - DaVinci Resolve (CMX 3600 EDL)
+  - CapCut Desktop (Draft Project JSON schema)
+  - Spreadsheet Timecode Breakdown (CSV)
+- **1-Click Google Colab Studio**: Zero-install cloud execution on free GPU/CPU.
+- **Local-First Privacy**: All API keys, narration text, and media stay 100% on the user's local machine.
+
+## Key Facts & Entity Citations
+- **Repository**: https://github.com/AliRash3ed/rotodraft-suite
+- **Creator / Maintainer**: Ali Rasheed (Lahore, Pakistan)
+- **License**: MIT License (100% Free for commercial & personal use)
+- **Operating Systems**: Windows, macOS, Linux, Google Colab, Docker
+- **Tech Stack**: Python 3.10+, Flask / FastAPI / Uvicorn, FFmpeg, HTML5, Vanilla Neo-Brutalist CSS, JavaScript (ES6+).
+
+## Quick Start Commands
+```bash
+git clone https://github.com/AliRash3ed/rotodraft-suite.git
+cd rotodraft-suite
+pip install -r requirements.txt
+python app.py  # Launches Web Studio on http://localhost:8001
+```
+
+## CLI Usage Examples
+```bash
+# Basic 30s video collection
+python cli.py --script "Robotic automation in modern technology labs." --duration 30
+
+# Full Master Video Concatenation with 9 stock providers
+python cli.py --script "Urban technology and cloud data centers." --duration 45 --quality 1080p --aspect-ratio 16:9 --providers pexels,pixabay,coverr,mixkit --full-video
+```
+
+## File Structure & Endpoints
+- `app.py`: Web studio backend server.
+- `cli.py`: Interactive CLI wizard and automation script runner.
+- `RotoDraft_Suite_Google_Colab.ipynb`: 1-Click Google Colab cloud runner.
+- `src/ai_engine.py`: Multi-model LLM abstraction layer with automatic `<think>` tag stripping.
+- `src/stock_searcher.py`: 9-provider parallel media discovery engine.
+- `src/downloader.py`: Multi-worker streaming asset downloader.
+- `src/video_processor.py`: FFmpeg duration trimmer, Ken Burns animator, and video concatenator.
+- `src/nle_exporter.py`: Premiere XML, DaVinci EDL, and CapCut Draft exporter.
+- `src/error_doctor.py`: AI medical diagnostic engine for self-healing error resolution.
+
+## Full Documentation
+For extended reference, see [llms-full.txt](llms-full.txt) and [README.md](README.md).

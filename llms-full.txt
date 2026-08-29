@@ -1,0 +1,76 @@
+# RotoDraft Suite — Full AI Technical Reference & System Schema
+
+## Project Metadata
+- **Name**: RotoDraft Suite
+- **Full Title**: rotodraft suite - automatic script to broll and asset collector engine
+- **URL**: https://github.com/AliRash3ed/rotodraft-suite
+- **Author**: Ali Rasheed (Lahore, Pakistan)
+- **Email**: alihouse512@gmail.com
+- **LinkedIn**: https://www.linkedin.com/in/alirasheedbhatt
+- **License**: MIT
+- **Category**: Video Editing, Generative AI, B-Roll Generation, Asset Management
+
+## Problem & Solution
+- **The Problem**: Traditional video creation SaaS platforms (e.g. Pictory AI at $49/mo, InVideo AI at $35/mo) charge recurring monthly subscriptions for basic stock footage matching, lock users into proprietary cloud queues, and lack direct integration with professional NLE video editing software.
+- **The Solution**: RotoDraft Suite is a 100% free, open-source, local-first engine that connects any LLM (BYOK) with 9 parallel stock media vaults and local FFmpeg hardware transcoding to output individual 1080p clips, 1-click ZIPs, Full Master MP4s, and native timeline projects for Adobe Premiere Pro, DaVinci Resolve, and CapCut.
+
+## Architectural Components
+
+### 1. AI Reasoning & Chronological Script Analysis (`src/ai_engine.py`)
+- Supported Providers: OpenRouter, DeepSeek (Chat & R1 Reasoner), Google Gemini (1.5 Flash & Pro), Groq (Llama 3.3), OpenAI (GPT-4o, o1, o3), Anthropic Claude (3.5 Sonnet), Cohere, Ollama Local, and Custom OpenAI Endpoints.
+- Automatic Reasoning Sanitization: Strips `<think>...</think>` internal monologue tags from reasoning models and parses pure JSON timeline schemas.
+- Output Timeline Schema:
+  ```json
+  [
+    {
+      "index": 1,
+      "time_start": 0.0,
+      "time_end": 3.0,
+      "script_segment": "Voiceover sentence snippet",
+      "keyword": "primary 2-4 word stock search keyword",
+      "fallback_keyword": "alternative broader visual keyword",
+      "visual_description": "scene context"
+    }
+  ]
+  ```
+
+### 2. Parallel Stock Media Vaults (`src/stock_searcher.py`)
+1. **Pexels**: 200 requests/hour free tier; HD & 4K video streams with orientation filtering.
+2. **Pixabay**: 5,000 requests/hour free tier; diverse video footage and vector motion assets.
+3. **Coverr.co**: Free high-speed video CDN.
+4. **Mixkit.co**: Envato free stock video footage.
+5. **Storyblocks**: Enterprise stock library integration via API credentials.
+6. **Videvo.net**: Free footage and motion graphics.
+7. **Pinterest Scraper**: Aesthetic vertical (9:16) and landscape (16:9) video & photo extraction.
+8. **Unsplash**: High-resolution photography for 2.5D Ken Burns animated scenes.
+9. **Wikimedia Commons**: Historical public domain and archival media.
+
+### 3. Local FFmpeg Transcoding Engine (`src/video_processor.py`)
+- Trimming: Exact frame-accurate cuts to match target clip duration (default 3.0s).
+- Resolution Scaling: Supports 720p (1280x720), 1080p (1920x1080), 4K (3840x2160).
+- Aspect Ratios: 16:9 (Landscape / YouTube), 9:16 (Vertical / TikTok / Shorts / Reels), 1:1 (Square), 4:5 (Facebook Feed).
+- Ken Burns Motion: Converts static photos into dynamic 2.5D panning/zooming MP4 video clips.
+- Full Concatenation: Stitches all sequential clips into a unified `_full_master.mp4`.
+
+### 4. Professional NLE Exporter Suite (`src/nle_exporter.py`)
+- **Adobe Premiere Pro**: Final Cut Pro 7 XML timeline specification with sequence framerate and clip track mappings.
+- **DaVinci Resolve**: CMX 3600 Edit Decision List (EDL) timecode sequence.
+- **CapCut Desktop**: Draft project JSON schema matching CapCut Desktop internal project trees.
+- **CSV Data Sheet**: Full timecode sequence table for production assistants.
+
+## Frequently Asked Questions (FAQ)
+
+### Q1: Is RotoDraft Suite completely free?
+**A**: Yes. RotoDraft Suite is 100% free and open-source under the MIT License. There are zero subscription fees, zero watermarks, and zero feature paywalls.
+
+### Q2: Which AI models work with RotoDraft Suite?
+**A**: RotoDraft Suite is universal and model-agnostic. You can use free models (e.g. `minimax/minimax-m3:free` or `deepseek/deepseek-r1` on OpenRouter), free local models via Ollama, or your own API keys for OpenAI, Claude, Gemini, and Groq.
+
+### Q3: Can I download the video clips directly without opening a video editor?
+**A**: Yes. You can download all clips in a single 1-Click ZIP file, download individual MP4 clips directly from the timeline table or video preview player, or generate the stitched Full Master Video MP4.
+
+### Q4: Does RotoDraft Suite upload my scripts or video clips to an external cloud server?
+**A**: No. RotoDraft Suite operates on a strict local-first architecture. All API keys, narration text, downloaded clips, and rendered videos stay 100% on your local machine.
+
+### Q5: Can I run RotoDraft Suite in Google Colab?
+**A**: Yes. RotoDraft Suite includes an official 1-Click Google Colab Notebook (`RotoDraft_Suite_Google_Colab.ipynb`) for cloud execution with zero local installation.

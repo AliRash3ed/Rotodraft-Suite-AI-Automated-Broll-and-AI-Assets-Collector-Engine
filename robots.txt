@@ -1,0 +1,50 @@
+# ═══════════════════════════════════════════════════════════════
+# RotoDraft Suite — AI Crawler & Answer Engine Permissions (GEO / AEO)
+# Explicitly grants full indexing permissions to all AI Search Engines
+# ═══════════════════════════════════════════════════════════════
+
+User-agent: *
+Allow: /
+Disallow: /downloads/
+
+# AI Search & LLM Bots
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: GoogleOther
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+User-agent: Bytespider
+Allow: /
+
+User-agent: Amazonbot
+Allow: /
+
+User-agent: Diffbot
+Allow: /
+
+# LLM Documentation Standards
+# LLMs Text Endpoint: /llms.txt
+# LLMs Full Context: /llms-full.txt
+# JSON-LD Schema: /schema.jsonld
