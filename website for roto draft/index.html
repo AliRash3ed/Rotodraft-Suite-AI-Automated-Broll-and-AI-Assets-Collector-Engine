@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RotoDraft Suite — Open-Source AI B-Roll & Video Asset Collector Engine</title>
+  <meta name="description" content="Collect brolls just by pasting your script. 100% Free Open-Source InVideo and Pictory AI alternative with 9 stock media vaults, local FFmpeg rendering, and direct NLE exports.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="assets/rotodraft_logo.png">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <span>🎬 <strong>ROTODRAFT SUITE 2026 EDITION</strong> &bull; 100% Free & Open-Source Script-to-B-Roll Engine</span>
+    <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank">⭐ Star on GitHub</a>
+    <a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank">⚡ 1-Click Google Colab</a>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-badge">
+        <img src="assets/rotodraft_logo.png" alt="RotoDraft Logo">
+      </div>
+      <div class="nav-brand-text">
+        <span>RotoDraft</span>
+        <span class="badge-oss">OPEN-SOURCE</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link active">Home</a></li>
+      <li><a href="about.html" class="nav-link">About Engine</a></li>
+      <li><a href="creator.html" class="nav-link">About Creator</a></li>
+      <li><a href="hire.html" class="nav-link">Hire / Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" title="Toggle Dark/Light Mode">
+        <span id="theme-icon">🌙</span>
+      </button>
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank" class="btn btn-secondary btn-sm">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span>GitHub ⭐ <span id="github-star-count">12</span></span>
+      </a>
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/archive/refs/heads/main.zip" class="btn btn-primary btn-sm">
+        ⬇ Download ZIP
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section Matching Attached Diagram -->
+  <header class="hero-section">
+    <div class="hero-pill-badge">
+      <span>🚀 THE #1 INVIDEO & PICTORY AI ALTERNATIVE</span>
+    </div>
+
+    <h1 class="hero-title">
+      Roto draft: opensource <span class="highlight-blue">free</span> ai broll collector engine
+    </h1>
+
+    <p class="hero-subtitle">
+      Collect brolls just by pasting script and this tool handles all <strong>invideo alternative</strong>.
+      Universal BYOK support for ANY AI model, 9 stock media vaults, direct local FFmpeg hardware transcoding, and native NLE timeline exporters.
+    </p>
+
+    <div class="hero-cta-group">
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank" class="btn btn-primary btn-lg">
+        ⭐ Star on GitHub
+      </a>
+      <a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank" class="btn btn-colab btn-lg">
+        ⚡ Open in Google Colab
+      </a>
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/archive/refs/heads/main.zip" class="btn btn-secondary btn-lg">
+        📦 Download Repository (.ZIP)
+      </a>
+      <a href="#playground" class="btn btn-secondary btn-lg">
+        🎯 Test Interactive Demo
+      </a>
+    </div>
+
+    <!-- Annotated Showcase Mockup with Directional Callout Badges -->
+    <div class="showcase-container">
+      <!-- Left Callouts -->
+      <div class="annotation-card annot-left-1">
+        <span>AI analyzes your script</span>
+        <span class="arrow-icon">➡️</span>
+      </div>
+      <div class="annotation-card annot-left-2">
+        <span>Upload voiceover & auto sync</span>
+        <span class="arrow-icon">➡️</span>
+      </div>
+      <div class="annotation-card annot-left-3">
+        <span>Multiple aspect ratios & quality</span>
+        <span class="arrow-icon">➡️</span>
+      </div>
+
+      <!-- Center Frame -->
+      <div class="showcase-frame">
+        <img src="assets/dashboard_main.png" alt="RotoDraft Suite Web Studio Dashboard" />
+      </div>
+
+      <!-- Right Callouts -->
+      <div class="annotation-card annot-right-1">
+        <span class="arrow-icon">⬅️</span>
+        <span>Smart pipeline execution</span>
+      </div>
+      <div class="annotation-card annot-right-2">
+        <span class="arrow-icon">⬅️</span>
+        <span>Timeline of all collected brolls</span>
+      </div>
+      <div class="annotation-card annot-right-3">
+        <span class="arrow-icon">⬅️</span>
+        <span>Live event stream & logs</span>
+      </div>
+    </div>
+
+    <!-- Bottom Feature Trust Bar Matching Reference Image -->
+    <div class="trust-bar">
+      <div class="trust-item">
+        <div class="trust-icon">🤖</div>
+        <h4>AI-Powered Script Analysis</h4>
+        <p style="font-size:0.8rem; color:#64748b;">Deep temporal reasoning & scene splitting</p>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🎬</div>
+        <h4>Auto B-Roll Collection</h4>
+        <p style="font-size:0.8rem; color:#64748b;">Exact 3.0s 1080p/4K footage rendering</p>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🏛️</div>
+        <h4>Multiple Stock Sources</h4>
+        <p style="font-size:0.8rem; color:#64748b;">9 concurrent parallel media vaults</p>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">⚡</div>
+        <h4>One-Click Automation</h4>
+        <p style="font-size:0.8rem; color:#64748b;">ZIP archives & full master MP4 stitcher</p>
+      </div>
+      <div class="trust-item">
+        <div class="trust-icon">🛡️</div>
+        <h4>Open Source & Free Forever</h4>
+        <p style="font-size:0.8rem; color:#64748b;">MIT licensed, zero subscription tax</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- Interactive Script-to-B-Roll Simulator Playground -->
+  <section id="playground" class="section-wrapper">
+    <div class="section-header">
+      <span class="section-tag">INTERACTIVE SIMULATOR</span>
+      <h2 class="section-title">Test The AI Director Live In Your Browser</h2>
+      <p style="color:#64748b; margin-top:0.5rem;">Paste any narration script below and watch the AI extract exact chronological B-roll queries.</p>
+    </div>
+
+    <div class="playground-box">
+      <div class="playground-header">
+        <span style="font-weight:800; font-size:0.95rem;">Voiceover Script Input:</span>
+        <button id="playground-sample-btn" class="btn btn-secondary btn-sm">Load AI Sample Script</button>
+      </div>
+
+      <textarea id="playground-input" class="playground-textarea" placeholder="Paste your video narration script here..."></textarea>
+
+      <div style="display:flex; justify-content:flex-end; margin-bottom:1.25rem;">
+        <button id="playground-analyze-btn" class="btn btn-primary">⚡ Extract B-Roll Scenes</button>
+      </div>
+
+      <div id="playground-chips" class="playground-results">
+        <div style="color:#64748b; font-size:0.85rem; text-align:center; padding:1.5rem;">
+          Click <strong>"Load AI Sample Script"</strong> or paste your text to see real-time 3.0s scene breakdown.
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Deep Technical Comparison Table vs Commercial SaaS -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <span class="section-tag">FORENSIC COMPARISON</span>
+      <h2 class="section-title">Why Creators Are Leaving Paid SaaS Tools</h2>
+    </div>
+
+    <div class="comparison-table-wrapper">
+      <table class="comparison-table">
+        <thead>
+          <tr>
+            <th>Feature / Capability</th>
+            <th>🚫 Pictory AI</th>
+            <th>🚫 InVideo AI</th>
+            <th>⚠️ MoneyPrinter Turbo</th>
+            <th class="highlight-col">🚀 RotoDraft Suite</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Annual Cost</strong></td>
+            <td>$588 / year</td>
+            <td>$420 / year</td>
+            <td>Free (GPLv3)</td>
+            <td class="highlight-col"><strong>$0.00 (100% Free Forever)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>AI Model Choice</strong></td>
+            <td>Locked proprietary</td>
+            <td>Locked GPT-3.5/4</td>
+            <td>OpenAI Only</td>
+            <td class="highlight-col"><strong>Universal BYOK: OpenRouter, Gemini, Groq, Claude, OpenAI, DeepSeek, Ollama</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Stock Media Vaults</strong></td>
+            <td>1 (Storyblocks)</td>
+            <td>1 (Shutterstock)</td>
+            <td>2 (Pexels, Pixabay)</td>
+            <td class="highlight-col"><strong>9 Vaults (Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, Wikimedia)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Direct ZIP & MP4 Downloads</strong></td>
+            <td>Paywalled</td>
+            <td>Watermarked</td>
+            <td>Basic</td>
+            <td class="highlight-col"><strong>1-Click ZIP of all 3.0s clips + Master MP4 Concatenator</strong></td>
+          </tr>
+          <tr>
+            <td><strong>NLE Timeline Exporters</strong></td>
+            <td>None</td>
+            <td>None</td>
+            <td>None</td>
+            <td class="highlight-col"><strong>Premiere Pro (XML), DaVinci Resolve (EDL), CapCut (JSON)</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Photo Motion</strong></td>
+            <td>Cloud Zoom</td>
+            <td>Cloud Zoom</td>
+            <td>Static Stills</td>
+            <td class="highlight-col"><strong>Mathematical 2.5D Ken Burns Pan & Zoom</strong></td>
+          </tr>
+          <tr>
+            <td><strong>Data Sovereignty & Privacy</strong></td>
+            <td>Cloud Upload</td>
+            <td>Cloud Upload</td>
+            <td>Local</td>
+            <td class="highlight-col"><strong>100% Local-First (Keys & Media NEVER leave your machine)</strong></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Feature Bento Grid -->
+  <section class="section-wrapper">
+    <div class="section-header">
+      <span class="section-tag">ENGINE FEATURES</span>
+      <h2 class="section-title">Built For High-Velocity Video Creators</h2>
+    </div>
+
+    <div class="bento-grid">
+      <div class="bento-card span-2">
+        <div>
+          <div class="bento-card-header">
+            <div class="bento-icon">🧠</div>
+            <div>
+              <h3>Universal Model-Agnostic BYOK AI</h3>
+              <p style="margin:0;">Connect ANY model or local LLM with zero vendor lock-in.</p>
+            </div>
+          </div>
+          <p>
+            Seamlessly switch between OpenRouter, Google Gemini, Groq, Anthropic Claude, OpenAI, Ollama, DeepSeek R1, or your own local OpenAI-compatible endpoint with automatic reasoning monologue sanitization.
+          </p>
+        </div>
+        <div class="bento-preview-box">
+          <img src="assets/settings_ai_brains.png" alt="Universal AI Brains" />
+        </div>
+      </div>
+
+      <div class="bento-card">
+        <div>
+          <div class="bento-card-header">
+            <div class="bento-icon">⚡</div>
+            <div>
+              <h3>Potato PC Hardware Mode</h3>
+              <p style="margin:0;">Runs smoothly on any budget machine.</p>
+            </div>
+          </div>
+          <p>
+            Operates under strict &le;50MB resident RAM budgets, utilizing below-normal process priorities and direct stream FFmpeg zero-reencode fast trimming.
+          </p>
+        </div>
+        <div class="bento-preview-box">
+          <img src="assets/stock_apis_config.png" alt="Stock APIs" />
+        </div>
+      </div>
+
+      <div class="bento-card">
+        <div>
+          <div class="bento-card-header">
+            <div class="bento-icon">🎞️</div>
+            <div>
+              <h3>Native NLE Project Exporters</h3>
+              <p style="margin:0;">Export straight into your timeline.</p>
+            </div>
+          </div>
+          <p>
+            Generate ready-to-edit timeline sequences for Adobe Premiere Pro, DaVinci Resolve, and CapCut Desktop with exact 3.0s cut alignment.
+          </p>
+        </div>
+        <div class="bento-preview-box">
+          <img src="assets/master_video_player.png" alt="Spreadsheet View" />
+        </div>
+      </div>
+
+      <div class="bento-card span-2">
+        <div>
+          <div class="bento-card-header">
+            <div class="bento-icon">🔄</div>
+            <div>
+              <h3>Single-Clip Micro-Swap Pipeline</h3>
+              <p style="margin:0;">Don't like a shot? Swap it in 2.0 seconds.</p>
+            </div>
+          </div>
+          <p>
+            Never re-render a whole video for one bad clip. The micro-swap sub-pipeline fetches alternative footage from all 9 vaults and updates the timeline instantly.
+          </p>
+        </div>
+        <div class="bento-preview-box">
+          <img src="assets/custom_api_builder.png" alt="Custom API Builder" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Creator Section -->
+  <section class="section-wrapper">
+    <div class="creator-card">
+      <div class="creator-avatar-wrap">
+        <img src="assets/rotodraft_logo.png" alt="Ali Rasheed" />
+        <h3 style="font-family:'Outfit',sans-serif; font-weight:900;">Ali Rasheed</h3>
+        <p style="font-size:0.85rem; color:#64748b;">Lahore, Pakistan 🇵🇰</p>
+      </div>
+
+      <div>
+        <span class="section-tag">CREATOR & MAINTAINER</span>
+        <h2 style="font-family:'Outfit',sans-serif; font-size:1.85rem; font-weight:900; margin-bottom:0.75rem;">
+          Engineering Free, Open Developer Tooling for the World
+        </h2>
+        <p style="color:#64748b; font-size:0.95rem; margin-bottom:1rem;">
+          Hi, I'm Ali Rasheed. I built RotoDraft Suite because creators shouldn't have to pay $50/month for basic B-roll wrappers. Available for full-stack AI engineering roles, custom enterprise video pipeline development, and strategic architecture consulting.
+        </p>
+
+        <div class="social-pill-group">
+          <a href="mailto:alihouse512@gmail.com" class="social-pill">📧 alihouse512@gmail.com</a>
+          <a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank" class="social-pill">LinkedIn</a>
+          <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank" class="social-pill">GitHub</a>
+          <a href="https://x.com/AliRasheedBti" target="_blank" class="social-pill">X / Twitter</a>
+          <a href="hire.html" class="btn btn-primary btn-sm">💼 Hire Me / Inquire</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h2>🎬 RotoDraft Suite</h2>
+        <p>
+          The #1 Free, Local-First, Model-Agnostic Script-to-B-Roll & Video Asset Collector Engine.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Engine</a></li>
+          <li><a href="creator.html">About Creator</a></li>
+          <li><a href="hire.html">Hire / Contact</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Integrations</h4>
+        <ul>
+          <li><a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank">Google Colab</a></li>
+          <li><a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank">GitHub Repository</a></li>
+          <li><a href="about.html#nle-exporters">Premiere Pro XML</a></li>
+          <li><a href="about.html#nle-exporters">DaVinci Resolve EDL</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Community</h4>
+        <ul>
+          <li><a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/issues" target="_blank">Report Issue</a></li>
+          <li><a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/pulls" target="_blank">Submit Pull Request</a></li>
+          <li><a href="mailto:alihouse512@gmail.com">Direct Email</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>&copy; 2026 RotoDraft Suite. Built with ❤️ by Ali Rasheed (Lahore, PK). MIT Licensed.</span>
+      <span>100% Local-First &bull; Zero Tracking &bull; Zero Subscription Tax</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>

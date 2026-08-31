@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Architecture & Technical Blueprint — RotoDraft Suite</title>
+  <meta name="description" content="Technical architecture and engineering deep dive into the RotoDraft Suite autonomous AI B-Roll and media collector engine.">
+  <link rel="stylesheet" href="style.css">
+  <link rel="icon" type="image/png" href="assets/rotodraft_logo.png">
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="announcement-bar">
+    <span>🎬 <strong>ROTODRAFT SUITE ARCHITECTURE</strong> &bull; Local-First, Zero-Subscription Video Engineering</span>
+    <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank">⭐ View Source on GitHub</a>
+  </div>
+
+  <!-- Navbar -->
+  <nav class="navbar">
+    <a href="index.html" class="nav-brand">
+      <div class="nav-logo-badge">
+        <img src="assets/rotodraft_logo.png" alt="RotoDraft Logo">
+      </div>
+      <div class="nav-brand-text">
+        <span>RotoDraft</span>
+        <span class="badge-oss">ENGINE SPECS</span>
+      </div>
+    </a>
+
+    <ul class="nav-links">
+      <li><a href="index.html" class="nav-link">Home</a></li>
+      <li><a href="about.html" class="nav-link active">About Engine</a></li>
+      <li><a href="creator.html" class="nav-link">About Creator</a></li>
+      <li><a href="hire.html" class="nav-link">Hire / Contact</a></li>
+    </ul>
+
+    <div class="nav-actions">
+      <button id="theme-toggle-btn" class="btn btn-secondary btn-sm" title="Toggle Dark/Light Mode">
+        <span id="theme-icon">🌙</span>
+      </button>
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank" class="btn btn-primary btn-sm">
+        ⭐ Star on GitHub
+      </a>
+    </div>
+  </nav>
+
+  <!-- Header -->
+  <header class="hero-section" style="padding-bottom: 2rem;">
+    <span class="section-tag">ARCHITECTURAL BLUEPRINT</span>
+    <h1 class="hero-title" style="font-size: 3rem;">
+      Inside The Autonomous <span class="highlight-blue">Video Engine</span>
+    </h1>
+    <p class="hero-subtitle">
+      A forensic breakdown of RotoDraft Suite's local-first architecture, reasoning sanitizers, 9-vault concurrent discovery, and zero-reencode FFmpeg pipeline.
+    </p>
+  </header>
+
+  <!-- Deep Architecture Breakdown -->
+  <main class="section-wrapper">
+    <div class="bento-grid" style="margin-bottom: 4rem;">
+      <div class="bento-card span-2">
+        <div class="bento-card-header">
+          <div class="bento-icon">🧠</div>
+          <div>
+            <h3>1. AI Director & Reasoning Monologue Cleaner</h3>
+            <p style="margin:0;">DeepSeek R1, Groq, Gemini & OpenAI Frontier Models</p>
+          </div>
+        </div>
+        <p>
+          Modern frontier reasoning models output extended internal thinking tokens (<code>&lt;think&gt;...&lt;/think&gt;</code>) before returning JSON payloads. RotoDraft Suite features a dedicated regular expression parsing and sanitization engine that isolates the raw JSON timeline schema, guaranteeing zero execution crashes regardless of model verbosity.
+        </p>
+        <div class="bento-preview-box" style="padding: 1rem; background: #000; color: #ccff00; font-family: 'JetBrains Mono', monospace; font-size: 0.8rem;">
+          [AI Engine] Detected DeepSeek-R1 reasoning monologue &bull; Stripped 1,480 thought tokens &bull; Extracted 12 valid chronological scene cuts.
+        </div>
+      </div>
+
+      <div class="bento-card">
+        <div class="bento-card-header">
+          <div class="bento-icon">⚡</div>
+          <div>
+            <h3>2. Potato PC vs GPU Turbo</h3>
+            <p style="margin:0;">Hardware-Adaptive Execution</p>
+          </div>
+        </div>
+        <p>
+          Automatically detects hardware capabilities. On low-spec budget laptops, it enforces <code>BELOW_NORMAL_PRIORITY_CLASS</code> and a strict 50MB RAM budget. On workstations with dedicated NVIDIA GPUs, it unleashes <code>h264_nvenc</code> hardware encoding.
+        </p>
+      </div>
+
+      <div class="bento-card">
+        <div class="bento-card-header">
+          <div class="bento-icon">🏛️</div>
+          <div>
+            <h3>3. 9 Parallel Stock Vaults</h3>
+            <p style="margin:0;">Concurrent Async Discovery</p>
+          </div>
+        </div>
+        <p>
+          Dispatches concurrent async HTTP requests across Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, and Wikimedia Commons. If one provider hits a rate limit, the fallback engine routes seamlessly to the next vault without human intervention.
+        </p>
+      </div>
+
+      <div class="bento-card span-2" id="nle-exporters">
+        <div class="bento-card-header">
+          <div class="bento-icon">🎞️</div>
+          <div>
+            <h3>4. Professional NLE Timeline Exporters</h3>
+            <p style="margin:0;">Final Cut Pro XML, DaVinci Resolve EDL, CapCut Draft JSON</p>
+          </div>
+        </div>
+        <p>
+          Unlike web-only generators that trap your videos in cloud silos, RotoDraft Suite exports native project files. You can open the generated XML or EDL in Adobe Premiere Pro or DaVinci Resolve with every single 3.0s cut already aligned to Video Track 1.
+        </p>
+        <div class="bento-preview-box">
+          <img src="assets/master_video_player.png" alt="NLE Exporters and Video Player" />
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <h2>🎬 RotoDraft Suite</h2>
+        <p>Autonomous AI B-Roll & Media Assets Collector Engine.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navigation</h4>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="about.html">About Engine</a></li>
+          <li><a href="creator.html">About Creator</a></li>
+          <li><a href="hire.html">Hire / Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Quick Links</h4>
+        <ul>
+          <li><a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank">GitHub Repo</a></li>
+          <li><a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank">Google Colab</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Connect</h4>
+        <ul>
+          <li><a href="mailto:alihouse512@gmail.com">alihouse512@gmail.com</a></li>
+          <li><a href="https://www.linkedin.com/in/alirasheedbhatt" target="_blank">LinkedIn</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>&copy; 2026 RotoDraft Suite. Built with ❤️ by Ali Rasheed.</span>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
