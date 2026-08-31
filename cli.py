@@ -18,6 +18,20 @@ from src.pipeline import StockCollectorPipeline
 from src.system_checker import SystemChecker
 from src.usage_tracker import UsageTracker
 from src.error_doctor import AIErrorDoctor
+from src.video_processor import VideoProcessor
+
+def parse_duration_to_seconds(input_str) -> float:
+    raw = str(input_str).strip()
+    if ":" in raw:
+        parts = raw.split(":")
+        if len(parts) == 2:
+            return float(parts[0]) * 60 + float(parts[1])
+        elif len(parts) == 3:
+            return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
+    try:
+        return float(raw)
+    except Exception:
+        return 90.0
 
 def print_creator_banner():
     print("=" * 70)
@@ -91,10 +105,14 @@ def collect_broll(script: str, duration: int = 60, quality: str = "1080p", aspec
 def interactive_wizard():
     print_creator_banner()
 
+    # Hardware Profile
+    hw = SystemChecker.get_hardware_profile()
+    print(f"\n[HARDWARE ACCELERATION] {hw['label']} ({hw['cores']} Cores | {hw['ram_gb']}GB RAM)")
+    
     summary = UsageTracker.get_summary()
     pex = summary.get("pexels", {})
     pix = summary.get("pixabay", {})
-    print(f"\n[QUOTA STATUS] Pexels: {pex.get('remaining', 200)}/hr left | Pixabay: {pix.get('remaining', 5000)}/hr left\n")
+    print(f"[QUOTA STATUS] Pexels: {pex.get('remaining', 200)}/hr left | Pixabay: {pix.get('remaining', 5000)}/hr left\n")
 
     print("[?] Enter your video voiceover script (or type 'SAMPLE'):")
     script = input("> ").strip()
@@ -106,12 +124,33 @@ def interactive_wizard():
         )
         print(f"-> Loaded Sample Script ({len(script)} characters).")
 
-    print("\n[?] Enter voiceover duration (e.g. 1:30 or 90):")
-    dur_input = input("[Default: 90]> ").strip() or "90"
+    words = len(script.split())
+    est_secs = max(6, round(words / 2.5))
+    print(f"-> Script Statistics: {len(script)} chars, {words} words (~{est_secs}s @ 150 WPM)")
 
-    from app import parse_duration_to_seconds
-    dur_secs = parse_duration_to_seconds(dur_input)
-    num_clips = max(1, int(round(dur_secs / 3.0)))
+    print("\n[?] Do you have a voiceover audio file? (Drag & drop file or press Enter to skip):")
+    audio_path_input = input("> ").strip().strip("\"'")
+    dur_secs = float(est_secs)
+    voiceover_file = None
+
+    if audio_path_input and Path(audio_path_input).exists() and Path(audio_path_input).is_file():
+        voiceover_file = Path(audio_path_input)
+        # Probe duration with ffprobe
+        import subprocess, json
+        try:
+            cmd = ["ffprobe", "-v", "quiet", "-print_format", "json", "-show_format", str(voiceover_file)]
+            out = subprocess.check_output(cmd, creationflags=0x00004000 if sys.platform == "win32" else 0)
+            data = json.loads(out)
+            dur_secs = float(data.get("format", {}).get("duration", est_secs))
+            print(f"-> Detected Audio Duration: {dur_secs:.1f}s ({voiceover_file.name})")
+        except Exception:
+            print(f"-> Audio file loaded ({voiceover_file.name}).")
+    else:
+        print(f"\n[?] Enter voiceover duration in seconds or MM:SS (e.g. 1:30 or {est_secs}):")
+        dur_input = input(f"[Default: {est_secs}]> ").strip() or str(est_secs)
+        dur_secs = parse_duration_to_seconds(dur_input)
+
+    num_clips = max(1, round(dur_secs / 3.0))
 
     print("\n[?] Select Output Quality (1: 1080p Full HD, 2: 720p HD, 3: 4K UHD):")
     q_choice = input("[Default: 1]> ").strip()
@@ -137,13 +176,13 @@ def interactive_wizard():
     ai_provider = ai_map.get(ai_choice, "openrouter")
 
     print("\n[?] Stitch full video into one continuous MP4 file? (y/n):")
-    full_vid_choice = input("[Default: n]> ").strip().lower()
-    export_full = full_vid_choice == "y"
+    full_vid_choice = input("[Default: y]> ").strip().lower()
+    export_full = full_vid_choice != "n"
 
     eta_info = SystemChecker.calculate_estimated_time(total_clips=num_clips, quality=quality)
-    print(f"\n⚡ ESTIMATED TIME: ~{eta_info['formatted_eta']} ({eta_info['speed_rating']}, {eta_info['parallel_workers']}-core FFmpeg)")
+    print(f"\n⚡ ESTIMATED TIME: ~{eta_info['formatted_eta']} ({eta_info['speed_rating']}, Direct Stream Engine)")
 
-    print(f"\n[*] Starting parallel collection for {dur_secs}s ({num_clips} clips)...")
+    print(f"\n[*] Starting parallel collection for {dur_secs:.1f}s ({num_clips} clips)...")
     pipeline = StockCollectorPipeline()
     try:
         res = pipeline.run(
@@ -159,6 +198,15 @@ def interactive_wizard():
             ai_provider=ai_provider,
             export_full_video=export_full,
         )
+
+        # If audio provided and master video stitched, mux audio
+        if voiceover_file and res.get("master_video_filename"):
+            proj_dir = Path(res["clips_dir"]).parent
+            master_p = proj_dir / res["master_video_filename"]
+            muxed_p = proj_dir / f"{proj_dir.name}_master_with_audio.mp4"
+            vp = VideoProcessor()
+            vp.mux_audio_with_video(master_p, voiceover_file, muxed_p)
+            print(f"🎙️ Muxed Voiceover Audio: {muxed_p.name}")
 
         print("\n" + "=" * 70)
         print(f"[OK] COMPLETED: {res['success_clips']} / {res['required_clips']} clips ready on disk!")
@@ -182,6 +230,10 @@ def main():
     parser.add_argument("--agent-help", "-a", action="store_true", help="Print Hermes Agent, OpenClaw & Claude Code integration guide")
     parser.add_argument("--about", action="store_true", help="Print project manifesto and Ali Rasheed bio")
     parser.add_argument("--contact", action="store_true", help="Print contact information and social channels")
+    parser.add_argument("--swap", action="store_true", help="Swap a single clip in an existing project")
+    parser.add_argument("--project", type=str, default=None, help="Target project folder name for clip swap")
+    parser.add_argument("--clip", type=int, default=None, help="Clip index (1-based) to swap")
+    parser.add_argument("--keyword", type=str, default=None, help="New keyword for single-clip swap")
     parser.add_argument("--script", type=str, default=None, help="Video voiceover script or file path")
     parser.add_argument("--duration", type=float, default=90.0, help="Total duration in seconds (default: 90)")
     parser.add_argument("--clip-duration", type=float, default=3.0, help="Target clip duration in seconds (default: 3.0)")
@@ -207,6 +259,19 @@ def main():
 
     if args.agent_help:
         print_agent_integrations()
+        return
+
+    if args.swap:
+        if not args.project or not args.clip or not args.keyword:
+            print("[ERROR] Single-clip swap requires --project <folder>, --clip <index>, and --keyword <query>")
+            return
+        pipeline = StockCollectorPipeline()
+        try:
+            print(f"[*] Swapping Clip #{args.clip} in project '{args.project}' with query '{args.keyword}'...")
+            updated_clip = pipeline.swap_single_clip(args.project, args.clip, args.keyword)
+            print(f"[OK] Clip #{args.clip} successfully swapped: {updated_clip.get('output_filename')}")
+        except Exception as e:
+            print(f"[ERROR] Swap failed: {e}")
         return
 
     if args.interactive or not args.script:

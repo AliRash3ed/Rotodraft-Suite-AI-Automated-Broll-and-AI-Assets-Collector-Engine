@@ -1,20 +1,23 @@
 @echo off
+chcp 65001 >nul
+set PYTHONIOENCODING=utf-8
+set PYTHONUTF8=1
 TITLE AI B-Roll & Stock Media Collector Pro - Commercial Edition 2026
 COLOR 0A
 
 echo =======================================================================
-echo    AI B-ROLL & STOCK MEDIA COLLECTOR PRO (2026 COMMERCIAL EDITION)
+echo    AI B-ROLL ^& STOCK MEDIA COLLECTOR PRO (2026 COMMERCIAL EDITION)
 echo    Built by Ali Rasheed from Lahore, Pakistan
-echo    Open Source & Free Forever (Alternative to Pictory & InVideo AI)
+echo    Open Source ^& Free Forever (Alternative to Pictory ^& InVideo AI)
 echo =======================================================================
 echo.
 echo Select an option:
-echo [1] Launch Web Dashboard (Studio, Showcase, NLE Exporter & Settings)
+echo [1] Launch Web Dashboard (Studio, Showcase, NLE Exporter ^& Settings)
 echo [2] Launch Interactive Terminal CLI Wizard
-echo [3] View Hermes Agent, OpenClaw & Claude Code Integration Guide
-echo [4] View About & Open Source Manifesto
-echo [5] View Contact & Hire Ali Rasheed
-echo [6] Run Comprehensive Test Suite (9 Unit Tests)
+echo [3] View Hermes Agent, OpenClaw ^& Claude Code Integration Guide
+echo [4] View About ^& Open Source Manifesto
+echo [5] View Contact ^& Hire Ali Rasheed
+echo [6] Run Comprehensive Test Suite (10 Unit Tests)
 echo [7] Exit
 echo.
 

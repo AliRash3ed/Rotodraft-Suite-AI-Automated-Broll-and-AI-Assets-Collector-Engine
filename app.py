@@ -54,24 +54,34 @@ active_job = {
     "error": None,
 }
 
-def parse_duration_to_seconds(dur_str: str) -> float:
+def parse_duration_to_seconds(dur_str: Any) -> float:
+    if dur_str is None:
+        return 0.0
     dur_str = str(dur_str).strip()
+    if not dur_str:
+        return 0.0
     if ":" in dur_str:
         parts = dur_str.split(":")
-        if len(parts) == 2:
-            mins = int(parts[0])
-            secs = float(parts[1])
-            return mins * 60 + secs
-        elif len(parts) == 3:
-            hrs = int(parts[0])
-            mins = int(parts[1])
-            secs = float(parts[2])
-            return hrs * 3600 + mins * 60 + secs
-    return float(dur_str)
+        try:
+            if len(parts) == 2:
+                mins = int(parts[0]) if parts[0].strip() else 0
+                secs = float(parts[1]) if parts[1].strip() else 0.0
+                return max(0.0, float(mins * 60 + secs))
+            elif len(parts) == 3:
+                hrs = int(parts[0]) if parts[0].strip() else 0
+                mins = int(parts[1]) if parts[1].strip() else 0
+                secs = float(parts[2]) if parts[2].strip() else 0.0
+                return max(0.0, float(hrs * 3600 + mins * 60 + secs))
+        except (ValueError, TypeError):
+            return 0.0
+    try:
+        return max(0.0, float(dur_str))
+    except (ValueError, TypeError):
+        return 0.0
 
 class CollectRequest(BaseModel):
     script: str
-    duration_input: str
+    duration_input: Optional[str] = "60"
     clip_duration: float = 3.0
     project_name: Optional[str] = "broll_project"
     quality: str = "1080p"
@@ -135,13 +145,23 @@ class OnboardingRequest(BaseModel):
     whatsapp: Optional[str] = ""
 
 class CalculateETARequest(BaseModel):
-    duration_input: str
-    clip_duration: float = 3.0
-    quality: str = "1080p"
+    duration_input: Optional[str] = "60"
+    clip_duration: Optional[float] = 3.0
+    quality: Optional[str] = "1080p"
 
 class ErrorDiagnoseRequest(BaseModel):
     error_message: str
     context: Optional[Dict[str, Any]] = None
+
+class SwapClipRequest(BaseModel):
+    folder_name: str
+    clip_index: int
+    new_keyword: str
+    providers: Optional[List[str]] = None
+
+class MuxAudioRequest(BaseModel):
+    folder_name: str
+    audio_path: str
 
 @app.get("/", response_class=HTMLResponse)
 async def serve_index(request: Request):
@@ -167,8 +187,9 @@ async def submit_onboarding(req: OnboardingRequest):
 @app.post("/api/calculate-eta")
 async def calculate_eta(req: CalculateETARequest):
     dur_secs = parse_duration_to_seconds(req.duration_input)
-    total_clips = max(1, int(round(dur_secs / req.clip_duration)))
-    eta_data = SystemChecker.calculate_estimated_time(total_clips, req.quality)
+    clip_dur = max(0.5, float(req.clip_duration or 3.0))
+    total_clips = max(1, int(round(dur_secs / clip_dur))) if dur_secs > 0 else 1
+    eta_data = SystemChecker.calculate_estimated_time(total_clips, req.quality or "1080p")
     return eta_data
 
 @app.get("/api/settings")
@@ -177,7 +198,7 @@ async def get_settings():
 
 @app.post("/api/settings")
 async def save_settings(req: SettingsRequest):
-    data = req.dict(exclude_unset=True)
+    data = req.model_dump(exclude_unset=True) if hasattr(req, "model_dump") else req.dict(exclude_unset=True)
     clean_data = {k: v for k, v in data.items() if v is not None}
     Config.save_settings(clean_data)
     return {"status": "success", "message": "Settings saved successfully."}
@@ -235,8 +256,10 @@ async def stream_events():
         try:
             while True:
                 record = await q.get()
-                yield f"data: {record.to_json()}\n\n"
+                yield f"data: {json.dumps(record)}\n\n"
         except asyncio.CancelledError:
+            pass
+        finally:
             logger.unsubscribe(q)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
@@ -312,13 +335,65 @@ async def start_collection(req: CollectRequest, background_tasks: BackgroundTask
     if active_job["status"] == "RUNNING":
         raise HTTPException(status_code=400, detail="A b-roll collection job is already running.")
 
-    req_data = req.dict()
+    req_data = req.model_dump() if hasattr(req, "model_dump") else req.dict()
     background_tasks.add_task(run_pipeline_task, req_data)
     return {"status": "started", "message": "Pipeline initiated in background."}
 
 @app.get("/api/job-status")
 async def get_job_status():
     return active_job
+
+@app.get("/api/system/profile")
+async def get_system_profile():
+    return SystemChecker.get_hardware_profile()
+
+@app.post("/api/job/cancel")
+async def cancel_job():
+    global active_job
+    pipeline.cancel()
+    active_job["status"] = "CANCELLED"
+    active_job["current_step"] = "Job cancelled by user."
+    return {"status": "cancelled", "message": "Pipeline cancelled successfully."}
+
+@app.post("/api/clip/swap")
+async def swap_clip_endpoint(req: SwapClipRequest):
+    try:
+        updated_clip = pipeline.swap_single_clip(
+            folder_name=req.folder_name,
+            clip_index=req.clip_index,
+            new_keyword=req.new_keyword,
+            providers=req.providers
+        )
+        return {"success": True, "clip": updated_clip}
+    except Exception as e:
+        logger.error(f"Clip Swap Failed: {str(e)}", "SYSTEM")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post("/api/audio/mux")
+async def mux_audio_endpoint(req: MuxAudioRequest):
+    proj_dir = DOWNLOADS_DIR / req.folder_name
+    meta_file = proj_dir / "metadata.json"
+    if not meta_file.exists():
+        raise HTTPException(status_code=404, detail="Project not found.")
+
+    with open(meta_file, "r", encoding="utf-8") as f:
+        meta = json.load(f)
+
+    master_filename = meta.get("master_video_filename") or f"{req.folder_name}_full_master.mp4"
+    master_path = proj_dir / master_filename
+    if not master_path.exists():
+        raise HTTPException(status_code=404, detail="Full master video not found. Generate master video first.")
+
+    audio_p = Path(req.audio_path)
+    if not audio_p.exists():
+        raise HTTPException(status_code=400, detail=f"Audio file not found at: {req.audio_path}")
+
+    out_mux_path = proj_dir / f"{req.folder_name}_master_with_audio.mp4"
+    proc = VideoProcessor()
+    success = proc.mux_audio_with_video(master_path, audio_p, out_mux_path)
+    if success:
+        return {"success": True, "muxed_video_filename": out_mux_path.name, "download_url": f"/downloads/{req.folder_name}/{out_mux_path.name}"}
+    raise HTTPException(status_code=500, detail="Audio muxing failed.")
 
 @app.get("/api/projects")
 async def list_projects():
