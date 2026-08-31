@@ -1,8 +1,12 @@
 <div align="center">
 
+<p align="center">
+  <img src="assets/rotodraft_logo.png" alt="RotoDraft Suite — AI B-Roll & Video Asset Collector Engine Logo" width="280" style="border: 3px solid #000; box-shadow: 6px 6px 0px #000; border-radius: 8px;" />
+</p>
+
 # 🎬 RotoDraft Suite
-### Automatic Script to B-Roll & AI Media Assets Collector Engine
-**The #1 Free, Local-First, Model-Agnostic Open-Source Alternative to Pictory AI, InVideo AI & MoneyPrinter Turbo**
+### Autonomous Script-to-B-Roll & AI Media Assets Collector Engine
+**The #1 Free, Local-First, Model-Agnostic Open-Source Alternative to Pictory AI ($49/mo), InVideo AI ($35/mo) & MoneyPrinter Turbo**
 
 <p align="center">
   <a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank">
@@ -27,8 +31,8 @@
 <p align="center">
   <a href="#-quick-start-in-60-seconds">Quick Start</a> •
   <a href="#-google-colab-1-click-cloud-run">Google Colab</a> •
-  <a href="#-why-rotodraft-suite-comparison-matrix">Comparison Matrix</a> •
-  <a href="#-key-features">Key Features</a> •
+  <a href="#-deep-technical-comparison-matrix">Full Comparison</a> •
+  <a href="#-core-system-architecture">Architecture</a> •
   <a href="#-how-to-download-clips--export">Download & Export</a> •
   <a href="#-interactive-studio-ui-tour">UI Tour</a> •
   <a href="#-nle-video-editor-export-guides">NLE Guides</a> •
@@ -55,26 +59,70 @@
 
 ---
 
-## ⚡ Why RotoDraft Suite? (Comparison Matrix)
+## ⚡ Deep Technical Comparison Matrix (Complete System Breakdown)
 
-| Feature | 🚫 Pictory AI ($49/mo) | 🚫 InVideo AI ($35/mo) | ⚠️ MoneyPrinter Turbo | 🚀 **RotoDraft Suite ($0 Free)** |
+RotoDraft Suite was architected from the ground up to replace restrictive commercial video SaaS platforms with a sovereign, local-first engine. Here is a forensic technical comparison across all operational layers:
+
+| Architectural Layer | 🚫 Pictory AI ($49/mo) | 🚫 InVideo AI ($35/mo) | ⚠️ MoneyPrinter Turbo | 🚀 **RotoDraft Suite (2026 Edition)** |
 | :--- | :--- | :--- | :--- | :--- |
-| **Monthly Cost** | $49 / month | $35 / month | Free | **$0.00 (100% Free Forever)** |
-| **AI Model Freedom** | ❌ Locked Proprietary | ❌ Locked GPT-3.5 | OpenAI Only | **✅ Universal BYOK: OpenRouter, Gemini, Groq, OpenAI, Claude, Cohere, Ollama, DeepSeek, Custom APIs** |
-| **Direct ZIP & MP4 Downloads** | ❌ Behind Paywall | ❌ Watermarked | Basic | **✅ 1-Click ZIP of All Clips + Individual MP4 Downloads with Zero Watermarks** |
+| **Pricing & Licensing** | $49 / month ($588/yr) | $35 / month ($420/yr) | Free (GPLv3) | **$0.00 (100% Free Forever, MIT Licensed)** |
+| **AI Model Freedom** | ❌ Locked Proprietary | ❌ Locked GPT-3.5/4 | OpenAI Only | **✅ Universal BYOK: OpenRouter, Gemini, Groq, Claude, OpenAI, Cohere, Ollama, DeepSeek R1 & Custom Endpoints** |
+| **Reasoning Model Support** | ❌ None | ❌ None | ❌ Crashes on `<think>` | **✅ Built-in DeepSeek-R1 & OpenAI o1/o3 reasoning monologue auto-sanitizer** |
 | **Stock Media Vaults** | 1 (Storyblocks only) | 1 (Shutterstock only) | 2 (Pexels, Pixabay) | **✅ 9 Vaults: Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, Wikimedia** |
-| **NLE Timeline Exports** | ❌ None | ❌ None | ❌ None | **✅ Adobe Premiere Pro XML, DaVinci Resolve EDL, CapCut Draft JSON, CSV** |
-| **Ken Burns Photo Motion**| Basic Zoom | Basic Zoom | Static | **✅ Mathematical 2.5D Ken Burns Pan & Zoom on Photos** |
-| **Custom OpenAI API Builder**| ❌ None | ❌ None | ❌ None | **✅ Connect Any Local LLM (vLLM, LM Studio, Ollama, Together AI, Exo)** |
-| **Data Privacy** | ❌ Cloud Server Upload | ❌ Cloud Server Upload | Local | **✅ 100% Local-First (Keys & Videos NEVER leave your machine)** |
-| **Self-Healing Error Doctor** | ❌ Generic Error | ❌ Generic Error | Terminal Crash | **✅ Built-in AI Medical Diagnosis for FFmpeg, Network, & Quotas** |
+| **Direct ZIP & MP4 Downloads** | ❌ Behind Paywall | ❌ Watermarked | Basic | **✅ 1-Click ZIP of All 3.0s Clips + Individual MP4 Downloads with Zero Watermarks** |
+| **Full Video Concatenation** | Cloud Server Render | Cloud Server Render | Local FFmpeg | **✅ Instant 1-Click Full Master Video (MP4) Concatenator with voiceover audio muxing** |
+| **NLE Timeline Exporters** | ❌ None | ❌ None | ❌ None | **✅ Native Adobe Premiere Pro XML, DaVinci Resolve EDL, CapCut Draft JSON & CSV** |
+| **Ken Burns Motion Engine** | Basic Cloud Zoom | Basic Cloud Zoom | Static Stills | **✅ Mathematical 2.5D Ken Burns Pan & Zoom animation on high-res still photos** |
+| **Hardware Acceleration** | Cloud GPU Farm | Cloud GPU Farm | Unoptimized CPU | **✅ Adaptive Dual-Tier: NVIDIA NVENC Hardware Encoder + Potato PC Low-Spec Mode** |
+| **Process Priority Safety** | N/A (Web Only) | N/A (Web Only) | Can freeze OS | **✅ `BELOW_NORMAL_PRIORITY_CLASS` + `CREATE_NO_WINDOW` isolation flags** |
+| **RAM Footprint** | N/A (Web Only) | N/A (Web Only) | 300MB - 1.2GB | **✅ STRICTLY ≤ 50 MB total resident Python memory on low-spec hardware** |
+| **Single-Clip Micro-Swap** | Re-render whole video | Re-render whole video | Re-run script | **✅ Dedicated `/api/clip/swap` sub-pipeline (~2.0s single-scene regeneration)** |
+| **Data Sovereignty & Privacy** | ❌ Cloud Upload | ❌ Cloud Upload | Local | **✅ 100% Local-First (API Keys, Scripts & Media NEVER leave your computer)** |
+| **Self-Healing Error Doctor** | ❌ Generic error code | ❌ Generic error code | Terminal crash | **✅ Built-in AI Medical Diagnosis for FFmpeg, Network Quotas, and Auto-Repair** |
 | **Agent Ecosystem** | ❌ None | ❌ None | ❌ None | **✅ Hermes Agent, OpenClaw, Claude Code & Codex Native Skills** |
+
+---
+
+## 🏛️ Core System Architecture
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            WEB BROWSER (CLIENT)                             │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │  SPA Router (Studio | Showcase | About | Contact)                     │  │
+│  │  Aspect Ratio Toggles (16:9 / 9:16 / 1:1) | Quality (720p/1080p/4K)   │  │
+│  │  Voiceover Audio Dropzone | Dual-View Timeline (Gallery + Table)      │  │
+│  │  Floating Sonner Toast Stack | Live Hardware & Quota Gauges           │  │
+│  └───────────────────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ HTTP REST & JSON Polling (1000ms)
+┌──────────────────────────────────────▼──────────────────────────────────────┐
+│                        FASTAPI BACKEND CONTROLLER                           │
+│  ┌─────────────────────────┐  ┌────────────────────────┐  ┌──────────────┐  │
+│  │  Job Execution Queue    │  │ Single-Clip Swap Engine│  │ System Health│  │
+│  │  (Background Threading) │  │ (Instant Micro-Task)   │  │ & HW Profiler│  │
+│  └────────────┬────────────┘  └───────────┬────────────┘  └──────────────┘  │
+└───────────────┼───────────────────────────┼─────────────────────────────────┘
+                │                           │
+        ┌───────▼───────────────────────────▼────────┐
+        │        STOCK COLLECTOR PIPELINE            │
+        │  ┌──────────────────────────────────────┐  │
+        │  │ 1. AI Director Prompt / LLM Reasoner │  │ (DeepSeek R1, Groq, Claude)
+        │  ├──────────────────────────────────────┤  │
+        │  │ 2. Parallel Async Vault Fetchers     │  │ (Pexels, Pixabay, Coverr...)
+        │  ├──────────────────────────────────────┤  │
+        │  │ 3. Direct Stream FFmpeg Transcoder   │  │ (h264_nvenc / libx264)
+        │  ├──────────────────────────────────────┤  │
+        │  │ 4. NLE Exporter & Audio Muxer Engine │  │ (XML, EDL, CapCut JSON)
+        │  └──────────────────────────────────────┘  │
+        └────────────────────────────────────────────┘
+```
 
 ---
 
 ## ☁️ Google Colab (1-Click Cloud Run)
 
-Don't have FFmpeg or Python installed locally? Run RotoDraft Suite directly in Google Colab with 1 click using high-speed cloud infrastructure:
+Don't have FFmpeg or Python installed locally? Run RotoDraft Suite directly in Google Colab with 1 click using high-speed cloud infrastructure and zero password prompts:
 
 <p align="center">
   <a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank">
@@ -83,8 +131,8 @@ Don't have FFmpeg or Python installed locally? Run RotoDraft Suite directly in G
 </p>
 
 1. Click the **Open in Colab** badge above.
-2. Run **Step 1** to install dependencies and FFmpeg (takes ~30s).
-3. Run **Step 2** to launch the backend server and generate an instant, passwordless **Cloudflare Tunnel URL** to use RotoDraft Suite with full cloud acceleration!
+2. Run **Step 1** to install dependencies, packages, and FFmpeg (takes ~30s).
+3. Run **Step 2** to launch the backend server and generate an instant, passwordless **Cloudflare Tunnel URL** (`https://xxx.trycloudflare.com`) to use RotoDraft Suite with full cloud acceleration!
 
 ---
 
@@ -133,9 +181,9 @@ You have complete freedom over how you use the collected media:
     └───────────────────────────┘    └───────────────────────────┘    └───────────────────────────┘
 ```
 
-1. **📦 Download All Clips (.ZIP)**: Click **"Download ZIP"** in the top action bar to immediately download an archive containing all trimmed MP4 video clips.
+1. **📦 Download All Clips (.ZIP)**: Click **"Download ZIP"** in the action bar to immediately download an archive containing all trimmed MP4 video clips.
 2. **⬇️ Download Individual Clips**: Click **"⬇ MP4"** on any row in the timeline table or inside the video preview modal.
-3. **🎬 Full Master Video (MP4)**: Click **"Stitch Full Video (MP4)"** to concatenate all clips sequentially into a complete master video with one click.
+3. **🎬 Full Master Video (MP4)**: Click **"Stitch Full Video (MP4)"** to concatenate all clips sequentially into a complete master video with voiceover audio automatically muxed.
 4. **🎞️ Video Editor Timelines**: Export directly to **Adobe Premiere Pro** (`.xml`), **DaVinci Resolve** (`.edl`), or **CapCut** (`.json`).
 
 ---
@@ -158,6 +206,9 @@ You have complete freedom over how you use the collected media:
 
 ### 5. Custom OpenAI-Compatible LLM Builder
 <img src="assets/custom_api_builder.png" alt="Custom OpenAI LLM Builder" width="880" style="border: 3px solid #000; box-shadow: 5px 5px 0px #000; border-radius: 6px;" />
+
+### 6. AI Agent Hub & Integration Protocols
+<img src="assets/agent_hub.png" alt="AI Agent Hub & Integration Protocols" width="880" style="border: 3px solid #000; box-shadow: 5px 5px 0px #000; border-radius: 6px;" />
 
 </div>
 

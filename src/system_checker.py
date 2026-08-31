@@ -10,6 +10,81 @@ from src.config import Config
 
 class SystemChecker:
     @staticmethod
+    def get_hardware_profile() -> Dict[str, Any]:
+        """Auto-detects CPU cores, RAM, and GPU hardware encoding support for optimal execution."""
+        cores = os.cpu_count() or 2
+        try:
+            import psutil
+            ram_gb = round(psutil.virtual_memory().total / (1024 ** 3), 1)
+        except Exception:
+            ram_gb = 4.0
+
+        ff_info = SystemChecker.check_ffmpeg()
+        ff_bin = ff_info.get("ffmpeg_path") or "ffmpeg"
+        encoders_out = ""
+        try:
+            creationflags = 0x00004000 if os.name == "nt" else 0
+            p = subprocess.run([ff_bin, "-hide_banner", "-encoders"], capture_output=True, text=True, creationflags=creationflags)
+            encoders_out = p.stdout
+        except Exception:
+            pass
+
+        # 1. GPU NVIDIA NVENC
+        if "h264_nvenc" in encoders_out:
+            return {
+                "tier": "GPU_NVIDIA",
+                "label": "[GPU Turbo] NVIDIA NVENC (RTX/GTX)",
+                "vcodec": "h264_nvenc",
+                "ffmpeg_preset": "p2",
+                "max_ffmpeg_workers": min(cores, 6),
+                "max_download_workers": 8,
+                "cores": cores,
+                "ram_gb": ram_gb,
+                "low_memory_mode": False
+            }
+        
+        # 2. Intel QuickSync (iGPU)
+        if "h264_qsv" in encoders_out:
+            return {
+                "tier": "INTEL_QSV",
+                "label": "[Intel QSV] QuickSync Hardware Acceleration",
+                "vcodec": "h264_qsv",
+                "ffmpeg_preset": "veryfast",
+                "max_ffmpeg_workers": min(cores, 4),
+                "max_download_workers": 6,
+                "cores": cores,
+                "ram_gb": ram_gb,
+                "low_memory_mode": False
+            }
+
+        # 3. Potato PC / Low-End Laptop (<4 Cores or <=4GB RAM)
+        if cores <= 4 or ram_gb <= 4.0:
+            return {
+                "tier": "POTATO_CPU",
+                "label": "[Eco Mode] Low-RAM CPU (Potato PC Safe)",
+                "vcodec": "libx264",
+                "ffmpeg_preset": "ultrafast",
+                "max_ffmpeg_workers": 1,  # Safe 1-thread to prevent CPU freeze
+                "max_download_workers": 2,
+                "cores": cores,
+                "ram_gb": ram_gb,
+                "low_memory_mode": True
+            }
+
+        # 4. Standard Multi-Core CPU
+        return {
+            "tier": "STANDARD_CPU",
+            "label": "[Standard] Multi-Core CPU Mode",
+            "vcodec": "libx264",
+            "ffmpeg_preset": "veryfast",
+            "max_ffmpeg_workers": min(cores // 2, 4),
+            "max_download_workers": 5,
+            "cores": cores,
+            "ram_gb": ram_gb,
+            "low_memory_mode": False
+        }
+
+    @staticmethod
     def check_internet(timeout: int = 4) -> bool:
         try:
             socket.create_connection(("8.8.8.8", 53), timeout=timeout)

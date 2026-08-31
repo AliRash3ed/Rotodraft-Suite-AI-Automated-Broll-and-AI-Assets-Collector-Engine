@@ -25,7 +25,9 @@ class NLEExporter:
         root = ET.Element("xmeml", version="4")
         sequence = ET.SubElement(root, "sequence")
         ET.SubElement(sequence, "name").text = project_name
-        ET.SubElement(sequence, "duration").text = str(len(clips) * int(fps * 3.0))
+        # Calculate total sequence frames dynamically
+        total_frames = sum(int(fps * float(c.get("final_duration") or c.get("duration", 3.0))) for c in clips)
+        ET.SubElement(sequence, "duration").text = str(total_frames)
 
         rate = ET.SubElement(sequence, "rate")
         ET.SubElement(rate, "timebase").text = str(fps)
@@ -41,9 +43,11 @@ class NLEExporter:
         track = ET.SubElement(video, "track")
 
         current_frame = 0
-        clip_frames = int(fps * 3.0)
 
         for i, clip in enumerate(clips, 1):
+            clip_dur = float(clip.get("final_duration") or clip.get("duration", 3.0))
+            clip_frames = int(fps * clip_dur)
+
             clipitem = ET.SubElement(track, "clipitem", id=f"clipitem-{i}")
             ET.SubElement(clipitem, "name").text = clip.get("output_filename", f"clip_{i}.mp4")
             ET.SubElement(clipitem, "duration").text = str(clip_frames)
@@ -98,9 +102,10 @@ class NLEExporter:
             return f"{hrs:02d}:{mins:02d}:{secs:02d}:{f:02d}"
 
         current_rec_frame = 0
-        clip_frames = int(fps * 3.0)
 
         for i, clip in enumerate(clips, 1):
+            clip_dur = float(clip.get("final_duration") or clip.get("duration", 3.0))
+            clip_frames = int(fps * clip_dur)
             src_in = frames_to_tc(0)
             src_out = frames_to_tc(clip_frames)
             rec_in = frames_to_tc(current_rec_frame)
@@ -126,24 +131,28 @@ class NLEExporter:
         output_dir: Path
     ) -> Path:
         """Generates CapCut compatible JSON sequence schema and CSV import sheet."""
+        capcut_clips = []
+        current_time = 0.0
+        for i, c in enumerate(clips, 1):
+            dur = float(c.get("final_duration") or c.get("duration", 3.0))
+            capcut_clips.append({
+                "index": c.get("index", i),
+                "file": f"clips/{c.get('output_filename', '')}",
+                "duration": dur,
+                "keyword": c.get("keyword", ""),
+                "script_snippet": c.get("script_segment", ""),
+                "start_time": round(current_time, 2),
+                "end_time": round(current_time + dur, 2)
+            })
+            current_time += dur
+
         capcut_data = {
             "project_name": project_name,
             "version": "2.0.0",
             "tracks": [
                 {
                     "type": "video",
-                    "clips": [
-                        {
-                            "index": c.get("index", i),
-                            "file": f"clips/{c.get('output_filename', '')}",
-                            "duration": 3.0,
-                            "keyword": c.get("keyword", ""),
-                            "script_snippet": c.get("script_segment", ""),
-                            "start_time": (i - 1) * 3.0,
-                            "end_time": i * 3.0
-                        }
-                        for i, c in enumerate(clips, 1)
-                    ]
+                    "clips": capcut_clips
                 }
             ]
         }

@@ -24,3 +24,10 @@ dependencies = [
 [project.scripts]
 stock-collector = "cli:main"
 stock-collector-ui = "app:main"
+
+[tool.pyright]
+extraPaths = [".", "src"]
+include = ["."]
+executionEnvironments = [
+    { root = "." }
+]

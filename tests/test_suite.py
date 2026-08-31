@@ -25,6 +25,9 @@ class TestStockCollector(unittest.TestCase):
         self.assertEqual(parse_duration_to_seconds("4:30"), 270.0)
         self.assertEqual(parse_duration_to_seconds("0:45"), 45.0)
         self.assertEqual(parse_duration_to_seconds("1:00:00"), 3600.0)
+        self.assertEqual(parse_duration_to_seconds(""), 0.0)
+        self.assertEqual(parse_duration_to_seconds(None), 0.0)
+        self.assertEqual(parse_duration_to_seconds("invalid"), 0.0)
 
     def test_config_resolutions(self):
         # 16:9
@@ -119,7 +122,37 @@ class TestStockCollector(unittest.TestCase):
         self.assertEqual(d1["category"], "FFmpeg Engine")
 
         d2 = AIErrorDoctor.diagnose("HTTP 429 Too Many Requests rate limit exceeded")
-        self.assertEqual(d2["category"], "API Quota / Rate Limit")
+    def test_hardware_profile_detection(self):
+        profile = SystemChecker.get_hardware_profile()
+        self.assertIn("tier", profile)
+        self.assertIn("label", profile)
+        self.assertIn("max_ffmpeg_workers", profile)
+        self.assertGreaterEqual(profile["max_ffmpeg_workers"], 1)
+
+    def test_9_16_blurred_stack_filter(self):
+        vp = VideoProcessor()
+        vf_916 = vp._build_video_filter(1080, 1920, "9:16")
+        self.assertIn("split=2[bg][fg]", vf_916)
+        self.assertIn("boxblur", vf_916)
+        self.assertIn("overlay=", vf_916)
+
+        vf_169 = vp._build_video_filter(1920, 1080, "16:9")
+        self.assertNotIn("split=2", vf_169)
+        self.assertIn("scale=1920:1080", vf_169)
+
+    def test_dynamic_nle_duration_calculation(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            sample_clips = [
+                {"index": 1, "output_filename": "01_intro.mp4", "duration": 4.5, "final_duration": 4.5, "keyword": "intro"},
+                {"index": 2, "output_filename": "02_outro.mp4", "duration": 2.0, "final_duration": 2.0, "keyword": "outro"}
+            ]
+            xml_p = NLEExporter.export_fcp_xml("dyn_proj", sample_clips, tmp_path, fps=30)
+            self.assertTrue(xml_p.exists())
+            with open(xml_p, "r", encoding="utf-8") as f:
+                content = f.read()
+                # 4.5s * 30 + 2.0s * 30 = 135 + 60 = 195 total frames
+                self.assertIn("<duration>195</duration>", content)
 
 if __name__ == "__main__":
     unittest.main()

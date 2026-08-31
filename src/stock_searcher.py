@@ -194,6 +194,7 @@ class StockSearcher:
     # ── 1. PEXELS ──
     def _search_pexels_video(self, keyword: str, quality: str = "1080p", orientation: str = "landscape") -> Optional[Dict[str, Any]]:
         if not self.pexels_key: return None
+        target_width = 1280 if quality == "720p" else (3840 if quality == "4K" else 1920)
         for ori in [orientation, ""]:
             try:
                 ori_param = f"&orientation={ori}" if ori else ""
@@ -204,15 +205,16 @@ class StockSearcher:
                     if videos:
                         v = videos[0]
                         files = v.get("video_files", [])
-                        best = next((f for f in files if f.get("quality") == "hd" or f.get("width", 0) >= 1920), files[0] if files else None)
-                        if best:
+                        if files:
+                            # Pick the file closest to user-selected target width (e.g. 1280 for 720p, 1920 for 1080p)
+                            best = min(files, key=lambda f: abs(f.get("width", 1920) - target_width))
                             return {
                                 "provider": "pexels",
                                 "media_id": str(v.get("id")),
                                 "video_url": best.get("link"),
                                 "thumbnail_url": v.get("image"),
                                 "duration": v.get("duration", 3.0),
-                                "width": best.get("width", 1920),
+                                "width": best.get("width", target_width),
                                 "height": best.get("height", 1080),
                             }
             except Exception:
@@ -254,7 +256,12 @@ class StockSearcher:
                 if hits:
                     h = hits[0]
                     vids = h.get("videos", {})
-                    chosen = vids.get("large") or vids.get("medium") or vids.get("small")
+                    if quality == "720p":
+                        chosen = vids.get("medium") or vids.get("small") or vids.get("large")
+                    elif quality == "4K":
+                        chosen = vids.get("large") or vids.get("medium")
+                    else:
+                        chosen = vids.get("large") or vids.get("medium") or vids.get("small")
                     if chosen and chosen.get("url"):
                         return {
                             "provider": "pixabay",
