@@ -7,7 +7,9 @@ let activeClips = [];
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initSSE();
+  fetchHardwareProfile();
   checkSystemHealth();
+  initAudioDropzone();
   recalculateClips();
   recalculateETA();
   loadSettings();
@@ -166,9 +168,103 @@ async function recalculateETA() {
   } catch (e) {}
 }
 
+let uploadedAudioFile = null;
+let estimatedWordDurationSecs = 0;
+
+function handleAudioUpload(file) {
+  if (!file) return;
+  uploadedAudioFile = file;
+
+  const audio = new Audio();
+  const objectUrl = URL.createObjectURL(file);
+  audio.src = objectUrl;
+
+  audio.onloadedmetadata = () => {
+    const duration = Math.round(audio.duration);
+    const mmss = formatSecondsToMMSS(duration);
+    
+    document.getElementById('duration_input').value = mmss;
+    document.getElementById('audio-file-label').innerHTML = `✅ ${escapeHtml(file.name)} <span class="audio-detected-badge">${duration}s (${mmss})</span>`;
+    document.getElementById('audio-file-subtext').innerText = `Duration detected! Audio will be automatically muxed into master video.`;
+    document.getElementById('clear-audio-btn').style.display = 'inline-block';
+    
+    recalculateClips();
+  };
+
+  audio.onerror = () => {
+    alert('Could not read audio duration. Please check file format.');
+  };
+}
+
+function clearAudioUpload() {
+  uploadedAudioFile = null;
+  document.getElementById('voiceover_file_input').value = '';
+  document.getElementById('audio-file-label').innerText = 'Upload / Drop Voiceover Audio (Optional)';
+  document.getElementById('audio-file-subtext').innerText = 'Auto-detects timing & automatically merges audio into your master MP4';
+  document.getElementById('clear-audio-btn').style.display = 'none';
+}
+
+function autoCalculateWordsEstimate() {
+  const text = document.getElementById('script_text').value.trim();
+  const words = text ? text.split(/\s+/).filter(w => w.length > 0).length : 0;
+  
+  document.getElementById('script-char-count').innerText = `${text.length} chars (${words} words)`;
+  
+  const estimateBtn = document.getElementById('btn-auto-estimate');
+  if (words >= 5) {
+    const estSecs = Math.max(6, Math.round(words / 2.5));
+    estimatedWordDurationSecs = estSecs;
+    const mmss = formatSecondsToMMSS(estSecs);
+    estimateBtn.innerText = `⚡ Auto-Estimate: ~${estSecs}s (${mmss})`;
+    estimateBtn.style.display = 'inline-block';
+  } else {
+    estimateBtn.style.display = 'none';
+  }
+}
+
+function applyWordEstimate() {
+  if (estimatedWordDurationSecs > 0) {
+    document.getElementById('duration_input').value = formatSecondsToMMSS(estimatedWordDurationSecs);
+    recalculateClips();
+  }
+}
+
+function initAudioDropzone() {
+  const dropzone = document.getElementById('audio-dropzone');
+  if (!dropzone) return;
+
+  ['dragenter', 'dragover'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.add('dragover');
+    }, false);
+  });
+
+  ['dragleave', 'drop'].forEach(eventName => {
+    dropzone.addEventListener(eventName, (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      dropzone.classList.remove('dragover');
+    }, false);
+  });
+
+  dropzone.addEventListener('drop', (e) => {
+    const dt = e.dataTransfer;
+    const files = dt.files;
+    if (files && files.length > 0) {
+      handleAudioUpload(files[0]);
+    }
+  }, false);
+}
+
+window.handleAudioUpload = handleAudioUpload;
+window.clearAudioUpload = clearAudioUpload;
+window.autoCalculateWordsEstimate = autoCalculateWordsEstimate;
+window.applyWordEstimate = applyWordEstimate;
+
 function updateCharCount() {
-  const text = document.getElementById('script_text').value;
-  document.getElementById('script-char-count').innerText = `${text.length} chars`;
+  autoCalculateWordsEstimate();
 }
 
 function loadSampleScript() {
@@ -177,11 +273,9 @@ Inside modern high-tech research laboratories, engineers and roboticists design 
 From busy bustling metropolis streets with electric transportation to high-speed fiber-optic data centers, digital networks process petabytes of real-time data every single second.
 Businesses collaborate in sleek modern glass offices, looking at rising financial market analytics and cyber security graphs.
 The future belongs to those who adapt to this relentless wave of autonomous technology.`;
-  
   document.getElementById('script_text').value = sample;
-  document.getElementById('duration_input').value = '0:45';
   updateCharCount();
-  recalculateClips();
+  applyWordEstimate();
 }
 
 window.recalculateClips = recalculateClips;
@@ -233,6 +327,112 @@ function initSSE() {
       appendLogLine(data);
     } catch (e) {}
   };
+}
+
+function selectAspectRatio(ratio) {
+  document.getElementById('aspect_ratio_select').value = ratio;
+  document.querySelectorAll('#aspect-ratio-group .toggle-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === ratio);
+  });
+}
+
+function selectQuality(quality) {
+  document.getElementById('quality_select').value = quality;
+  document.querySelectorAll('#quality-group .toggle-item').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.value === quality);
+  });
+  recalculateETA();
+}
+
+function showToast(title, message, type = 'success', duration = 3500) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+
+  const icons = {
+    success: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#000" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>',
+    info: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#000" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+    warning: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#000" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+    error: '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#000" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+  };
+
+  const toast = document.createElement('div');
+  toast.className = `toast-card toast-${type}`;
+  toast.innerHTML = `
+    <div class="toast-icon-box">${icons[type] || icons.info}</div>
+    <div class="toast-content">
+      <div class="toast-title">${escapeHtml(title)}</div>
+      <div class="toast-message">${escapeHtml(message)}</div>
+    </div>
+  `;
+
+  container.appendChild(toast);
+
+  setTimeout(() => {
+    toast.style.transition = 'all 200ms ease-out';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateY(10px)';
+    setTimeout(() => toast.remove(), 250);
+  }, duration);
+}
+
+let currentClipsView = 'grid';
+
+function switchClipsView(mode) {
+  currentClipsView = mode;
+  const gridContainer = document.getElementById('clips-grid-container');
+  const tableWrapper = document.getElementById('clips-table-wrapper');
+  const btnGrid = document.getElementById('tab-grid-view');
+  const btnTable = document.getElementById('tab-table-view');
+
+  if (mode === 'grid') {
+    gridContainer.style.display = 'grid';
+    tableWrapper.style.display = 'none';
+    btnGrid.classList.add('active');
+    btnTable.classList.remove('active');
+  } else {
+    gridContainer.style.display = 'none';
+    tableWrapper.style.display = 'block';
+    btnTable.classList.add('active');
+    btnGrid.classList.remove('active');
+  }
+}
+
+window.selectAspectRatio = selectAspectRatio;
+window.selectQuality = selectQuality;
+window.showToast = showToast;
+window.switchClipsView = switchClipsView;
+
+function resetProgressAndTable() {
+  document.getElementById('main-progress-bar').style.width = '5%';
+  document.getElementById('progress-pct-text').innerText = '5%';
+  document.getElementById('progress-step-text').innerText = 'Starting pipeline...';
+  document.getElementById('job-status-badge').className = 'status-badge RUNNING';
+  document.getElementById('job-status-badge').innerText = 'RUNNING';
+
+  document.getElementById('ms-ai-val').innerText = '0';
+  document.getElementById('ms-search-val').innerText = '0';
+  document.getElementById('ms-dl-val').innerText = '0';
+  document.getElementById('ms-proc-val').innerText = '0';
+
+  document.getElementById('result-actions').style.display = 'none';
+  renderSkeletonCards(6);
+  document.getElementById('clips-table-body').innerHTML = '<tr class="empty-row"><td colspan="8">Initializing and generating keywords...</td></tr>';
+}
+
+function renderSkeletonCards(count = 6) {
+  const container = document.getElementById('clips-grid-container');
+  if (!container) return;
+  container.innerHTML = '';
+  for (let i = 1; i <= count; i++) {
+    const sk = document.createElement('div');
+    sk.className = 'skeleton-card';
+    sk.innerHTML = `
+      <div class="skeleton-box" style="height: 100px;"></div>
+      <div class="skeleton-box" style="height: 14px; width: 75%;"></div>
+      <div class="skeleton-box" style="height: 10px; width: 45%;"></div>
+    `;
+    container.appendChild(sk);
+  }
 }
 
 function appendLogLine(data) {
@@ -359,36 +559,13 @@ async function handleStartCollection(e) {
       triggerErrorDoctor(data.detail || 'Unknown error');
       setUIWorking(false);
     } else {
+      showToast('Pipeline Started', `Collecting scenes across 9 vaults in parallel...`, 'info');
       pollJobStatus();
     }
   } catch (err) {
     triggerErrorDoctor(err.message);
     setUIWorking(false);
   }
-}
-
-function setUIWorking(working) {
-  const btn = document.getElementById('btn-submit');
-  btn.disabled = working;
-  btn.innerHTML = working
-    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Directing Video Pipeline...'
-    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Start B-Roll Collection';
-}
-
-function resetProgressAndTable() {
-  document.getElementById('main-progress-bar').style.width = '5%';
-  document.getElementById('progress-pct-text').innerText = '5%';
-  document.getElementById('progress-step-text').innerText = 'Starting pipeline...';
-  document.getElementById('job-status-badge').className = 'status-badge RUNNING';
-  document.getElementById('job-status-badge').innerText = 'RUNNING';
-
-  document.getElementById('ms-ai-val').innerText = '0';
-  document.getElementById('ms-search-val').innerText = '0';
-  document.getElementById('ms-dl-val').innerText = '0';
-  document.getElementById('ms-proc-val').innerText = '0';
-
-  document.getElementById('result-actions').style.display = 'none';
-  document.getElementById('clips-table-body').innerHTML = '<tr class="empty-row"><td colspan="7">Initializing and generating keywords...</td></tr>';
 }
 
 let pollTimer = null;
@@ -405,10 +582,12 @@ function pollJobStatus() {
         clearInterval(pollTimer);
         setUIWorking(false);
         updateUsageSummary();
+        showToast('Pipeline Complete', `${job.completed_clips} clips rendered successfully!`, 'success');
         setMascotState('SUCCESS', `Directing complete! ${job.completed_clips} clips rendered into ${job.folder_name}/clips/`);
       } else if (job.status === 'FAILED') {
         clearInterval(pollTimer);
         setUIWorking(false);
+        showToast('Pipeline Failed', job.error || 'Check error doctor', 'error');
         triggerErrorDoctor(job.error || 'Pipeline job failed');
       }
     } catch (e) {}
@@ -427,6 +606,7 @@ function updateDashboardFromJob(job) {
 
   if (job.clips && job.clips.length > 0) {
     activeClips = job.clips;
+    renderClipsGrid(job.clips);
     renderClipsTable(job.clips);
 
     document.getElementById('ms-ai-val').innerText = job.clips.length;
@@ -442,6 +622,176 @@ function updateDashboardFromJob(job) {
       `🎉 Collection Complete! ${job.completed_clips} / ${job.total_clips} clips ready in ${job.folder_name}/clips/`;
   }
 }
+
+function renderClipsGrid(clips) {
+  const container = document.getElementById('clips-grid-container');
+  if (!container) return;
+
+  if (!clips || clips.length === 0) {
+    container.innerHTML = `
+      <div style="grid-column: 1 / -1; padding: 2.5rem 1rem; text-align: center; color: var(--text-muted, #666); font-size: 0.85rem; font-weight: 700;">
+        No clips yet. Enter your voiceover script on the left and click <strong>Start B-Roll Collection</strong>.
+      </div>
+    `;
+    return;
+  }
+
+  container.innerHTML = '';
+  clips.forEach(c => {
+    const card = document.createElement('div');
+    card.className = 'clip-gallery-card';
+
+    let clipUrl = '';
+    if (activeProjectData && activeProjectData.folder_name && c.output_filename) {
+      clipUrl = `/downloads/${activeProjectData.folder_name}/clips/${c.output_filename}`;
+    } else if (c.video_url) {
+      clipUrl = c.video_url;
+    }
+
+    const thumbSrc = c.thumbnail_url || '/static/assets/placeholder_video.png';
+
+    card.innerHTML = `
+      <div class="clip-card-thumb-wrapper" onclick="previewClip(${c.index})" title="Click to play preview">
+        <img src="${thumbSrc}" class="clip-card-thumb" alt="Clip ${c.index}" onerror="this.src='data:image/svg+xml;utf8,<svg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'100%\\' height=\\'100%\\' viewBox=\\'0 0 24 24\\'><rect fill=\\'%23111\\' width=\\'24\\' height=\\'24\\'/><text fill=\\'%23fff\\' x=\\'50%\\' y=\\'50%\\' text-anchor=\\'middle\\' font-size=\\'3\\' font-weight=\\'bold\\'>CLIP #${c.index}</text></svg>'">
+        <span class="clip-index-tag">#${c.index.toString().padStart(2, '0')}</span>
+        <span class="clip-provider-tag">${(c.provider || 'AUTO').toUpperCase()}</span>
+      </div>
+      <div class="clip-card-info">
+        <div class="clip-keyword-title">${escapeHtml(c.keyword || 'Generating keyword...')}</div>
+        <div style="font-size: 0.72rem; color: var(--text-muted, #666); margin-bottom: 0.4rem;">
+          ⏱ ${c.final_duration || 3.0}s &bull; ${c.resolution || c.quality || '1080p'}
+        </div>
+        <div class="clip-card-footer">
+          <button class="btn btn-secondary btn-xs" onclick="previewClip(${c.index})" title="Preview clip" style="flex: 1;">▶ Play</button>
+          <button class="btn btn-warning btn-xs" onclick="openSwapDrawer(${c.index})" title="Swap Clip" style="flex: 1; background:#ffff00; color:#000; font-weight:800; border:1.5px solid #000;">🔄 Swap</button>
+          ${clipUrl ? `<a href="${clipUrl}" download="${c.output_filename || 'clip_' + c.index + '.mp4'}" class="btn btn-primary btn-xs" title="Download" style="text-decoration:none; padding: 2px 6px;">⬇</a>` : ''}
+        </div>
+      </div>
+    `;
+
+    container.appendChild(card);
+  });
+}
+
+function setUIWorking(working) {
+  const btn = document.getElementById('btn-submit');
+  btn.disabled = working;
+  btn.innerHTML = working
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Directing Video Pipeline...'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg> Start B-Roll Collection';
+
+  const cancelBtn = document.getElementById('btn-cancel-job');
+  if (cancelBtn) {
+    cancelBtn.style.display = working ? 'inline-block' : 'none';
+  }
+}
+
+async function cancelActiveJob() {
+  if (!confirm('Are you sure you want to stop the generation?')) return;
+  try {
+    const res = await fetch('/api/job/cancel', { method: 'POST' });
+    const data = await res.json();
+    setUIWorking(false);
+    document.getElementById('job-status-badge').innerText = 'CANCELLED';
+    document.getElementById('job-status-badge').className = 'status-badge FAILED';
+    document.getElementById('progress-step-text').innerText = 'Job stopped by user.';
+    const cancelBtn = document.getElementById('btn-cancel-job');
+    if (cancelBtn) cancelBtn.style.display = 'none';
+  } catch (e) {
+    alert('Failed to cancel job: ' + e.message);
+  }
+}
+
+async function fetchHardwareProfile() {
+  try {
+    const res = await fetch('/api/system/profile');
+    const data = await res.json();
+    const pill = document.getElementById('nav-hw-text');
+    if (pill) {
+      pill.innerText = data.label || '💻 Hardware Ready';
+    }
+  } catch (e) {}
+}
+
+let currentSwapIndex = null;
+
+function openSwapDrawer(index) {
+  currentSwapIndex = index;
+  const clip = activeClips.find(c => c.index === index);
+  if (!clip) return;
+
+  document.getElementById('swap-badge-text').innerText = `CLIP #${index.toString().padStart(2, '0')}`;
+  document.getElementById('swap-title-text').innerText = `Swap Clip #${index}`;
+  document.getElementById('swap-keyword-input').value = clip.keyword || '';
+  document.getElementById('swap-status-box').style.display = 'none';
+  document.getElementById('swap-drawer').style.display = 'flex';
+  document.getElementById('swap-drawer-overlay').style.display = 'block';
+}
+
+function closeSwapDrawer() {
+  document.getElementById('swap-drawer').style.display = 'none';
+  document.getElementById('swap-drawer-overlay').style.display = 'none';
+  currentSwapIndex = null;
+}
+
+async function executeSingleClipSwap() {
+  if (!currentSwapIndex || !activeProjectData || !activeProjectData.folder_name) {
+    alert('Please wait until project is loaded.');
+    return;
+  }
+  const newKw = document.getElementById('swap-keyword-input').value.trim();
+  if (!newKw) {
+    alert('Please enter a keyword.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-execute-swap');
+  const statusBox = document.getElementById('swap-status-box');
+  btn.disabled = true;
+  btn.innerText = '⚡ Searching & Rendering (~2s)...';
+  statusBox.style.display = 'block';
+  statusBox.innerText = '🔍 Fetching stock media & rendering with FFmpeg...';
+
+  try {
+    const res = await fetch('/api/clip/swap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        folder_name: activeProjectData.folder_name,
+        clip_index: currentSwapIndex,
+        new_keyword: newKw
+      })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      throw new Error(data.detail || 'Swap failed.');
+    }
+
+    // Update in-memory clips
+    const idx = activeClips.findIndex(c => c.index === currentSwapIndex);
+    if (idx !== -1) {
+      activeClips[idx] = data.clip;
+      renderClipsTable(activeClips);
+    }
+
+    statusBox.innerText = `✅ Clip #${currentSwapIndex} successfully swapped!`;
+    setTimeout(() => {
+      closeSwapDrawer();
+      btn.disabled = false;
+      btn.innerText = '⚡ Regenerate Clip (~2s)';
+    }, 1200);
+
+  } catch (err) {
+    statusBox.innerText = `❌ Error: ${err.message}`;
+    btn.disabled = false;
+    btn.innerText = '⚡ Try Again';
+  }
+}
+
+window.cancelActiveJob = cancelActiveJob;
+window.openSwapDrawer = openSwapDrawer;
+window.closeSwapDrawer = closeSwapDrawer;
+window.executeSingleClipSwap = executeSingleClipSwap;
 
 function renderClipsTable(clips) {
   const tbody = document.getElementById('clips-table-body');
@@ -480,16 +830,13 @@ function renderClipsTable(clips) {
       clipUrl = c.video_url;
     }
 
-    if (clipUrl) {
-      actionButtons = `
-        <div style="display: flex; gap: 4px;">
-          <button class="btn btn-secondary btn-xs" onclick="previewClip(${c.index})" title="Preview clip">▶</button>
-          <a href="${clipUrl}" download="${c.output_filename || 'clip_' + c.index + '.mp4'}" class="btn btn-primary btn-xs" title="Download MP4" style="text-decoration:none; padding: 2px 6px;">⬇ MP4</a>
-        </div>
-      `;
-    } else {
-      actionButtons = `<span style="color: var(--text-muted); font-size: 0.75rem;">—</span>`;
-    }
+    actionButtons = `
+      <div style="display: flex; gap: 4px;">
+        <button class="btn btn-secondary btn-xs" onclick="previewClip(${c.index})" title="Preview clip">▶</button>
+        <button class="btn btn-warning btn-xs" onclick="openSwapDrawer(${c.index})" title="Swap / Regenerate this single clip" style="background:#ffd700; color:#000; font-weight:700; border:1px solid #000;">🔄</button>
+        ${clipUrl ? `<a href="${clipUrl}" download="${c.output_filename || 'clip_' + c.index + '.mp4'}" class="btn btn-primary btn-xs" title="Download MP4" style="text-decoration:none; padding: 2px 6px;">⬇</a>` : ''}
+      </div>
+    `;
 
     tr.innerHTML = `
       <td><strong>#${c.index}</strong></td>
@@ -505,7 +852,10 @@ function renderClipsTable(clips) {
   });
 }
 
+let currentPreviewClipIndex = null;
+
 function previewClip(index) {
+  currentPreviewClipIndex = index;
   const clip = activeClips.find(c => c.index === index);
   if (!clip) return;
 
@@ -537,14 +887,30 @@ function previewClip(index) {
 }
 
 function closeVideoModal(e) {
-  if (!e || e.target.id === 'video-preview-modal' || e.target.className === 'btn-close') {
-    const modal = document.getElementById('video-preview-modal');
-    const player = document.getElementById('modal-video-player');
+  const modal = document.getElementById('video-preview-modal');
+  if (!modal) return;
+  const player = document.getElementById('modal-video-player');
+  if (player) {
     player.pause();
     player.src = '';
-    modal.classList.remove('active');
   }
+  modal.classList.remove('active');
+  currentPreviewClipIndex = null;
 }
+
+document.addEventListener('keydown', (e) => {
+  const modal = document.getElementById('video-preview-modal');
+  if (modal && modal.classList.contains('active')) {
+    if (e.key === 'Escape') {
+      closeVideoModal();
+    } else if (e.key === ' ' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+      e.preventDefault();
+      const player = document.getElementById('modal-video-player');
+      if (player.paused) player.play();
+      else player.pause();
+    }
+  }
+});
 
 window.handleStartCollection = handleStartCollection;
 window.previewClip = previewClip;
@@ -956,14 +1322,16 @@ async function loadPreviousProject(folderName) {
 
     if (meta.clips) {
       activeClips = meta.clips;
+      renderClipsGrid(meta.clips);
       renderClipsTable(meta.clips);
     }
 
     document.getElementById('result-actions').style.display = 'block';
     document.getElementById('result-summary-text').innerText =
       `Loaded: ${meta.project_name} (${meta.success_clips}/${meta.required_clips} clips)`;
+    showToast('Project Loaded', `${meta.project_name} (${meta.success_clips} clips)`, 'info');
   } catch (e) {
-    alert('Failed to load project details.');
+    showToast('Error Loading Project', 'Could not load project metadata', 'error');
   }
 }
 
