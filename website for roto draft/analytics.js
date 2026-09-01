@@ -7,7 +7,7 @@
   'use strict';
 
   // Configurable GA4 ID (Defaults to local tracker; users can set window.GA_MEASUREMENT_ID)
-  const GA_ID = window.GA_MEASUREMENT_ID || 'G-ROTODRAFT2026';
+  const GA_ID = window.GA_MEASUREMENT_ID || 'G-JQB04VXVC6';
 
   // 1. Initialize Google Analytics 4 Script Dynamically
   function loadGoogleAnalytics(id) {
