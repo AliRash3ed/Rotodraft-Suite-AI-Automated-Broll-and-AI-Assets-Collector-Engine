@@ -115,13 +115,13 @@
     </p>
 
     <div class="hero-cta-group">
-      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank" class="btn btn-primary btn-lg">
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine" target="_blank" class="btn btn-primary btn-lg" data-track="click_github_star_hero">
         ⭐ Star on GitHub
       </a>
-      <a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank" class="btn btn-colab btn-lg">
+      <a href="https://colab.research.google.com/github/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/blob/main/RotoDraft_Suite_Google_Colab.ipynb" target="_blank" class="btn btn-colab btn-lg" data-track="click_google_colab_hero">
         ⚡ Open in Google Colab
       </a>
-      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/archive/refs/heads/main.zip" class="btn btn-secondary btn-lg">
+      <a href="https://github.com/AliRash3ed/Rotodraft-Suite-AI-Automated-Broll-and-AI-Assets-Collector-Engine/archive/refs/heads/main.zip" class="btn btn-secondary btn-lg" data-track="click_download_repo_zip">
         📦 Download Repository (.ZIP)
       </a>
       <a href="#playground" class="btn btn-secondary btn-lg">
@@ -206,13 +206,13 @@
     <div class="playground-box">
       <div class="playground-header">
         <span style="font-weight:800; font-size:0.95rem;">Voiceover Script Input:</span>
-        <button id="playground-sample-btn" class="btn btn-secondary btn-sm">Load AI Sample Script</button>
+        <button id="playground-sample-btn" class="btn btn-secondary btn-sm" data-track="load_sample_script">Load AI Sample Script</button>
       </div>
 
       <textarea id="playground-input" class="playground-textarea" placeholder="Paste your video narration script here..."></textarea>
 
       <div style="display:flex; justify-content:flex-end; margin-bottom:1.25rem;">
-        <button id="playground-analyze-btn" class="btn btn-primary">⚡ Extract B-Roll Scenes</button>
+        <button id="playground-analyze-btn" class="btn btn-primary" data-track="run_script_simulation">⚡ Extract B-Roll Scenes</button>
       </div>
 
       <div id="playground-chips" class="playground-results">
@@ -454,5 +454,6 @@
   </footer>
 
   <script src="app.js"></script>
+  <script src="analytics.js"></script>
 </body>
 </html>

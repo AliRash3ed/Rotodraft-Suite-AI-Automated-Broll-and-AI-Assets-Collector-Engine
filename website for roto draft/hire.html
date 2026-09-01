@@ -166,7 +166,7 @@
           Fill in the details below to generate a pre-formatted message directly to Ali's inbox.
         </p>
 
-        <form id="contact-inquiry-form" onsubmit="handleInquirySubmit(event)">
+        <form id="contact-inquiry-form" data-track="submit_hire_inquiry" onsubmit="handleInquirySubmit(event)">
           <div style="margin-bottom: 1rem;">
             <label style="display:block; font-weight:800; font-size:0.82rem; margin-bottom:4px;">Your Name / Company *</label>
             <input type="text" id="inquiry-name" required placeholder="e.g. Sarah Jenkins (Acme Media)" style="width:100%; padding:0.65rem 0.85rem; border:2px solid #000; border-radius:var(--radius-sm); font-family:inherit; font-size:0.9rem;" />
@@ -236,6 +236,7 @@
   </footer>
 
   <script src="app.js"></script>
+  <script src="analytics.js"></script>
   <script>
     function handleInquirySubmit(e) {
       e.preventDefault();
