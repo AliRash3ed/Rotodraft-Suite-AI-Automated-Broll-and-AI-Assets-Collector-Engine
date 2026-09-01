@@ -1,0 +1,35 @@
+User-agent: *
+Allow: /
+
+# Google Search & Crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Googlebot-Image
+Allow: /
+
+# Bing Webmaster
+User-agent: Bingbot
+Allow: /
+
+# AI Crawlers & Answer Engines (AEO & GEO Optimization)
+User-agent: GPTBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+# Sitemap Location for Search Consoles
+Sitemap: https://rotodraft-suite.netlify.app/sitemap.xml

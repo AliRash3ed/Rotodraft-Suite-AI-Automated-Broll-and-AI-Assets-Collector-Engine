@@ -1,0 +1,81 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://rotodraft-suite.netlify.app/#software",
+      "name": "RotoDraft Suite",
+      "alternateName": ["Rotodraft", "RotoDraft AI", "RotoDraft Engine"],
+      "applicationCategory": "MultimediaApplication",
+      "operatingSystem": "Windows, macOS, Linux, Web, Google Colab",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Autonomous script-to-b-roll and AI media asset collector engine. Free open-source InVideo and Pictory alternative with 9 stock media vaults, local FFmpeg hardware rendering, and NLE timeline exporters.",
+      "url": "https://rotodraft-suite.netlify.app/",
+      "image": "https://rotodraft-suite.netlify.app/assets/rotodraft_logo.png",
+      "screenshot": "https://rotodraft-suite.netlify.app/assets/dashboard_main.png",
+      "softwareVersion": "2026.1.0",
+      "license": "https://opensource.org/licenses/MIT",
+      "author": {
+        "@type": "Person",
+        "@id": "https://rotodraft-suite.netlify.app/creator.html#author",
+        "name": "Ali Rasheed",
+        "jobTitle": "Full-Stack AI Developer & Tech Infrastructure Engineer",
+        "email": "alihouse512@gmail.com",
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": "Lahore",
+          "addressCountry": "PK"
+        },
+        "sameAs": [
+          "https://github.com/AliRash3ed",
+          "https://www.linkedin.com/in/alirasheedbhatt",
+          "https://x.com/AliRasheedBti"
+        ]
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://rotodraft-suite.netlify.app/#website",
+      "url": "https://rotodraft-suite.netlify.app/",
+      "name": "RotoDraft Suite",
+      "description": "Free Open-Source AI B-Roll Collector Engine",
+      "publisher": {
+        "@id": "https://rotodraft-suite.netlify.app/creator.html#author"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://rotodraft-suite.netlify.app/#faq",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "What is the best free open-source alternative to InVideo AI and Pictory AI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "RotoDraft Suite is the #1 free, model-agnostic open-source alternative to InVideo AI and Pictory AI. It provides automated script-to-B-roll collection, universal BYOK AI model support, 9 parallel stock vaults (Pexels, Pixabay, Coverr, Mixkit, Storyblocks, Videvo, Pinterest, Unsplash, Wikimedia), local FFmpeg hardware transcoding, 1-click ZIP downloads, and direct timeline exports for Premiere Pro, DaVinci Resolve, and CapCut."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "How much does RotoDraft Suite cost?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "RotoDraft Suite is 100% free and open-source under the MIT license ($0.00 forever). There are zero subscription fees, paywalls, or watermarks."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Can I run RotoDraft Suite in Google Colab without a GPU?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Yes, RotoDraft Suite provides an official 1-Click Google Colab notebook with Cloudflare Tunneling that runs in any browser with zero setup and free cloud GPU acceleration."
+          }
+        }
+      ]
+    }
+  ]
+}
